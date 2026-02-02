@@ -65,7 +65,7 @@ actnow/
 
 - Node.js 24+
 - pnpm 10+
-- PostgreSQL database
+- PostgreSQL database (local or hosted)
 
 ### Setup
 
@@ -83,12 +83,19 @@ pnpm install
 cp apps/web/.env.example apps/web/.env
 ```
 
-Edit `apps/web/.env` with your values (see [Environment Variables](#environment-variables) section below).
+Edit `apps/web/.env` with your values (see [Environment Variables](#environment-variables) below). This file is used by
+the web app, API, auth, and database tooling.
 
-3. Initialize the database:
+3. Create the database (if you haven't yet), then initialize the schema:
 
 ```bash
 pnpm run db:push
+```
+
+Optional seed data:
+
+```bash
+pnpm run db:seed
 ```
 
 ## Development
@@ -120,53 +127,60 @@ pnpm run db:push      # Push schema changes to database
 pnpm run db:generate  # Generate migration files
 pnpm run db:migrate   # Run migrations
 pnpm run db:studio    # Open Drizzle Studio
+pnpm run db:seed      # Seed database with sample data
 ```
 
 ## Environment Variables
 
-This project uses two environment configuration files:
+### Files and loading
 
-| File | Purpose |
-|------|---------|
-| `.env` | Standard Node.js development (copied from `.env.example`) |
-| `.dev.vars` | Wrangler local development secrets (copied from `.dev.example.vars`) |
+- Use `apps/web/.env` (copy from `apps/web/.env.example`).
+- Server-side code reads `process.env`.
+- Only variables prefixed with `VITE_` are exposed to the browser. **Never** put secrets in `VITE_` variables.
 
 ### Variable Reference
 
 #### Core Configuration
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:3001` |
-| `BETTER_AUTH_URL` | Authentication service URL | `http://localhost:3001` |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/actnow` |
+| Variable | Required | Description | Notes |
+|----------|----------|-------------|-------|
+| `CORS_ORIGIN` | Yes | Allowed origin for auth and API requests | Set to your app URL in production (e.g. `https://your-domain.com`). |
+| `BETTER_AUTH_URL` | Yes | Base URL used by Better Auth for redirects and emails | Should match the public URL of the app. |
+| `DATABASE_URL` | Yes | PostgreSQL connection string | Used by the app and Drizzle tooling; add SSL options if your host requires it. |
 
 #### Authentication
 
-| Variable | Description | Sensitive |
-|----------|-------------|-----------|
-| `BETTER_AUTH_SECRET` | Token signing secret (generate with `pnpm dlx @better-auth/cli@latest secret`) | Yes |
-| `GITHUB_CLIENT_ID` | GitHub OAuth app ID | No |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth app secret | Yes |
-| `GOOGLE_CLIENT_ID` | Google OAuth app ID | No |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth app secret | Yes |
+| Variable | Required | Description | Notes |
+|----------|----------|-------------|-------|
+| `BETTER_AUTH_SECRET` | Yes | Token signing secret | Generate with `pnpm dlx @better-auth/cli@latest secret` and keep it private. |
+| `GITHUB_CLIENT_ID` | Optional | GitHub OAuth client ID | Needed for GitHub login. |
+| `GITHUB_CLIENT_SECRET` | Optional | GitHub OAuth client secret | Needed for GitHub login; keep secret. |
+| `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID | Needed for Google login. |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth client secret | Needed for Google login; keep secret. |
 
 #### Email (Resend)
 
-| Variable | Description | Sensitive |
-|----------|-------------|-----------|
-| `EMAIL_USER` | From email address | No |
-| `RESEND_API_KEY` | Resend API key | Yes |
+| Variable | Required | Description | Notes |
+|----------|----------|-------------|-------|
+| `EMAIL_USER` | Yes | From email address used in transactional emails | Must be a sender verified in Resend. |
+| `RESEND_API_KEY` | Yes | Resend API key | Required for verification and magic-link emails. |
 
 #### Cloudflare R2 Storage
 
-| Variable | Description | Sensitive |
-|----------|-------------|-----------|
-| `CLOUD_FLARE_R2_ACCOUNT_ID` | R2 account ID | No |
-| `CLOUD_FLARE_S3_UPLOAD_BUCKET` | R2 bucket name | No |
-| `CLOUD_FLARE_S3_UPLOAD_KEY` | R2 access key | Yes |
-| `CLOUD_FLARE_S3_UPLOAD_SECRET` | R2 secret key | Yes |
-| `VITE_CLOUD_FLARE_R2_URL` | Public R2 URL (client-accessible) | No |
+| Variable | Required | Description | Notes |
+|----------|----------|-------------|-------|
+| `CLOUD_FLARE_R2_ACCOUNT_ID` | Optional | Cloudflare account ID for R2 | Required if you enable media uploads. |
+| `CLOUD_FLARE_S3_UPLOAD_BUCKET` | Optional | R2 bucket name | Required if you enable media uploads. |
+| `CLOUD_FLARE_S3_UPLOAD_KEY` | Optional | R2 S3 access key | Keep secret. |
+| `CLOUD_FLARE_S3_UPLOAD_SECRET` | Optional | R2 S3 secret key | Keep secret. |
+| `VITE_CLOUD_FLARE_R2_URL` | Optional | Public base URL for reading media | Can be an R2 public URL or custom domain; exposed to the client. |
+
+#### Platform/Runtime (Optional)
+
+| Variable | Required | Description | Notes |
+|----------|----------|-------------|-------|
+| `VERCEL_URL` | Optional | Vercel deployment URL | Used to compute base URL in production. |
+| `VERCEL_ENV` | Optional | Vercel environment name | When `production`, base URL falls back to `site.url`. |
 
 ## Build
 
@@ -174,90 +188,42 @@ This project uses two environment configuration files:
 pnpm run build
 ```
 
-Build output is located at `apps/web/dist/`
+Build output is located at `apps/web/dist/` (`client/` for static assets, `server/` for the server bundle).
 
 ## Deployment
 
-### Cloudflare Workers
+### Overview
 
-This project uses Wrangler and the Cloudflare Vite plugin for deploying to Cloudflare Workers.
+This repository does not include provider-specific deployment config (no `wrangler.toml`, `vercel.json`, or `Dockerfile`),
+so you will need to add one for your target platform. The build output already separates static assets and the server
+bundle, which most platforms can consume.
 
-#### Configuration Files
-
-| File | Purpose |
-|------|---------|
-| `wrangler.toml` | Wrangler configuration with non-sensitive vars and bindings |
-| `.dev.vars` | Local development secrets (not committed) |
-| `.dev.example.vars` | Template for `.dev.vars` |
-
-#### Environment Setup
-
-**Non-sensitive variables** are configured in `wrangler.toml`:
-
-```toml
-[vars]
-EMAIL_USER = "hi@your-domain.com"
-GITHUB_CLIENT_ID = "..."
-GOOGLE_CLIENT_ID = "..."
-CLOUD_FLARE_R2_ACCOUNT_ID = "..."
-CLOUD_FLARE_S3_UPLOAD_BUCKET = "..."
-VITE_CLOUD_FLARE_R2_URL = "https://storage.your-domain.com"
-```
-
-**Cloudflare bindings** (also in `wrangler.toml`):
-
-```toml
-# Hyperdrive for PostgreSQL connection pooling
-[[hyperdrive]]
-binding = "HYPERDRIVE"
-id = "your-hyperdrive-id"
-
-# KV namespace for API response caching
-[[kv_namespaces]]
-binding = "CACHE"
-id = "your-kv-id"
-```
-
-**Sensitive secrets** are set via Wrangler CLI (one-time setup):
+### Production Build
 
 ```bash
-cd apps/web
-
-# Database (if not using Hyperdrive)
-pnpm exec wrangler secret put DATABASE_URL
-
-# Auth
-pnpm exec wrangler secret put BETTER_AUTH_SECRET
-
-# Email
-pnpm exec wrangler secret put RESEND_API_KEY
-
-# OAuth secrets
-pnpm exec wrangler secret put GITHUB_CLIENT_SECRET
-pnpm exec wrangler secret put GOOGLE_CLIENT_SECRET
-
-# R2 storage
-pnpm exec wrangler secret put CLOUD_FLARE_S3_UPLOAD_KEY
-pnpm exec wrangler secret put CLOUD_FLARE_S3_UPLOAD_SECRET
+pnpm run build
 ```
 
-#### Deploy Commands
+### Deploy Checklist
 
-```bash
-# Build and deploy to Cloudflare Workers
-pnpm run deploy
+1. Provide all required environment variables from [Environment Variables](#environment-variables).
+2. Serve the build output:
+   - Static assets: `apps/web/dist/client`
+   - Server bundle: `apps/web/dist/server`
+3. Configure your platform to route requests to the server bundle and serve static assets.
 
-# Delete deployment
-pnpm run deploy:destroy
-```
+### Cloudflare Workers (if you choose Cloudflare)
 
-### Alternative Platforms
+1. Create `apps/web/wrangler.toml` (not checked in) and point it to the build output:
+   - `main` should point at `dist/server/index.js`
+   - `assets` should point at `dist/client`
+2. Put non-sensitive values in `wrangler.toml` and secrets via `wrangler secret put`.
+3. Deploy with Wrangler.
 
-Built with TanStack Start, also deployable to:
+### Other Platforms
 
-- **Node.js Server** - Run build output directly
-- **Docker** - Containerized deployment
-- **Vercel / Netlify** - Requires adapter configuration
+For Vercel, Docker, or a custom Node host, add the appropriate adapter/config for TanStack Start and ensure the runtime
+has the same environment variables as in `apps/web/.env`.
 
 ## License
 
