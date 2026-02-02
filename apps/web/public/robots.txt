@@ -1,0 +1,24 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+
+# Allow all public pages
+Allow: /
+
+# Disallow auth and user pages
+Disallow: /signin
+Disallow: /signup
+Disallow: /login
+Disallow: /forget-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /likes
+Disallow: /feedback
+
+# Disallow admin panel
+Disallow: /panel
+
+# Disallow API routes
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://refto.one/sitemap.xml

@@ -1,0 +1,32 @@
+{
+  "name": "@actnow/api",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "type": "module",
+  "scripts": {},
+  "devDependencies": {
+    "@types/slug": "^5.0.9"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.962.0",
+    "@aws-sdk/s3-request-presigner": "^3.962.0",
+    "@orpc/client": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/zod": "catalog:",
+    "@actnow/auth": "workspace:*",
+    "@actnow/db": "workspace:*",
+    "@types/pg": "catalog:",
+    "date-fns": "catalog:",
+    "dotenv": "catalog:",
+    "es-toolkit": "catalog:",
+    "slug": "^11.0.1",
+    "zod": "catalog:"
+  }
+}

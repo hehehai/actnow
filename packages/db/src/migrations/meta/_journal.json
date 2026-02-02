@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1769054601774,
+      "tag": "0000_true_sleeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769059153521,
+      "tag": "0002_rename_post_content_to_comment",
+      "breakpoints": true
+    }
+  ]
+}

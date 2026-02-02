@@ -1,0 +1,30 @@
+{
+  "name": "@actnow/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/seed.ts"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "nanoid": "^5.1.6",
+    "postgres": "^3.4.7",
+    "zod": "catalog:"
+  }
+}

@@ -1,0 +1,23 @@
+export const site = {
+  url: "https://actnow.dev",
+  name: "Actnow",
+  siteName: "Actnow",
+  description: "Inspiration is fleeting, Don't hesitate ~ Actnow",
+  tagline: ["Inspiration is fleeting", "Don't hesitate ~ Actnow"],
+  keywords: [
+    "actnow",
+    "actnow.dev",
+    "Website Saas",
+    "Vibe",
+    "SaaS",
+    "Coding",
+    "Dev",
+    "Developer",
+    "Website",
+  ],
+  author: "hehehai",
+  authorUrl: "https://hehehai.cn",
+  githubUrl: "https://github.com/hehehai/actnow",
+  ogImage: "https://refto.one/images/og.jpg",
+  icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],
+};

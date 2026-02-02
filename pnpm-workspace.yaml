@@ -1,0 +1,25 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  '@orpc/client': ^1.13.2
+  '@orpc/openapi': ^1.13.2
+  '@orpc/server': ^1.13.2
+  '@orpc/zod': ^1.13.2
+  '@types/pg': 8.16.0
+  better-auth: ^1.4.10
+  date-fns: ^4.1.0
+  dotenv: ^17.2.3
+  drizzle-orm: ^0.45.1
+  es-toolkit: ^1.43.0
+  react: ^19.2.3
+  resend: ^6.6.0
+  zod: 4.1.13
+
+ignoredBuiltDependencies:
+  - esbuild
+  - msw
+
+onlyBuiltDependencies:
+  - workerd

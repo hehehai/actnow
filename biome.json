@@ -1,0 +1,89 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "!**/convex/**/_*",
+      "!**/.next",
+      "!**/dist",
+      "!**/.turbo",
+      "!**/dev-dist",
+      "!**/.zed",
+      "!**/.vscode",
+      "!**/routeTree.gen.ts",
+      "!bts.jsonc",
+      "!**/.wrangler",
+      "!**/wrangler.jsonc",
+      "!**/.source"
+    ]
+  },
+  "extends": ["ultracite/core", "ultracite/react"],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "linter": {
+    "rules": {
+      "nursery": {
+        "noReactForwardRef": "off",
+        "useMaxParams": "off",
+        "noShadow": "off",
+        "noParametersOnlyUsedInRecursion": "off",
+        "noLeakedRender": "off"
+      },
+      "style": {
+        "noHeadElement": "off",
+        "useFilenamingConvention": "off",
+        "useConsistentTypeDefinitions": "off",
+        "useUnifiedTypeSignatures": "off",
+        "noNonNullAssertion": "off",
+        "noNamespace": "off",
+        "noMagicNumbers": "off",
+        "useBlockStatements": "off",
+        "noEnum": "off",
+        "noNestedTernary": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off",
+        "noBarrelFile": "off",
+        "noImgElement": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "correctness": {
+        "useImageSize": "off",
+        "useExhaustiveDependencies": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "useAwait": "off",
+        "noUnknownAtRules": "off",
+        "noDocumentCookie": "off",
+        "noArrayIndexKey": "off",
+        "noConsole": {
+          "level": "info",
+          "options": {
+            "allow": ["warn", "error", "info"]
+          }
+        }
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "a11y": {
+        "useButtonType": "off",
+        "useFocusableInteractive": "off",
+        "useAriaPropsForRole": "off",
+        "useSemanticElements": "off",
+        "noStaticElementInteractions": "off",
+        "noNoninteractiveElementInteractions": "off",
+        "noRedundantRoles": "off",
+        "noLabelWithoutControl": "off",
+        "useMediaCaption": "off",
+        "useKeyWithClickEvents": "off"
+      }
+    }
+  }
+}

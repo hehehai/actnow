@@ -1,0 +1,16 @@
+{
+  "name": "@actnow/common",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    },
+    "./tsconfig.base.json": "./tsconfig.base.json"
+  },
+  "type": "module",
+  "scripts": {}
+}

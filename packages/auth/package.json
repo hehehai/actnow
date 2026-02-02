@@ -1,0 +1,27 @@
+{
+  "name": "@actnow/auth",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "schema:gen": "dotenv -e ../../apps/web/.env -- npx @better-auth/cli@latest generate --config src/index.ts"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
+  },
+  "dependencies": {
+    "@devmehq/email-validator-js": "^2.10.4",
+    "@actnow/db": "workspace:*",
+    "@actnow/email": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
+  }
+}
