@@ -43,7 +43,7 @@ function FeedbackComponent() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const { data: submissions = [], isLoading } = useQuery(
-    orpc.features.feedback.list.queryOptions()
+    orpc.app.feedback.list.queryOptions()
   );
 
   // Filter submissions by status

@@ -15,17 +15,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useCopy } from "@/hooks/use-copy";
 import { orpc } from "@/lib/orpc";
 import { userDetailSheet } from "@/stores/handlers";
 import { BanDialog } from "./ban-dialog";
 import { useUserActions } from "./use-user-actions";
 import { UserDetailSkeleton } from "./user-detail-skeleton";
+import { UserDetailTabs } from "./user-detail-tabs";
 import { UserFormDialog } from "./user-form-dialog";
 
 export function UserDetailSheet() {
@@ -131,12 +127,13 @@ function UserDetailContent({ userId }: { userId: string }) {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.role === "ADMIN" ? "ADMIN" : "USER",
         image: user.image,
         banned: user.banned,
         banReason: user.banReason,
         createdAt: user.createdAt,
         lastSignedIn: null,
+        subscription: user.subscription,
       }
     : null;
 
@@ -318,104 +315,8 @@ function UserDetailContent({ userId }: { userId: string }) {
                     </div>
                   </section>
 
-                  {/* Accounts */}
                   <section>
-                    <h3 className="mb-3 font-medium text-sm">
-                      Accounts ({user.accounts?.length ?? 0})
-                    </h3>
-                    {user.accounts && user.accounts.length > 0 ? (
-                      <div className="space-y-2">
-                        {user.accounts.map((account) => (
-                          <div
-                            className="flex items-center justify-between rounded-lg border p-3"
-                            key={account.id}
-                          >
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon providerId={account.providerId} />
-                              <span className="font-medium text-sm capitalize">
-                                {account.providerId}
-                              </span>
-                            </div>
-                            <span className="text-muted-foreground text-xs">
-                              {account.createdAt
-                                ? formatDistanceToNow(
-                                    new Date(account.createdAt),
-                                    {
-                                      addSuffix: true,
-                                    }
-                                  )
-                                : "-"}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">
-                        No accounts
-                      </p>
-                    )}
-                  </section>
-
-                  {/* Sessions */}
-                  <section>
-                    <h3 className="mb-3 font-medium text-sm">
-                      Sessions ({user.sessions?.length ?? 0})
-                    </h3>
-                    {user.sessions && user.sessions.length > 0 ? (
-                      <div className="space-y-2">
-                        {user.sessions.map((session) => (
-                          <div
-                            className="rounded-lg border p-3"
-                            key={session.id}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-muted-foreground text-xs">
-                                {session.createdAt
-                                  ? formatDistanceToNow(
-                                      new Date(session.createdAt),
-                                      {
-                                        addSuffix: true,
-                                      }
-                                    )
-                                  : "-"}
-                              </span>
-                              <span className="text-muted-foreground text-xs">
-                                Expires{" "}
-                                {session.expiresAt
-                                  ? formatDistanceToNow(
-                                      new Date(session.expiresAt),
-                                      {
-                                        addSuffix: true,
-                                      }
-                                    )
-                                  : "-"}
-                              </span>
-                            </div>
-                            {session.ipAddress && (
-                              <p className="mt-1 text-xs">
-                                IP: {session.ipAddress}
-                              </p>
-                            )}
-                            {session.userAgent && (
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <p className="mt-1 max-w-xl cursor-help truncate text-muted-foreground text-xs">
-                                    {session.userAgent}
-                                  </p>
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-xs">
-                                  {session.userAgent}
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">
-                        No active sessions
-                      </p>
-                    )}
+                    <UserDetailTabs user={user} />
                   </section>
                 </div>
               </div>
@@ -453,17 +354,4 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <span>{value}</span>
     </div>
   );
-}
-
-function ProviderIcon({ providerId }: { providerId: string }) {
-  switch (providerId) {
-    case "github":
-      return <span className="i-hugeicons-github size-4" />;
-    case "google":
-      return <span className="i-hugeicons-google size-4" />;
-    case "credential":
-      return <span className="i-hugeicons-key-01 size-4" />;
-    default:
-      return <span className="i-hugeicons-link-01 size-4" />;
-  }
 }

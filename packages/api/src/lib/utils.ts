@@ -1,4 +1,5 @@
-import { asc, desc, type PgColumn } from "@actnow/db";
+import { hashPassword as hashBetterAuthPassword } from "@actnow/auth/crypto";
+import { asc, desc, type PgColumn, sql } from "@actnow/db";
 import { ORPCError } from "@orpc/server";
 
 // Regex for extracting field name from PostgreSQL unique constraint error
@@ -50,6 +51,17 @@ export function getCountFromResult(
   return result?.[0]?.count ?? 0;
 }
 
+// Get row count for a table with optional where clause
+export async function getTableCount(
+  db: any,
+  table: any,
+  whereClause?: any
+): Promise<number> {
+  const query = db.select({ count: sql<number>`COUNT(*)` }).from(table);
+  const rows = whereClause ? await query.where(whereClause) : await query;
+  return Number(rows?.[0]?.count ?? 0);
+}
+
 // Time range types for stats
 export type StatPeriod = "24h" | "7d" | "15d" | "30d";
 
@@ -97,13 +109,9 @@ export function generateId(): string {
   return crypto.randomUUID();
 }
 
-// Hash password using SHA-256
+// Hash password using Better Auth's credential format
 export async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hashBetterAuthPassword(password);
 }
 
 // PostgreSQL error interface

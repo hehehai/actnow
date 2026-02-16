@@ -86,6 +86,7 @@ function PostFormDialogContent({
         mode={mode}
         onCancel={() => panelPostFormDialog.close()}
         onSubmit={handleSubmit}
+        uploadType="admin"
       />
     </>
   );

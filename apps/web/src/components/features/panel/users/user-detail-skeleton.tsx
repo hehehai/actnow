@@ -57,6 +57,19 @@ export function UserDetailSkeleton() {
           </div>
         </section>
 
+        {/* Subscription */}
+        <section>
+          <Skeleton className="mb-3 h-4 w-24" />
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div className="flex items-center justify-between" key={i}>
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Accounts */}
         <section>
           <Skeleton className="mb-3 h-4 w-24" />

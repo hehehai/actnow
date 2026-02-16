@@ -88,9 +88,31 @@ export const postLikeStatusSchema = z.object({
 
 // ============ User Profile Schemas ============
 
+export const socialPlatformSchema = z.enum([
+  "x",
+  "website",
+  "facebook",
+  "instagram",
+]);
+
+export const socialLinkSchema = z.object({
+  platform: socialPlatformSchema,
+  url: z.url("Invalid social link URL"),
+});
+
 export const updateProfileSchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
   image: z.url("Invalid image URL").nullable().optional(),
+  bio: z.string().max(500, "Bio must be at most 500 characters").optional(),
+  socialLinks: z
+    .array(socialLinkSchema)
+    .max(4, "At most 4 social links are allowed")
+    .refine(
+      (links) =>
+        new Set(links.map((link) => link.platform)).size === links.length,
+      "Social platforms must be unique"
+    )
+    .optional(),
 });
 
 // ============ Tag Schemas ============
@@ -115,6 +137,7 @@ export type TogglePostLike = z.infer<typeof togglePostLikeSchema>;
 export type PostLikesFeed = z.infer<typeof postLikesFeedSchema>;
 export type PostLikeStatus = z.infer<typeof postLikeStatusSchema>;
 export type UpdateProfile = z.infer<typeof updateProfileSchema>;
+export type SocialLink = z.infer<typeof socialLinkSchema>;
 export type TagsByType = z.infer<typeof postTagsByTypeSchema>;
 export type UserPublicProfileInput = z.infer<typeof userPublicProfileSchema>;
 export type PostSimilar = z.infer<typeof postSimilarSchema>;

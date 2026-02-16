@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
+import { SubscriptionStatusBadge } from "@/components/features/common/subscription/subscription-status-badge";
 import { SortableColumnHeader } from "@/components/shared/data-table";
 import { createSelectionColumn } from "@/components/shared/data-table/column-helpers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -74,6 +75,17 @@ export function createUserColumns(
           <Badge variant={role === "ADMIN" ? "default" : "secondary"}>
             {role}
           </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "subscription",
+      header: "Subscription",
+      size: 120,
+      cell: ({ row }) => {
+        const subscription = row.original.subscription;
+        return (
+          <SubscriptionStatusBadge shape="dot" status={subscription.status} />
         );
       },
     },

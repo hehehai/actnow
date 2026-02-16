@@ -94,6 +94,35 @@ export function createAuth() {
           defaultValue: "USER",
           input: false,
         },
+        polarCustomerId: {
+          type: "string",
+          input: false,
+        },
+        subscriptionPlan: {
+          type: "string",
+          defaultValue: "FREE",
+          input: false,
+        },
+        subscriptionStatus: {
+          type: "string",
+          defaultValue: "FREE",
+          input: false,
+        },
+        subscriptionCycle: {
+          type: "string",
+          required: false,
+          input: false,
+        },
+        subscriptionCurrentPeriodEnd: {
+          type: "date",
+          required: false,
+          input: false,
+        },
+        subscriptionUpdatedAt: {
+          type: "date",
+          required: false,
+          input: false,
+        },
       },
       modelName: "user",
       deleteUser: {
@@ -120,6 +149,7 @@ export function createAuth() {
     },
 
     session: {
+      expiresIn: 60 * 60 * 24 * 7, // 7 days
       cookieCache: {
         enabled: true,
         maxAge: 60 * 5, // 5 minutes

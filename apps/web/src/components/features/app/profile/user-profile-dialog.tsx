@@ -10,13 +10,21 @@ import { userProfileDialog } from "@/stores/handlers";
 import { AccountTab } from "./account-tab";
 import { AppearanceTab } from "./appearance-tab";
 import { DataManagementTab } from "./data-management-tab";
+import { SessionTab } from "./session-tab";
+import { SubscriptionTab } from "./subscription-tab";
 
 const TABS = [
-  { value: "account", label: "Account", icon: "i-hugeicons-user-account" },
+  { value: "profile", label: "Profile", icon: "i-hugeicons-user-account" },
+  { value: "session", label: "Security", icon: "i-hugeicons-clock-01" },
   {
     value: "appearance",
     label: "Appearance",
     icon: "i-hugeicons-paint-brush-01",
+  },
+  {
+    value: "subscription",
+    label: "Subscription",
+    icon: "i-hugeicons-credit-card",
   },
   { value: "data", label: "Data", icon: "i-hugeicons-database" },
 ] as const;
@@ -32,7 +40,7 @@ export function UserProfileDialog() {
 }
 
 function UserProfileContent() {
-  const [activeTab, setActiveTab] = useState("account");
+  const [activeTab, setActiveTab] = useState("profile");
 
   return (
     <div className="min-h-120">
@@ -62,15 +70,27 @@ function UserProfileContent() {
         <div className="flex-1 overflow-auto">
           <TabsContent
             className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"
-            value="account"
+            value="profile"
           >
             <AccountTab />
+          </TabsContent>
+          <TabsContent
+            className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"
+            value="session"
+          >
+            <SessionTab />
           </TabsContent>
           <TabsContent
             className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"
             value="appearance"
           >
             <AppearanceTab />
+          </TabsContent>
+          <TabsContent
+            className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"
+            value="subscription"
+          >
+            <SubscriptionTab />
           </TabsContent>
           <TabsContent
             className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"

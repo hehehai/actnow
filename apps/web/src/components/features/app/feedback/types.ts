@@ -1,7 +1,7 @@
 import type { client } from "@/lib/orpc";
 
 type FeedbackListResponse = Awaited<
-  ReturnType<typeof client.features.feedback.list>
+  ReturnType<typeof client.app.feedback.list>
 >;
 
 export type FeedbackRow = FeedbackListResponse[number];

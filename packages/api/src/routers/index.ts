@@ -3,7 +3,6 @@ import { protectedProcedure, publicProcedure } from "../index";
 import { appRouter as appFeatureRouter } from "./app";
 import { authRouter } from "./auth";
 import { commonRouter } from "./common";
-import { featuresRouter } from "./features";
 import { panelRouter } from "./panel";
 
 export const appRouter = {
@@ -16,7 +15,6 @@ export const appRouter = {
   common: commonRouter,
   panel: panelRouter,
   app: appFeatureRouter,
-  features: featuresRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

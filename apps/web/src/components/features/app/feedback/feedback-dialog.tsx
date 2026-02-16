@@ -39,11 +39,11 @@ function FeedbackDialogContent() {
       title: string;
       content: string;
       snapshots: string[];
-    }) => client.features.feedback.create(input),
+    }) => client.app.feedback.create(input),
     onSuccess: () => {
       toast.success("Feedback submitted");
       queryClient.invalidateQueries({
-        queryKey: orpc.features.feedback.list.key(),
+        queryKey: orpc.app.feedback.list.key(),
       });
       resetForm();
       feedbackDialog.close();

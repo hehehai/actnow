@@ -27,7 +27,7 @@ export function DataManagementTab() {
     onSuccess: (result) => {
       toast.success(`Deleted ${result.deletedCount} feedback item(s)`);
       queryClient.invalidateQueries({
-        queryKey: orpc.features.feedback.list.key(),
+        queryKey: orpc.app.feedback.list.key(),
       });
     },
   });

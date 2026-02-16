@@ -16,6 +16,11 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { getInitials } from "@/lib/formatters";
 import { orpc } from "@/lib/orpc";
+import { getPlanLabel, getSubscriptionStatusLabel } from "@/lib/subscription";
+import {
+  getFirstSubscriptionSnapshot,
+  getSessionSubscriptionSnapshot,
+} from "@/lib/subscription-snapshot";
 import { userProfileDialog } from "@/stores/handlers";
 
 interface SiteHeaderUserProps {
@@ -44,6 +49,15 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
     email: profile?.email ?? user.email,
     image: profile?.image ?? user.image,
   };
+  const subscription = getFirstSubscriptionSnapshot(
+    profile?.subscription,
+    getSessionSubscriptionSnapshot(session?.user)
+  );
+  const subscriptionSummary = subscription
+    ? `${getPlanLabel(subscription.plan)} · ${getSubscriptionStatusLabel(
+        subscription.status
+      )}`
+    : "Free";
 
   const isAdmin = user.role === UserRole.ADMIN;
 
@@ -108,6 +122,14 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
               Profile
             </DropdownMenuItem>
           )}
+
+          <DropdownMenuItem render={<Link to="/prices" />}>
+            <span className="i-hugeicons-credit-card" />
+            <span>Prices</span>
+            <span className="ml-auto text-muted-foreground text-xs">
+              {subscriptionSummary}
+            </span>
+          </DropdownMenuItem>
 
           {/* Admin Dashboard */}
           {isAdmin && (

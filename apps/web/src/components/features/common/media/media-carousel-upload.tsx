@@ -14,6 +14,7 @@ import { MediaUpload } from "./media-upload";
 
 type MediaType = "image" | "video";
 type AspectRatio = "og" | "cover" | "mobile";
+type UploadType = "user" | "admin" | "public";
 
 interface MediaCarouselUploadProps {
   value?: Array<string | null>;
@@ -23,6 +24,7 @@ interface MediaCarouselUploadProps {
   label?: React.ReactNode;
   mediaType?: MediaType;
   aspectRatio?: AspectRatio;
+  uploadType?: UploadType;
   maxItems?: number;
   addLabel?: string;
 }
@@ -158,6 +160,7 @@ export function MediaCarouselUpload({
   label,
   mediaType = "image",
   aspectRatio = "cover",
+  uploadType = "user",
   maxItems,
   addLabel,
 }: MediaCarouselUploadProps) {
@@ -229,6 +232,7 @@ export function MediaCarouselUpload({
                   }
                   mediaType={mediaType}
                   onChange={(nextValue) => handleItemChange(index, nextValue)}
+                  uploadType={uploadType}
                   value={media}
                 />
               </div>

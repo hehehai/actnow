@@ -16,6 +16,6 @@ export type UserLikesOutput = ClientOutputs["app"]["like"]["getUserLikes"];
 export type LikeItem = UserLikesOutput["items"][number];
 
 // Feedback Types
-export type FeedbackListOutput = ClientOutputs["features"]["feedback"]["list"];
+export type FeedbackListOutput = ClientOutputs["app"]["feedback"]["list"];
 export type FeedbackPanelListOutput =
   ClientOutputs["panel"]["feedback"]["list"];

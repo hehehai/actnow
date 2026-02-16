@@ -7,14 +7,13 @@ export function useFeedbackActions() {
 
   const invalidate = () => {
     queryClient.invalidateQueries({
-      queryKey: orpc.features.feedback.list.key(),
+      queryKey: orpc.app.feedback.list.key(),
     });
   };
 
   const update = useMutation({
-    mutationFn: (
-      input: Parameters<typeof client.features.feedback.update>[0]
-    ) => client.features.feedback.update(input),
+    mutationFn: (input: Parameters<typeof client.app.feedback.update>[0]) =>
+      client.app.feedback.update(input),
     onSuccess: () => {
       toast.success("Feedback updated");
       invalidate();
@@ -22,9 +21,8 @@ export function useFeedbackActions() {
   });
 
   const remove = useMutation({
-    mutationFn: (
-      input: Parameters<typeof client.features.feedback.delete>[0]
-    ) => client.features.feedback.delete(input),
+    mutationFn: (input: Parameters<typeof client.app.feedback.delete>[0]) =>
+      client.app.feedback.delete(input),
     onSuccess: () => {
       toast.success("Feedback deleted");
       invalidate();

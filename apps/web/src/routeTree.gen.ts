@@ -19,6 +19,7 @@ import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-pas
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
 import { Route as appWeeklyRouteImport } from './routes/(app)/weekly'
+import { Route as appPricesRouteImport } from './routes/(app)/prices'
 import { Route as appAboutRouteImport } from './routes/(app)/about'
 import { Route as app404RouteImport } from './routes/(app)/404'
 import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/route'
@@ -80,6 +81,11 @@ const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
 const appWeeklyRoute = appWeeklyRouteImport.update({
   id: '/weekly',
   path: '/weekly',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appPricesRoute = appPricesRouteImport.update({
+  id: '/prices',
+  path: '/prices',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appAboutRoute = appAboutRouteImport.update({
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/panel': typeof adminPanelRouteRouteWithChildren
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
+  '/prices': typeof appPricesRoute
   '/weekly': typeof appWeeklyRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
+  '/prices': typeof appPricesRoute
   '/weekly': typeof appWeeklyRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/(admin)/panel': typeof adminPanelRouteRouteWithChildren
   '/(app)/404': typeof app404Route
   '/(app)/about': typeof appAboutRoute
+  '/(app)/prices': typeof appPricesRoute
   '/(app)/weekly': typeof appWeeklyRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
   '/(auth)/login': typeof authLoginRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/panel'
     | '/404'
     | '/about'
+    | '/prices'
     | '/weekly'
     | '/forget-password'
     | '/login'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
   to:
     | '/404'
     | '/about'
+    | '/prices'
     | '/weekly'
     | '/forget-password'
     | '/login'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/(admin)/panel'
     | '/(app)/404'
     | '/(app)/about'
+    | '/(app)/prices'
     | '/(app)/weekly'
     | '/(auth)/forget-password'
     | '/(auth)/login'
@@ -381,6 +393,13 @@ declare module '@tanstack/react-router' {
       path: '/weekly'
       fullPath: '/weekly'
       preLoaderRoute: typeof appWeeklyRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/prices': {
+      id: '/(app)/prices'
+      path: '/prices'
+      fullPath: '/prices'
+      preLoaderRoute: typeof appPricesRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/about': {
@@ -487,6 +506,7 @@ declare module '@tanstack/react-router' {
 interface appRouteRouteChildren {
   app404Route: typeof app404Route
   appAboutRoute: typeof appAboutRoute
+  appPricesRoute: typeof appPricesRoute
   appWeeklyRoute: typeof appWeeklyRoute
   appIndexRoute: typeof appIndexRoute
   appUserSlugPostSlugRoute: typeof appUserSlugPostSlugRoute
@@ -498,6 +518,7 @@ interface appRouteRouteChildren {
 const appRouteRouteChildren: appRouteRouteChildren = {
   app404Route: app404Route,
   appAboutRoute: appAboutRoute,
+  appPricesRoute: appPricesRoute,
   appWeeklyRoute: appWeeklyRoute,
   appIndexRoute: appIndexRoute,
   appUserSlugPostSlugRoute: appUserSlugPostSlugRoute,

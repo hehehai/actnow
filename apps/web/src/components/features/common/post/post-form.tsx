@@ -31,6 +31,7 @@ interface PostFormProps {
     tagIds?: string[];
   };
   isSubmitting?: boolean;
+  uploadType?: "user" | "admin" | "public";
   onCancel?: () => void;
   onSubmit: (values: PostFormValues) => Promise<void> | void;
 }
@@ -39,6 +40,7 @@ export function PostForm({
   mode,
   initialValues,
   isSubmitting = false,
+  uploadType = "user",
   onCancel,
   onSubmit,
 }: PostFormProps) {
@@ -113,6 +115,7 @@ export function PostForm({
               maxItems={10}
               mediaType="image"
               onChange={(next) => setForm((prev) => ({ ...prev, media: next }))}
+              uploadType={uploadType}
               value={form.media}
             />
           </div>

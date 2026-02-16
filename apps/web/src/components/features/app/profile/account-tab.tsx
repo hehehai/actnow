@@ -1,6 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { confirmDialog } from "@/components/shared/confirm-dialog";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +7,10 @@ import {
   ItemContent,
   ItemDescription,
   ItemGroup,
-  ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
 import { Skeleton } from "@/components/ui/skeleton";
-import { client, orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
+import { orpc } from "@/lib/orpc";
 import {
   changeEmailDialog,
   changePasswordDialog,
@@ -24,58 +20,9 @@ import {
 import { ProfileForm } from "./profile-form";
 
 export function AccountTab() {
-  const queryClient = useQueryClient();
-
-  // Fetch profile data
-  const { data: profile, isLoading: isProfileLoading } = useQuery(
+  const { data: profile, isLoading } = useQuery(
     orpc.app.user.getProfile.queryOptions()
   );
-
-  // Fetch sessions
-  const { data: sessions = [] } = useQuery(
-    orpc.app.user.getSessions.queryOptions()
-  );
-
-  // Fetch linked accounts
-  const { data: linkedAccounts = [] } = useQuery(
-    orpc.app.user.getLinkedAccounts.queryOptions()
-  );
-
-  // Revoke session mutation
-  const revokeSessionMutation = useMutation({
-    mutationFn: (sessionId: string) =>
-      client.app.user.revokeSession({ sessionId }),
-    onSuccess: () => {
-      toast.success("Session revoked");
-      queryClient.invalidateQueries({
-        queryKey: orpc.app.user.getSessions.key(),
-      });
-    },
-  });
-
-  const handleRevokeSession = (sessionId: string) => {
-    confirmDialog.openWithPayload({
-      title: "Revoke Session",
-      description:
-        "Are you sure you want to revoke this session? The device will be signed out.",
-      confirmText: "Revoke",
-      variant: "destructive",
-      onConfirm: async () => {
-        await revokeSessionMutation.mutateAsync(sessionId);
-      },
-    });
-  };
-
-  const getProviderIcon = (providerId: string) => {
-    switch (providerId) {
-      case "github":
-        return "i-hugeicons-github";
-      case "google":
-        return "i-hugeicons-google";
-      default:
-        return "i-hugeicons-link-01";
-    }
-  };
 
   const handleEmailAction = () => {
     if (!profile?.email) return;
@@ -94,23 +41,27 @@ export function AccountTab() {
     }
   };
 
-  if (isProfileLoading || !profile) {
+  if (isLoading || !profile) {
     return <AccountTabSkeleton />;
   }
 
   return (
     <div className="space-y-6">
-      {/* Profile Section */}
       <section className="space-y-4">
         <h3 className="font-medium">Profile</h3>
-        <ProfileForm profile={{ name: profile.name, image: profile.image }} />
+        <ProfileForm
+          profile={{
+            name: profile.name,
+            image: profile.image,
+            bio: profile.bio,
+            socialLinks: profile.socialLinks,
+          }}
+        />
       </section>
 
-      {/* Account Info Section */}
       <section className="space-y-3">
         <h3 className="font-medium">Account</h3>
         <ItemGroup>
-          {/* Email */}
           <Item size="sm" variant="muted">
             <ItemContent>
               <ItemTitle>
@@ -139,7 +90,6 @@ export function AccountTab() {
             </ItemActions>
           </Item>
 
-          {/* Password */}
           <Item size="sm" variant="muted">
             <ItemContent>
               <ItemTitle>Password</ItemTitle>
@@ -162,75 +112,6 @@ export function AccountTab() {
           </Item>
         </ItemGroup>
       </section>
-
-      {/* Sessions Section */}
-      <section className="space-y-3">
-        <h3 className="font-medium">Sessions</h3>
-        <ItemGroup>
-          {sessions.map((session) => (
-            <Item key={session.id} size="sm" variant="muted">
-              <ItemContent>
-                <ItemTitle>
-                  {session.isCurrent ? "Current Session" : "Session"}
-                  {session.isCurrent && (
-                    <Badge className="py-px" shape="bar" variant="secondary">
-                      Active
-                    </Badge>
-                  )}
-                </ItemTitle>
-                {session.userAgent && (
-                  <ItemDescription className="line-clamp-1">
-                    {session.userAgent}
-                  </ItemDescription>
-                )}
-                <ItemDescription>
-                  {session.ipAddress && `${session.ipAddress} · `}
-                  {new Date(session.createdAt).toLocaleDateString()}
-                </ItemDescription>
-              </ItemContent>
-              {!session.isCurrent && (
-                <ItemActions>
-                  <Button
-                    className="min-w-18"
-                    onClick={() => handleRevokeSession(session.id)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Revoke
-                  </Button>
-                </ItemActions>
-              )}
-            </Item>
-          ))}
-        </ItemGroup>
-      </section>
-
-      {/* Linked Accounts Section */}
-      {linkedAccounts.length > 0 && (
-        <section className="space-y-3">
-          <h3 className="font-medium">Linked Accounts</h3>
-          <ItemGroup>
-            {linkedAccounts.map((account) => (
-              <Item key={account.id} size="sm" variant="muted">
-                <ItemMedia variant="icon">
-                  <span
-                    className={cn(
-                      getProviderIcon(account.providerId),
-                      "size-4"
-                    )}
-                  />
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle className="capitalize">
-                    {account.providerId}
-                  </ItemTitle>
-                  <ItemDescription>{account.accountId}</ItemDescription>
-                </ItemContent>
-              </Item>
-            ))}
-          </ItemGroup>
-        </section>
-      )}
     </div>
   );
 }
@@ -238,7 +119,6 @@ export function AccountTab() {
 function AccountTabSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Profile Section Skeleton */}
       <section className="space-y-4">
         <Skeleton className="h-5 w-16" />
         <div className="flex gap-4">
@@ -249,19 +129,10 @@ function AccountTabSkeleton() {
         </div>
       </section>
 
-      {/* Account Section Skeleton */}
       <section className="space-y-3">
         <Skeleton className="h-5 w-20" />
-        <div className="space-y-2">
+        <div className="flex-1 space-y-2">
           <Skeleton className="h-16 w-full rounded-lg" />
-          <Skeleton className="h-16 w-full rounded-lg" />
-        </div>
-      </section>
-
-      {/* Sessions Section Skeleton */}
-      <section className="space-y-3">
-        <Skeleton className="h-5 w-20" />
-        <div className="space-y-2">
           <Skeleton className="h-16 w-full rounded-lg" />
         </div>
       </section>

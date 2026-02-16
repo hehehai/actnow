@@ -30,7 +30,6 @@ export function WeeklySection() {
                 liked={false}
                 post={{
                   ...post,
-                  media: null,
                   createdAt: new Date(post.createdAt),
                 }}
                 tags={[]}

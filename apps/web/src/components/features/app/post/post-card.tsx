@@ -27,6 +27,7 @@ interface PostCardProps {
   } | null;
   liked?: boolean;
   onLikeChange?: (liked: boolean) => void;
+  hideAuthor?: boolean;
 }
 
 export function PostCard({
@@ -35,6 +36,7 @@ export function PostCard({
   author,
   liked = false,
   onLikeChange,
+  hideAuthor = false,
 }: PostCardProps) {
   const cover = post.media?.[0] ?? null;
   const title = post.comment ?? post.prompt ?? "Untitled post";
@@ -112,7 +114,12 @@ export function PostCard({
       </div>
 
       <div className="flex items-center justify-between border-t px-4 py-3">
-        {author?.id ? (
+        {hideAuthor ? (
+          <p className="text-muted-foreground text-xs tabular-nums">
+            {post.likes} like{post.likes === 1 ? "" : "s"} · {post.visits} view
+            {post.visits === 1 ? "" : "s"}
+          </p>
+        ) : author?.id ? (
           <Link
             className="flex items-center gap-2"
             params={{ userSlug: author.id }}

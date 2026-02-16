@@ -82,6 +82,7 @@ function UserProfilePage() {
   const joinedDate = data.user.createdAt
     ? format(new Date(data.user.createdAt), "MMMM d, yyyy")
     : null;
+  const socialLinks = data.user.socialLinks ?? [];
 
   const handleLikeChange = useCallback(
     (postId: string, liked: boolean) => {
@@ -163,17 +164,53 @@ function UserProfilePage() {
           </div>
 
           <div className="grid w-full gap-4 sm:grid-cols-2 md:w-auto">
-            <ProfileStat label="Public posts" value={data.posts.length} />
+            <ProfileStat
+              label={isOwnProfile ? "All posts" : "Public posts"}
+              value={data.posts.length}
+            />
             <ProfileStat label="Total likes" value={totalLikes} />
           </div>
         </div>
+
+        {(data.user.bio || socialLinks.length > 0) && (
+          <div className="mt-6 border-t pt-6">
+            {data.user.bio && (
+              <p className="text-pretty text-muted-foreground text-sm">
+                {data.user.bio}
+              </p>
+            )}
+
+            {socialLinks.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {socialLinks.map((item) => (
+                  <a
+                    className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
+                    href={item.url}
+                    key={`${item.platform}-${item.url}`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <span className={getSocialIcon(item.platform)} />
+                    {getSocialLabel(item.platform)}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       <section>
         <div className="mb-6">
-          <h2 className="text-balance font-semibold text-2xl">Public Posts</h2>
+          <h2 className="text-balance font-semibold text-2xl">
+            {isOwnProfile ? "All Posts" : "Public Posts"}
+          </h2>
           <p className="text-pretty text-muted-foreground">
-            Ideas and commitments shared by {data.user.name ?? "this creator"}.
+            {isOwnProfile
+              ? "All your posts are shown here, including private drafts."
+              : `Ideas and commitments shared by ${
+                  data.user.name ?? "this creator"
+                }.`}
           </p>
         </div>
 
@@ -183,6 +220,7 @@ function UserProfilePage() {
               <div className="relative" key={item.post.id}>
                 <PostCard
                   author={item.author}
+                  hideAuthor
                   onLikeChange={(next) => handleLikeChange(item.post.id, next)}
                   post={item.post}
                   tags={item.tags}
@@ -258,10 +296,12 @@ function UserProfilePage() {
           <div className="rounded-2xl border bg-muted/40 p-10 text-center text-muted-foreground">
             <span className="i-hugeicons-checklist text-4xl" />
             <p className="mt-4 text-balance font-medium text-lg">
-              No public posts yet
+              {isOwnProfile ? "No posts yet" : "No public posts yet"}
             </p>
             <p className="text-pretty">
-              Check back soon to see what they are working on.
+              {isOwnProfile
+                ? "Create your first post to get started."
+                : "Check back soon to see what they are working on."}
             </p>
           </div>
         )}
@@ -277,4 +317,20 @@ function ProfileStat({ label, value }: { label: string; value: number }) {
       <p className="font-semibold text-2xl tabular-nums">{value}</p>
     </div>
   );
+}
+
+function getSocialLabel(platform: string): string {
+  if (platform === "x") return "X";
+  if (platform === "website") return "Website";
+  if (platform === "facebook") return "Facebook";
+  if (platform === "instagram") return "Instagram";
+  return platform;
+}
+
+function getSocialIcon(platform: string): string {
+  if (platform === "x") return "i-hugeicons-new-twitter-rectangle";
+  if (platform === "website") return "i-hugeicons-link-01";
+  if (platform === "facebook") return "i-hugeicons-facebook-02";
+  if (platform === "instagram") return "i-hugeicons-instagram";
+  return "i-hugeicons-link-01";
 }

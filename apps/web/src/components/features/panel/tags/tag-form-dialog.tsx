@@ -234,6 +234,7 @@ export function TagFormDialog({
                 label="Tip Media (optional)"
                 mediaType="image"
                 onChange={(value) => field.handleChange(value)}
+                uploadType="admin"
                 value={field.state.value}
               />
             )}

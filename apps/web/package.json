@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite dev --port=3001",
+    "dev": "vite dev --port=3002",
     "preview": "vite preview",
     "check-types": "tsgo --noEmit"
   },
@@ -22,6 +22,8 @@
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "^1.13.2",
     "@orpc/zod": "catalog:",
+    "@polar-sh/better-auth": "^1.8.1",
+    "@polar-sh/sdk": "^0.43.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-form": "^1.27.7",
     "@tanstack/react-query": "^5.90.16",

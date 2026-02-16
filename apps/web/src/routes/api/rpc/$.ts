@@ -3,6 +3,7 @@ import { appRouter } from "@actnow/api/routers/index";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { ORPCError, onError, ValidationError } from "@orpc/server";
+import type { FetchHandlerPlugin } from "@orpc/server/fetch";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { createFileRoute } from "@tanstack/react-router";
@@ -33,12 +34,12 @@ const rpcHandler = new RPCHandler(appRouter, {
   clientInterceptors: [onError(handleValidationError)],
 });
 
+const referencePlugin = new OpenAPIReferencePlugin({
+  schemaConverters: [new ZodToJsonSchemaConverter()],
+}) as unknown as FetchHandlerPlugin<Awaited<ReturnType<typeof createContext>>>;
+
 const apiHandler = new OpenAPIHandler(appRouter, {
-  plugins: [
-    new OpenAPIReferencePlugin({
-      schemaConverters: [new ZodToJsonSchemaConverter()],
-    }),
-  ],
+  plugins: [referencePlugin],
   interceptors: [
     onError((error) => {
       console.error(error);

@@ -40,6 +40,11 @@ export function SiteHeaderMenu() {
 
         {/* Links */}
         <DropdownMenuGroup>
+          <DropdownMenuItem render={<Link to="/prices" />}>
+            <span className="i-hugeicons-credit-card" />
+            Pricing
+          </DropdownMenuItem>
+
           <DropdownMenuItem render={<Link to="/about" />}>
             <span className="i-hugeicons-information-circle" />
             About

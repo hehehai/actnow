@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { toast } from "sonner";
 import { useFilePicker } from "use-file-picker";
 import { Button } from "@/components/ui/button";
@@ -9,57 +8,14 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { useAdminUpload } from "@/hooks/use-upload";
 import { cn } from "@/lib/utils";
-
-type MediaType = "image" | "video";
-type AspectRatio = "og" | "cover" | "mobile";
-
-interface MediaUploadProps {
-  value?: string | null;
-  onChange: (url: string | null) => void;
-  disabled?: boolean;
-  className?: string;
-  mediaType?: MediaType;
-  aspectRatio?: AspectRatio;
-  label?: string;
-  extraTools?: React.ReactNode;
-}
-
-const aspectRatioConfig: Record<
-  AspectRatio,
-  { ratio: string; width: string; height: string }
-> = {
-  og: { ratio: "1.91 / 1", width: "w-full", height: "h-auto" },
-  cover: { ratio: "16 / 9", width: "w-full", height: "h-auto" },
-  mobile: { ratio: "9 / 16", width: "w-32", height: "h-auto" },
-};
-
-const acceptTypes: Record<MediaType, string> = {
-  image: "image/jpeg,image/png,image/webp,image/gif,image/svg+xml",
-  video: "video/mp4,video/webm",
-};
-
-const isValidMediaUrl = (url: string, mediaType: MediaType): boolean => {
-  try {
-    const parsed = new URL(url);
-    const pathname = parsed.pathname.toLowerCase();
-
-    if (mediaType === "image") {
-      return (
-        pathname.endsWith(".jpg") ||
-        pathname.endsWith(".jpeg") ||
-        pathname.endsWith(".png") ||
-        pathname.endsWith(".webp") ||
-        pathname.endsWith(".gif") ||
-        pathname.endsWith(".svg")
-      );
-    }
-    return pathname.endsWith(".mp4") || pathname.endsWith(".webm");
-  } catch {
-    return false;
-  }
-};
+import {
+  acceptTypes,
+  aspectRatioConfig,
+  getUploadHook,
+  type MediaUploadProps,
+  readClipboardMedia,
+} from "./media-upload-helpers";
 
 export function MediaUpload({
   value,
@@ -69,10 +25,11 @@ export function MediaUpload({
   mediaType = "image",
   aspectRatio = "cover",
   label,
+  uploadType = "user",
   extraTools,
 }: MediaUploadProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const { upload, isUploading } = useAdminUpload({
+  const useUploadHook = getUploadHook(uploadType);
+  const { upload, isUploading } = useUploadHook({
     onSuccess: (result) => onChange(result.url),
     onError: (error) => {
       toast.error(error.message || "Upload failed");
@@ -116,76 +73,25 @@ export function MediaUpload({
   };
 
   const handlePaste = async () => {
-    try {
-      const clipboardItems = await navigator.clipboard.read();
+    const clipboardMedia = await readClipboardMedia(mediaType);
+    if (!clipboardMedia) {
+      toast.error("Invalid media URL or no image in clipboard.");
+      return;
+    }
 
-      for (const item of clipboardItems) {
-        // 检查是否有图片类型
-        const imageType = item.types.find((type) => type.startsWith("image/"));
+    if (clipboardMedia.file) {
+      await upload(clipboardMedia.file);
+      return;
+    }
 
-        if (imageType && mediaType === "image") {
-          const blob = await item.getType(imageType);
-          const file = new File(
-            [blob],
-            `pasted-image.${imageType.split("/")[1]}`,
-            {
-              type: imageType,
-            }
-          );
-          await upload(file);
-          return;
-        }
-
-        // 检查是否有文本类型（URL）
-        if (item.types.includes("text/plain")) {
-          const blob = await item.getType("text/plain");
-          const text = await blob.text();
-          if (text.trim() && isValidMediaUrl(text.trim(), mediaType)) {
-            onChange(text.trim());
-            return;
-          }
-        }
-      }
-
-      toast.error("Clipboard does not contain a valid image or URL.");
-    } catch (_error) {
-      // 回退到 readText（兼容性）
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text.trim() && isValidMediaUrl(text.trim(), mediaType)) {
-          onChange(text.trim());
-        } else {
-          toast.error("Invalid media URL or no image in clipboard.");
-        }
-      } catch {
-        toast.error(
-          "Failed to read from clipboard. Please allow clipboard access."
-        );
-      }
+    if (clipboardMedia.url) {
+      onChange(clipboardMedia.url);
     }
   };
 
   const media = value || filesContent[0]?.content;
   const config = aspectRatioConfig[aspectRatio];
   const isVideo = mediaType === "video";
-
-  const renderPreview = () => {
-    if (!media) return null;
-
-    if (isVideo) {
-      return (
-        <video
-          className="size-full object-cover"
-          controls
-          muted
-          ref={videoRef}
-          src={media}
-        />
-      );
-    }
-
-    return <img alt="Preview" className="size-full object-cover" src={media} />;
-  };
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -229,7 +135,7 @@ export function MediaUpload({
           type="button"
         >
           {media ? (
-            renderPreview()
+            <MediaPreview isVideo={isVideo} media={media} />
           ) : (
             <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
               <span
@@ -258,6 +164,7 @@ export function MediaUpload({
           ) : (
             <div className="flex gap-2">
               <Button
+                aria-label="Upload media"
                 className="border-background/30 hover:border-background/70"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -270,6 +177,7 @@ export function MediaUpload({
                 <span className="i-hugeicons-file-upload size-4" />
               </Button>
               <Button
+                aria-label="Preview media"
                 className="border-background/30 hover:border-background/70"
                 onClick={handlePreview}
                 size="icon"
@@ -296,4 +204,14 @@ export function MediaUpload({
       </div>
     </div>
   );
+}
+
+function MediaPreview({ media, isVideo }: { media: string; isVideo: boolean }) {
+  if (isVideo) {
+    return (
+      <video className="size-full object-cover" controls muted src={media} />
+    );
+  }
+
+  return <img alt="Preview" className="size-full object-cover" src={media} />;
 }

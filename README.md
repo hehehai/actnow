@@ -158,6 +158,18 @@ pnpm run db:seed      # Seed database with sample data
 | `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID | Needed for Google login. |
 | `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth client secret | Needed for Google login; keep secret. |
 
+#### Polar Billing
+
+| Variable | Required | Description | Notes |
+|----------|----------|-------------|-------|
+| `POLAR_ACCESS_TOKEN` | Yes | Polar organization access token | Create in Polar organization settings. |
+| `POLAR_WEBHOOK_SECRET` | Yes | Secret used to verify Polar webhook payloads | Configure webhook endpoint at `/api/auth/polar/webhooks`. |
+| `POLAR_ENVIRONMENT` | Yes | Polar environment (`sandbox` or `production`) | Keep token/product IDs aligned with the selected environment. |
+| `POLAR_PRODUCT_PRO_MONTHLY_ID` | Yes | Polar product ID for Pro monthly | Used by pricing checkout slug `pro-monthly`. |
+| `POLAR_PRODUCT_PRO_YEARLY_ID` | Yes | Polar product ID for Pro yearly | Used by pricing checkout slug `pro-yearly`. |
+| `POLAR_PRODUCT_PRO_PLUS_MONTHLY_ID` | Yes | Polar product ID for Pro+ monthly | Used by pricing checkout slug `pro-plus-monthly`. |
+| `POLAR_PRODUCT_PRO_PLUS_YEARLY_ID` | Yes | Polar product ID for Pro+ yearly | Used by pricing checkout slug `pro-plus-yearly`. |
+
 #### Email (Resend)
 
 | Variable | Required | Description | Notes |

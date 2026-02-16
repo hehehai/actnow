@@ -1,6 +1,20 @@
-import { UserRole } from "@actnow/common";
-import { relations } from "drizzle-orm";
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { SubscriptionPlan, SubscriptionStatus, UserRole } from "@actnow/common";
+import { relations, sql } from "drizzle-orm";
+import {
+  boolean,
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
+
+export type SocialLinkPlatform = "x" | "website" | "facebook" | "instagram";
+
+export type SocialLink = {
+  platform: SocialLinkPlatform;
+  url: string;
+};
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -8,6 +22,21 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  polarCustomerId: text("polar_customer_id").unique(),
+  subscriptionPlan: text("subscription_plan")
+    .default(SubscriptionPlan.FREE)
+    .notNull(),
+  subscriptionStatus: text("subscription_status")
+    .default(SubscriptionStatus.FREE)
+    .notNull(),
+  subscriptionCycle: text("subscription_cycle"),
+  subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
+  subscriptionUpdatedAt: timestamp("subscription_updated_at"),
+  bio: text("bio"),
+  socialLinks: jsonb("social_links")
+    .$type<SocialLink[]>()
+    .default(sql`'[]'::jsonb`)
+    .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
