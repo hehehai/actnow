@@ -14,7 +14,21 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 - **Weekly Leaderboard** - Discover top-rated posts each week
 - **Social Engagement** - Like and save your favorite posts
 - **Tag System** - Organize and discover content by tags
+- **Subscription Billing** - Better Auth + Polar plans (`Free` / `Pro` / `Pro+`) with monthly and yearly billing
+- **Profile System** - User bio, social links, and account/session management in profile settings
+- **Feedback Workflow** - In-app feedback create/update/delete under authenticated user routes
 - **Admin Dashboard** - Analytics, user management, and content moderation
+
+## Subscription Rules
+
+| Plan | Max Posts | Private Posts |
+|------|-----------|---------------|
+| `FREE` | 20 | Not allowed (public only) |
+| `PRO` | 3000 | Allowed |
+| `PRO_PLUS` | 10000 | Allowed |
+
+- Post limits and visibility constraints are enforced server-side in API services.
+- Subscription snapshot is synced from Polar webhook events into local user fields for fast UI queries (menu/profile/panel).
 
 ## Tech Stack
 
@@ -52,7 +66,11 @@ actnow/
 │           └── stores/           # State management
 │
 ├── packages/
-│   ├── api/                      # oRPC routers and procedures
+│   ├── api/                      # oRPC entrypoints + routers/services
+│   │   └── src/
+│   │       ├── routers/          # Thin route handlers (app / panel / common / auth)
+│   │       ├── services/         # Domain business logic (app/*, panel/*)
+│   │       └── lib/              # Shared server utilities
 │   ├── auth/                     # Better Auth configuration
 │   ├── db/                       # Drizzle database schema
 │   ├── email/                    # React Email templates
@@ -169,6 +187,12 @@ pnpm run db:seed      # Seed database with sample data
 | `POLAR_PRODUCT_PRO_YEARLY_ID` | Yes | Polar product ID for Pro yearly | Used by pricing checkout slug `pro-yearly`. |
 | `POLAR_PRODUCT_PRO_PLUS_MONTHLY_ID` | Yes | Polar product ID for Pro+ monthly | Used by pricing checkout slug `pro-plus-monthly`. |
 | `POLAR_PRODUCT_PRO_PLUS_YEARLY_ID` | Yes | Polar product ID for Pro+ yearly | Used by pricing checkout slug `pro-plus-yearly`. |
+
+### API Namespaces
+
+- `app.*`: authenticated user-facing business APIs (`post`, `like`, `user`, `feedback`)
+- `panel.*`: admin/panel APIs
+- `common.*` / `auth.*`: shared and auth-related endpoints
 
 #### Email (Resend)
 
