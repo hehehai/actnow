@@ -26,8 +26,6 @@
   "linter": {
     "rules": {
       "nursery": {
-        "noReactForwardRef": "off",
-        "useMaxParams": "off",
         "noShadow": "off",
         "noParametersOnlyUsedInRecursion": "off",
         "noLeakedRender": "off"

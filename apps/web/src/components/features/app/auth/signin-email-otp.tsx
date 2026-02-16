@@ -190,11 +190,11 @@ export const SigninEmailOtp = ({
             {submitButton}
           </>
         ) : (
-          <form.Subscribe selector={(state) => state.values.email}>
+          <form.Subscribe<string> selector={(state) => state.values.email}>
             {(email) => (
               <Button
                 className="w-full"
-                disabled={!!email || sending}
+                disabled={!email || sending}
                 onClick={handleSendOtp}
                 type="button"
                 variant="outline"
