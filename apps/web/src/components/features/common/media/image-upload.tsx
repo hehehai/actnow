@@ -170,7 +170,7 @@ export function ImageUpload({
         </button>
         {image && !disabled && !isUploading && (
           <Button
-            className="-top-1 -right-1 absolute size-5 rounded-full p-0.5"
+            className="absolute -top-1 -right-1 size-5 rounded-full p-0.5"
             onClick={(e) => {
               e.stopPropagation();
               handleRemove(e);

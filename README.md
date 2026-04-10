@@ -37,7 +37,7 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 | **Frontend** | React 19, TanStack Start (SSR), TanStack Router |
 | **Styling** | Tailwind CSS v4, shadcn/ui (base-nova) |
 | **API Layer** | oRPC (end-to-end type-safe RPC) |
-| **Database** | PostgreSQL + Drizzle ORM |
+| **Database** | Cloudflare D1 + Drizzle ORM |
 | **Authentication** | Better Auth (Email/Password, GitHub, Google OAuth) |
 | **File Storage** | Cloudflare R2 + Image/Video Transformations |
 | **Email** | React Email + Resend |
@@ -50,7 +50,7 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 ```
 actnow/
 ├── apps/
-│   └── web/                      # Full-stack application (port 3001)
+│   └── web/                      # Full-stack application (port 3002)
 │       └── src/
 │           ├── routes/           # File-based routing
 │           │   ├── (auth)/       # Auth pages (login/signup/reset)
@@ -83,7 +83,7 @@ actnow/
 
 - Node.js 24+
 - pnpm 10+
-- PostgreSQL database (local or hosted)
+- Cloudflare account (for remote D1 / Workers deploy)
 
 ### Setup
 
@@ -95,19 +95,27 @@ cd actnow
 pnpm install
 ```
 
-2. Configure environment variables:
+2. Configure local Worker secrets:
 
 ```bash
-cp apps/web/.env.example apps/web/.env
+cp apps/web/.dev.vars.example apps/web/.dev.vars
 ```
 
-Edit `apps/web/.env` with your values (see [Environment Variables](#environment-variables) below). This file is used by
-the web app, API, auth, and database tooling.
+Edit `apps/web/.dev.vars` with your values (see [Environment Variables](#environment-variables) below).
+For local TanStack Start + Cloudflare development, this is the preferred config source.
+`apps/web/.env` is now only a legacy fallback for plain Node-based tooling.
 
-3. Create the database (if you haven't yet), then initialize the schema:
+3. Configure D1 in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml):
+
+- Local development uses the checked-in `env.development` D1 binding together with `.wrangler/state`.
+- Before running against a real Cloudflare database, replace `database_id` with your actual D1 database ID.
+- Keep the binding name as `DB`, because the app and auth layer resolve D1 from that binding.
+
+4. Initialize the local D1 schema:
 
 ```bash
-pnpm run db:push
+pnpm run db:generate
+pnpm run db:migrate
 ```
 
 Optional seed data:
@@ -115,6 +123,8 @@ Optional seed data:
 ```bash
 pnpm run db:seed
 ```
+
+`db:seed` will reset the local D1 sample tables before inserting fresh demo data.
 
 ## Development
 
@@ -124,13 +134,13 @@ Start the development server:
 pnpm run dev
 ```
 
-Visit [http://localhost:3001](http://localhost:3001)
+Visit [http://localhost:3002](http://localhost:3002)
 
 ### Commands
 
 ```bash
 # Development
-pnpm run dev          # Start all apps
+pnpm run dev          # Start all apps (runs local D1 migrations, then vite dev with CLOUDFLARE_ENV=development)
 pnpm run dev:web      # Start web app only
 
 # Type Checking
@@ -141,19 +151,23 @@ pnpm run check        # Biome formatting and linting
 npx ultracite fix     # Auto-fix code issues
 
 # Database
-pnpm run db:push      # Push schema changes to database
-pnpm run db:generate  # Generate migration files
-pnpm run db:migrate   # Run migrations
-pnpm run db:studio    # Open Drizzle Studio
-pnpm run db:seed      # Seed database with sample data
+pnpm run db:generate            # Generate migration files
+pnpm run db:migrate             # Alias of local D1 migration
+pnpm run db:migrate:local       # Apply migrations to local D1 (development env)
+pnpm run db:migrate:remote      # Apply migrations to remote D1 (development env)
+pnpm run db:migrate:production  # Apply migrations to production D1
+pnpm run db:seed                # Reset and seed local D1 with sample data
+pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types from development env
 ```
 
 ## Environment Variables
 
 ### Files and loading
 
-- Use `apps/web/.env` (copy from `apps/web/.env.example`).
-- Server-side code reads `process.env`.
+- Use `apps/web/.dev.vars` for local Worker development with `vite dev` / Wrangler bindings.
+- Keep non-secret runtime defaults in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml).
+- `apps/web/.env` is only a fallback for plain Node-based tooling.
+- In the Cloudflare runtime, server-side code reads Worker bindings/env first.
 - Only variables prefixed with `VITE_` are exposed to the browser. **Never** put secrets in `VITE_` variables.
 
 ### Variable Reference
@@ -164,7 +178,13 @@ pnpm run db:seed      # Seed database with sample data
 |----------|----------|-------------|-------|
 | `CORS_ORIGIN` | Yes | Allowed origin for auth and API requests | Set to your app URL in production (e.g. `https://your-domain.com`). |
 | `BETTER_AUTH_URL` | Yes | Base URL used by Better Auth for redirects and emails | Should match the public URL of the app. |
-| `DATABASE_URL` | Yes | PostgreSQL connection string | Used by the app and Drizzle tooling; add SSL options if your host requires it. |
+
+#### Database (D1)
+
+- D1 is configured through the `DB` binding in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml), not through `DATABASE_URL`.
+- Local D1 state is persisted in [`apps/web/.wrangler/state`](/Users/guanwei/x/doit/actnow-react/apps/web/.wrangler/state) after running migrations.
+- Local development uses the `development` environment in Wrangler config.
+- Replace the placeholder `database_id` values in Wrangler config before applying remote migrations or deploying.
 
 #### Authentication
 
@@ -215,8 +235,8 @@ pnpm run db:seed      # Seed database with sample data
 
 | Variable | Required | Description | Notes |
 |----------|----------|-------------|-------|
-| `VERCEL_URL` | Optional | Vercel deployment URL | Used to compute base URL in production. |
-| `VERCEL_ENV` | Optional | Vercel environment name | When `production`, base URL falls back to `site.url`. |
+| `VERCEL_URL` | Optional | Legacy alternate deployment URL | Only used as a fallback in shared URL helpers. |
+| `VERCEL_ENV` | Optional | Legacy alternate deployment environment | Only used as a fallback in shared URL helpers. |
 
 ## Build
 
@@ -228,11 +248,7 @@ Build output is located at `apps/web/dist/` (`client/` for static assets, `serve
 
 ## Deployment
 
-### Overview
-
-This repository does not include provider-specific deployment config (no `wrangler.toml`, `vercel.json`, or `Dockerfile`),
-so you will need to add one for your target platform. The build output already separates static assets and the server
-bundle, which most platforms can consume.
+This project is now configured for Cloudflare Workers + D1 through the checked-in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml).
 
 ### Production Build
 
@@ -240,26 +256,32 @@ bundle, which most platforms can consume.
 pnpm run build
 ```
 
-### Deploy Checklist
+### Cloudflare Deploy Checklist
 
-1. Provide all required environment variables from [Environment Variables](#environment-variables).
-2. Serve the build output:
-   - Static assets: `apps/web/dist/client`
-   - Server bundle: `apps/web/dist/server`
-3. Configure your platform to route requests to the server bundle and serve static assets.
+1. Create real D1 databases in Cloudflare and replace the placeholder `database_id` values in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml).
+2. Apply the schema to the remote D1 database:
 
-### Cloudflare Workers (if you choose Cloudflare)
+```bash
+pnpm run db:migrate:production
+```
 
-1. Create `apps/web/wrangler.toml` (not checked in) and point it to the build output:
-   - `main` should point at `dist/server/index.js`
-   - `assets` should point at `dist/client`
-2. Put non-sensitive values in `wrangler.toml` and secrets via `wrangler secret put`.
-3. Deploy with Wrangler.
+3. Set production secrets with Wrangler, for example:
 
-### Other Platforms
+```bash
+cd apps/web
+wrangler secret put BETTER_AUTH_SECRET
+wrangler secret put RESEND_API_KEY
+wrangler secret put POLAR_ACCESS_TOKEN
+wrangler secret put POLAR_WEBHOOK_SECRET
+```
 
-For Vercel, Docker, or a custom Node host, add the appropriate adapter/config for TanStack Start and ensure the runtime
-has the same environment variables as in `apps/web/.env`.
+4. Deploy the app:
+
+```bash
+pnpm run deploy
+```
+
+Wrangler will deploy the Worker plus the built client assets from `apps/web/dist/`.
 
 ## License
 

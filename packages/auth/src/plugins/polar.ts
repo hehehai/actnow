@@ -2,6 +2,7 @@ import {
   getPolarPlanByProductIdMap,
   getSnapshotFromSubscriptions,
 } from "@actnow/auth/subscription-snapshot";
+import { getEnvValue } from "@actnow/common/runtime-env";
 import { createDb, eq } from "@actnow/db";
 import { user } from "@actnow/db/schema/auth";
 import { checkout, polar, portal, webhooks } from "@polar-sh/better-auth";
@@ -18,7 +19,7 @@ type PolarEnvKey =
   | "POLAR_PRODUCT_PRO_PLUS_YEARLY_ID";
 
 function getPolarEnv(key: PolarEnvKey): string {
-  return process.env[key] ?? "";
+  return getEnvValue(key);
 }
 
 export function createPolarPlugin() {
@@ -121,5 +122,3 @@ export function createPolarPlugin() {
     ],
   });
 }
-
-export const polarPlugin = createPolarPlugin();

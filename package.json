@@ -13,12 +13,14 @@
     "dev:web": "pnpm --filter web dev",
     "dev:start": "pnpm --filter web run start",
     "check-types": "pnpm -r check-types",
-    "db:push": "pnpm --filter @actnow/db db:push",
-    "db:studio": "pnpm --filter @actnow/db db:studio",
     "db:generate": "pnpm --filter @actnow/db db:generate",
-    "db:migrate": "pnpm --filter @actnow/db db:migrate",
+    "db:migrate": "pnpm --filter web db:migrate",
+    "db:migrate:local": "pnpm --filter web db:migrate:local",
+    "db:migrate:remote": "pnpm --filter web db:migrate:remote",
+    "db:migrate:production": "pnpm --filter web db:migrate:production",
     "db:seed": "pnpm --filter @actnow/db db:seed",
     "deploy": "pnpm --filter web run deploy",
+    "cf-typegen": "pnpm --filter web cf-typegen",
     "deploy:destroy": "pnpm --filter web run destroy"
   },
   "dependencies": {

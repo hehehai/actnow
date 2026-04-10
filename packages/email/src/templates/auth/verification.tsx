@@ -59,8 +59,8 @@ export const VerificationEmail = ({
 VerificationEmail.PreviewProps = {
   name: "actnow",
   verifyCode: "123456",
-  verifyUrl: "http://localhost:3001/api/auth/123utf091",
-  baseUrl: "http://localhost:3001",
+  verifyUrl: "http://localhost:3002/api/auth/123utf091",
+  baseUrl: "http://localhost:3002",
 } as VerificationEmailProps;
 
 export default VerificationEmail;

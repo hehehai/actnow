@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { db as DbType } from "../index";
 import { postLikes } from "../schema/posts";
+import { insertInBatches } from "./insert-in-batches";
 
 export async function seedPostLikes(
   db: typeof DbType,
@@ -33,7 +34,7 @@ export async function seedPostLikes(
   }
 
   if (likeRecords.length > 0) {
-    await db.insert(postLikes).values(likeRecords).onConflictDoNothing();
+    await insertInBatches(db, postLikes, likeRecords);
   }
 
   console.info(`Seeded ${likeRecords.length} post likes`);

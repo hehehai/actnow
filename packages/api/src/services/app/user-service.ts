@@ -13,36 +13,14 @@ import { feedbacks } from "@actnow/db/schema/feedback";
 import { postLikes, posts } from "@actnow/db/schema/posts";
 import { postTags, tags } from "@actnow/db/schema/tags";
 import { ORPCError } from "@orpc/server";
-import { generateId, hashPassword } from "../../lib/utils";
-import {
-  buildPostTagMap,
-  buildProfileUpdateData,
-  mapPostsWithTags,
-} from "./user-shared";
-
-type AppContext = {
-  db: any;
-  session?: {
-    user?: {
-      id?: string;
-    };
-    session?: {
-      id: string;
-    };
-  } | null;
-};
-
-type ProtectedAppContext = {
-  db: any;
-  session: {
-    user: {
-      id: string;
-    };
-    session: {
-      id: string;
-    };
-  };
-};
+import type {
+  ApiDb,
+  AppContext,
+  ProtectedAppContext,
+} from "../../lib/context-types";
+import { combineFilters, generateId, hashPassword } from "../../lib/utils";
+import { groupTagsByPost } from "./post-shared";
+import { buildProfileUpdateData, mapPostsWithTags } from "./user-shared";
 
 type PopularUserItem = {
   id: string;
@@ -128,6 +106,35 @@ type LinkedAccountItem = {
   createdAt: Date;
 };
 
+type UserRecord = typeof user.$inferSelect;
+
+type BillingCustomerSummary = {
+  id: string;
+  email: string;
+};
+
+type BillingSubscriptionSummary = {
+  plan: string;
+  status: string;
+  cycle: string | null;
+  periodEnd: Date | null;
+  updatedAt: Date;
+};
+
+type BillingSyncResult = {
+  customerId: string;
+  subscription: BillingSubscriptionSummary;
+};
+
+type EditableProfile = Pick<
+  UserRecord,
+  "id" | "name" | "email" | "image" | "bio" | "socialLinks"
+>;
+
+type MutationSuccess = { success: true };
+
+type DeletedCountResult = { deletedCount: number };
+
 export async function getPopularUsersService(
   context: AppContext,
   input: { limit: number }
@@ -198,11 +205,11 @@ export async function getPublicProfileService(
     .from(posts)
     .leftJoin(user, eq(posts.createdById, user.id))
     .where(
-      and(
+      combineFilters([
         eq(posts.createdById, input.id),
-        isOwner ? sql`true` : eq(posts.isPublic, true),
-        isNull(posts.deletedAt)
-      )
+        isOwner ? undefined : eq(posts.isPublic, true),
+        isNull(posts.deletedAt),
+      ])
     )
     .orderBy(desc(posts.createdAt))) as PublicProfilePostRow[];
 
@@ -221,7 +228,7 @@ export async function getPublicProfileService(
         .where(inArray(postTags.postId, postIds))
     : [];
 
-  const postsWithTags = mapPostsWithTags(postRows, buildPostTagMap(tagRows));
+  const postsWithTags = mapPostsWithTags(postRows, groupTagsByPost(tagRows));
   return { user: profile, posts: postsWithTags };
 }
 
@@ -259,22 +266,24 @@ export async function getCurrentProfileService(
     columns: { id: true },
   });
 
+  if (!profile) {
+    return null;
+  }
+
   return {
     ...profile,
     hasCredential: !!credentialAccount,
-    subscription: profile
-      ? {
-          plan: profile.subscriptionPlan,
-          status: profile.subscriptionStatus,
-          cycle: profile.subscriptionCycle,
-          periodEnd: profile.subscriptionCurrentPeriodEnd,
-          updatedAt: profile.subscriptionUpdatedAt,
-        }
-      : null,
+    subscription: {
+      plan: profile.subscriptionPlan,
+      status: profile.subscriptionStatus,
+      cycle: profile.subscriptionCycle,
+      periodEnd: profile.subscriptionCurrentPeriodEnd,
+      updatedAt: profile.subscriptionUpdatedAt,
+    },
   };
 }
 
-async function getBillingUserOrThrow(db: any, userId: string) {
+async function getBillingUserOrThrow(db: ApiDb, userId: string) {
   const currentUser = await db.query.user.findFirst({
     where: eq(user.id, userId),
     columns: {
@@ -296,7 +305,7 @@ async function getBillingUserOrThrow(db: any, userId: string) {
 
 export async function ensureBillingCustomerService(
   context: ProtectedAppContext
-): Promise<{ id: string; email: string }> {
+): Promise<BillingCustomerSummary> {
   const userId = context.session.user.id;
   const { db } = context;
   const currentUser = await getBillingUserOrThrow(db, userId);
@@ -325,16 +334,7 @@ export async function ensureBillingCustomerService(
 
 export async function syncBillingSnapshotService(
   context: ProtectedAppContext
-): Promise<{
-  customerId: string;
-  subscription: {
-    plan: string;
-    status: string;
-    cycle: string | null;
-    periodEnd: Date | null;
-    updatedAt: Date;
-  };
-}> {
+): Promise<BillingSyncResult> {
   const userId = context.session.user.id;
   const { db } = context;
   const currentUser = await getBillingUserOrThrow(db, userId);
@@ -385,30 +385,25 @@ export async function updateProfileService(
     bio?: string;
     socialLinks?: SocialLink[];
   }
-): Promise<{
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-  bio: string | null;
-  socialLinks: SocialLink[];
-} | null> {
+): Promise<EditableProfile | null> {
   const userId = context.session.user.id;
   const { db } = context;
 
   const updateData = buildProfileUpdateData(input);
   if (Object.keys(updateData).length === 0) {
-    return db.query.user.findFirst({
-      where: eq(user.id, userId),
-      columns: {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        bio: true,
-        socialLinks: true,
-      },
-    });
+    return (
+      (await db.query.user.findFirst({
+        where: eq(user.id, userId),
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          bio: true,
+          socialLinks: true,
+        },
+      })) ?? null
+    );
   }
 
   const [updated] = await db
@@ -424,7 +419,7 @@ export async function updateProfileService(
       socialLinks: user.socialLinks,
     });
 
-  return updated;
+  return updated ?? null;
 }
 
 export async function getUserSessionsService(
@@ -435,7 +430,9 @@ export async function getUserSessionsService(
 
   const sessions = await db.query.session.findMany({
     where: eq(session.userId, userId),
-    orderBy: (s: any, { desc: descOrder }: any) => [descOrder(s.createdAt)],
+    orderBy: (sessionTable, { desc: descOrder }) => [
+      descOrder(sessionTable.createdAt),
+    ],
     columns: {
       id: true,
       token: false,
@@ -448,7 +445,7 @@ export async function getUserSessionsService(
   });
 
   const currentSessionId = context.session.session.id;
-  return sessions.map((currentSession: { id: string }) => ({
+  return sessions.map((currentSession) => ({
     ...currentSession,
     isCurrent: currentSession.id === currentSessionId,
   }));
@@ -473,7 +470,7 @@ export async function getLinkedAccountsService(
 export async function revokeSessionService(
   context: ProtectedAppContext,
   input: { sessionId: string }
-): Promise<{ success: true }> {
+): Promise<MutationSuccess> {
   const userId = context.session.user.id;
   const currentSessionId = context.session.session.id;
   const { db } = context;
@@ -506,7 +503,7 @@ export async function revokeSessionService(
 
 export async function deleteAllUserPostsService(
   context: ProtectedAppContext
-): Promise<{ deletedCount: number }> {
+): Promise<DeletedCountResult> {
   const userId = context.session.user.id;
   const { db } = context;
   const result = await db
@@ -520,7 +517,7 @@ export async function deleteAllUserPostsService(
 
 export async function deleteAllUserFeedbackService(
   context: ProtectedAppContext
-): Promise<{ deletedCount: number }> {
+): Promise<DeletedCountResult> {
   const userId = context.session.user.id;
   const { db } = context;
   const result = await db
@@ -534,7 +531,7 @@ export async function deleteAllUserFeedbackService(
 
 export async function deleteAllUserLikesService(
   context: ProtectedAppContext
-): Promise<{ deletedCount: number }> {
+): Promise<DeletedCountResult> {
   const userId = context.session.user.id;
   const { db } = context;
   const result = await db
@@ -548,7 +545,7 @@ export async function deleteAllUserLikesService(
 export async function setPasswordService(
   context: ProtectedAppContext,
   input: { newPassword: string }
-): Promise<{ success: true }> {
+): Promise<MutationSuccess> {
   const userId = context.session.user.id;
   const { db } = context;
 

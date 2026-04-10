@@ -1,4 +1,4 @@
-import { auth } from "@actnow/auth";
+import { getAuth } from "@actnow/auth";
 import { UserRole } from "@actnow/common";
 import { notFound, redirect } from "@tanstack/react-router";
 import { createMiddleware } from "@tanstack/react-start";
@@ -6,7 +6,7 @@ import { setResponseStatus } from "@tanstack/react-start/server";
 
 export const authMiddleware = createMiddleware().server(
   async ({ next, request }) => {
-    const session = await auth.api.getSession({
+    const session = await getAuth().api.getSession({
       headers: request.headers,
     });
 
@@ -23,7 +23,7 @@ export const authMiddleware = createMiddleware().server(
 
 export const authInterceptor = createMiddleware().server(
   async ({ next, request }) => {
-    const session = await auth.api.getSession({
+    const session = await getAuth().api.getSession({
       headers: request.headers,
     });
 
@@ -39,7 +39,7 @@ export const authInterceptor = createMiddleware().server(
 
 export const adminInterceptor = createMiddleware().server(
   async ({ next, request }) => {
-    const session = await auth.api.getSession({
+    const session = await getAuth().api.getSession({
       headers: request.headers,
     });
 

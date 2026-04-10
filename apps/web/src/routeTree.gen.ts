@@ -182,7 +182,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
-  '/$userSlug': typeof appUserSlugIndexRoute
+  '/$userSlug/': typeof appUserSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/404': typeof app404Route
@@ -261,7 +261,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel/'
-    | '/$userSlug'
+    | '/$userSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/404'
@@ -426,7 +426,7 @@ declare module '@tanstack/react-router' {
     '/(app)/$userSlug/': {
       id: '/(app)/$userSlug/'
       path: '/$userSlug'
-      fullPath: '/$userSlug'
+      fullPath: '/$userSlug/'
       preLoaderRoute: typeof appUserSlugIndexRouteImport
       parentRoute: typeof appRouteRoute
     }

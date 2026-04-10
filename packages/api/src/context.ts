@@ -1,8 +1,8 @@
-import { auth } from "@actnow/auth";
+import { getAuth } from "@actnow/auth";
 import { createDb } from "@actnow/db";
 
 export async function createContext({ req }: { req: Request }) {
-  const session = await auth.api.getSession({
+  const session = await getAuth().api.getSession({
     headers: req.headers,
   });
 

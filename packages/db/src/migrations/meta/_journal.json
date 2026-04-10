@@ -1,26 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1769054601774,
-      "tag": "0000_true_sleeper",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1769059153521,
-      "tag": "0002_rename_post_content_to_comment",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1769952000000,
-      "tag": "0003_add_polar_subscription",
+      "version": "6",
+      "when": 1775790574060,
+      "tag": "0000_brainy_thaddeus_ross",
       "breakpoints": true
     }
   ]

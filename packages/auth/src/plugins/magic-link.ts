@@ -1,8 +1,10 @@
-import { getBaseUrl, site } from "@actnow/common";
+import { site } from "@actnow/common";
+import { isDevelopment } from "@actnow/common/runtime-env";
 import { createDb } from "@actnow/db";
 import { user } from "@actnow/db/schema/auth";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { eq } from "drizzle-orm";
+import { getAppBaseUrl } from "../env";
 
 export function createMagicLinkPlugin() {
   return magicLink({
@@ -21,7 +23,7 @@ export function createMagicLinkPlugin() {
 
         const [name = email] = email.split("@");
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevelopment()) {
           console.info("sendMagicLink", { email, url });
         }
 
@@ -35,7 +37,7 @@ export function createMagicLinkPlugin() {
           renderData: MagicLinkEmail({
             name: existingUser?.name || name,
             verifyUrl: url,
-            baseUrl: getBaseUrl(),
+            baseUrl: getAppBaseUrl(),
           }),
         });
       } catch (err) {
@@ -46,6 +48,3 @@ export function createMagicLinkPlugin() {
     expiresIn: 600, // 10 minutes
   });
 }
-
-// Default export for backward compatibility
-export const magicLinkPlugin = createMagicLinkPlugin();

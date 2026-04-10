@@ -1,45 +1,44 @@
 import { relations, sql } from "drizzle-orm";
 import {
   index,
-  pgEnum,
-  pgTable,
   primaryKey,
+  sqliteTable,
   text,
-  timestamp,
   uniqueIndex,
-  varchar,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
+import { CURRENT_TIMESTAMP_MS, timestampMs } from "./helpers";
 import { posts } from "./posts";
 
-// Tag type enum
-export const tagTypeEnum = pgEnum("tag_type", ["platform", "model", "style"]);
+export const TAG_TYPES = ["platform", "model", "style"] as const;
 
-// Tags table
-export const tags = pgTable(
+export const tags = sqliteTable(
   "tags",
   {
     id: text("id").primaryKey(),
-    name: varchar("name", { length: 100 }).notNull(),
-    value: varchar("value", { length: 100 }).notNull(),
-    type: tagTypeEnum("type").notNull(),
+    name: text("name", { length: 100 }).notNull(),
+    value: text("value", { length: 100 }).notNull(),
+    type: text("type", { enum: TAG_TYPES }).notNull(),
     description: text("description"),
     tipMedia: text("tip_media"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
+    updatedAt: timestampMs("updated_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: timestampMs("deleted_at"),
   },
   (table) => [
     index("tags_type_idx").on(table.type),
     index("tags_name_idx").on(table.name),
-    // Partial unique index: value + type must be unique for non-deleted records
     uniqueIndex("tags_value_type_unique")
       .on(table.value, table.type)
       .where(sql`${table.deletedAt} IS NULL`),
   ]
 );
 
-// Post-Tag junction table
-export const postTags = pgTable(
+export const postTags = sqliteTable(
   "post_tags",
   {
     postId: text("post_id")
@@ -48,7 +47,9 @@ export const postTags = pgTable(
     tagId: text("tag_id")
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.postId, table.tagId] }),
@@ -57,7 +58,6 @@ export const postTags = pgTable(
   ]
 );
 
-// Relations
 export const tagsRelations = relations(tags, ({ many }) => ({
   postTags: many(postTags),
 }));
@@ -73,8 +73,7 @@ export const postTagsRelations = relations(postTags, ({ one }) => ({
   }),
 }));
 
-// Type exports
 export type Tag = typeof tags.$inferSelect;
 export type NewTag = typeof tags.$inferInsert;
-export type TagType = (typeof tagTypeEnum.enumValues)[number];
+export type TagType = (typeof TAG_TYPES)[number];
 export type PostTag = typeof postTags.$inferSelect;

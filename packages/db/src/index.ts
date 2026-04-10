@@ -1,37 +1,40 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { getBinding } from "@actnow/common/runtime-env";
+import { type AnyColumn, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./schema";
+
+type D1Client = Parameters<typeof drizzle>[0];
 
 export type DbType = ReturnType<typeof drizzle<typeof schema>>;
 
-function resolveConnectionString(connectionString?: string): string {
-  const value = connectionString ?? process.env.DATABASE_URL;
-  if (!value) {
-    throw new Error("DATABASE_URL is not set");
-  }
-  return value;
+const dbCache = new WeakMap<object, DbType>();
+
+function resolveClient(database?: D1Client): D1Client {
+  return database ?? getBinding<D1Client>("DB");
 }
 
-const dbCache = new Map<string, DbType>();
-
-export function createDb(connectionString?: string): DbType {
-  const connStr = resolveConnectionString(connectionString);
-  const cached = dbCache.get(connStr);
+export function createDb(database?: D1Client): DbType {
+  const client = resolveClient(database);
+  const cached = dbCache.get(client as object);
   if (cached) {
     return cached;
   }
 
-  const sql = postgres(connStr, {
-    prepare: false,
-  });
-  const database = drizzle(sql, { schema });
-  dbCache.set(connStr, database);
-  return database;
+  const db = drizzle(client, { schema });
+  dbCache.set(client as object, db);
+  return db;
 }
 
-export const db = createDb();
+export const db = new Proxy({} as DbType, {
+  get(_target, property, receiver) {
+    return Reflect.get(createDb(), property, receiver);
+  },
+});
 
-// 重新导出 drizzle-orm 操作符，确保整个项目使用同一个 drizzle-orm 实例
+export function ilike(column: AnyColumn, value: string) {
+  return sql`lower(${column}) like ${value.toLowerCase()}`;
+}
+
 export {
   and,
   asc,
@@ -40,9 +43,9 @@ export {
   eq,
   gt,
   gte,
-  ilike,
   inArray,
   isNull,
+  like,
   lt,
   lte,
   max,
@@ -52,4 +55,3 @@ export {
   type SQL,
   sql,
 } from "drizzle-orm";
-export type { PgColumn } from "drizzle-orm/pg-core";

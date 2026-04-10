@@ -59,8 +59,8 @@ ResetPasswordEmail.PreviewProps = {
   name: "actnow",
   verifyCode: "123456",
   verifyUrl:
-    "http://localhost:3001/reset-password?email=test@example.com&token=123456",
-  baseUrl: "http://localhost:3001",
+    "http://localhost:3002/reset-password?email=test@example.com&token=123456",
+  baseUrl: "http://localhost:3002",
 } as ResetPasswordEmailProps;
 
 export default ResetPasswordEmail;

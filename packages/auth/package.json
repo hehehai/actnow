@@ -10,7 +10,7 @@
   },
   "type": "module",
   "scripts": {
-    "schema:gen": "dotenv -e ../../apps/web/.env -- npx @better-auth/cli@latest generate --config src/index.ts"
+    "schema:gen": "dotenv -e ../../apps/web/.dev.vars -- npx @better-auth/cli@latest generate --config src/index.ts"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0"

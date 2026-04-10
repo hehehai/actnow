@@ -1,4 +1,5 @@
 import { site } from "@actnow/common";
+import { getRequiredEnv } from "@actnow/common/runtime-env";
 import type { JSXElementConstructor, ReactElement } from "react";
 
 // Lazy-loaded dependencies to reduce initial bundle size
@@ -7,7 +8,7 @@ let resendClient: import("resend").Resend | null = null;
 async function getResendClient() {
   if (!resendClient) {
     const { Resend } = await import("resend");
-    resendClient = new Resend(process.env.RESEND_API_KEY);
+    resendClient = new Resend(getRequiredEnv("RESEND_API_KEY"));
   }
   return resendClient;
 }
@@ -29,9 +30,10 @@ export async function sendEmail({
     const { render } = await import("@react-email/render");
     const resend = await getResendClient();
     const emailHtml = await render(renderData, renderOptions);
+    const from = `${site.name} <${getRequiredEnv("EMAIL_USER")}>`;
 
     const status = await resend.emails.send({
-      from: `${site.name} <${process.env.EMAIL_USER}>`,
+      from,
       to,
       subject,
       html: emailHtml,
@@ -62,9 +64,10 @@ export async function batchSendEmail({
     const { render } = await import("@react-email/render");
     const resend = await getResendClient();
     const emailHtml = renderData.map((item) => render(item, renderOptions));
+    const from = `${site.name} <${getRequiredEnv("EMAIL_USER")}>`;
 
     const mailTask = to.map(async (email, idx) => ({
-      from: `${site.name} <${process.env.EMAIL_USER}>`,
+      from,
       to: email,
       subject,
       html: (await emailHtml[idx])!,

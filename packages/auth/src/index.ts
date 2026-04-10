@@ -1,4 +1,9 @@
-import { getBaseUrl, site } from "@actnow/common";
+import { site } from "@actnow/common";
+import {
+  getEnvValue,
+  getRuntimeEnv,
+  isDevelopment,
+} from "@actnow/common/runtime-env";
 import { createDb } from "@actnow/db";
 import * as schema from "@actnow/db/schema/auth";
 import { feedbacks } from "@actnow/db/schema/feedback";
@@ -6,6 +11,7 @@ import { postLikes, posts } from "@actnow/db/schema/posts";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { eq } from "drizzle-orm";
+import { getAppBaseUrl } from "./env";
 import { createAuthPlugins } from "./plugins";
 
 type AuthEnvKey =
@@ -17,22 +23,26 @@ type AuthEnvKey =
   | "GOOGLE_CLIENT_ID"
   | "GOOGLE_CLIENT_SECRET";
 
-function getEnvValue(key: AuthEnvKey): string {
-  return process.env[key] ?? "";
+function getAuthEnvValue(key: AuthEnvKey): string {
+  return getEnvValue(key);
 }
+
+type Auth = ReturnType<typeof createAuth>;
+
+const authCache = new WeakMap<object, Auth>();
 
 export function createAuth() {
   const database = createDb();
 
   return betterAuth({
     database: drizzleAdapter(database, {
-      provider: "pg",
+      provider: "sqlite",
       schema,
     }),
 
-    baseURL: getEnvValue("BETTER_AUTH_URL"),
-    secret: getEnvValue("BETTER_AUTH_SECRET"),
-    trustedOrigins: [getEnvValue("CORS_ORIGIN")].filter(Boolean),
+    baseURL: getAuthEnvValue("BETTER_AUTH_URL"),
+    secret: getAuthEnvValue("BETTER_AUTH_SECRET"),
+    trustedOrigins: [getAuthEnvValue("CORS_ORIGIN")].filter(Boolean),
 
     emailAndPassword: {
       enabled: true,
@@ -44,7 +54,7 @@ export function createAuth() {
         const [name = user.email] = user.email.split("@");
         const userName = user.name || name;
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevelopment()) {
           console.info("sendVerificationEmail", {
             email: user.email,
             url,
@@ -52,7 +62,6 @@ export function createAuth() {
           });
         }
 
-        // Lazy load email dependencies to reduce initial bundle size
         const { sendEmail } = await import("@actnow/email");
         const { VerificationEmail } = await import(
           "@actnow/email/templates/auth"
@@ -65,7 +74,7 @@ export function createAuth() {
             name: userName,
             verifyUrl: url,
             verifyCode: token,
-            baseUrl: getBaseUrl(),
+            baseUrl: getAppBaseUrl(),
           }),
         });
       },
@@ -75,12 +84,12 @@ export function createAuth() {
 
     socialProviders: {
       github: {
-        clientId: getEnvValue("GITHUB_CLIENT_ID"),
-        clientSecret: getEnvValue("GITHUB_CLIENT_SECRET"),
+        clientId: getAuthEnvValue("GITHUB_CLIENT_ID"),
+        clientSecret: getAuthEnvValue("GITHUB_CLIENT_SECRET"),
       },
       google: {
-        clientId: getEnvValue("GOOGLE_CLIENT_ID"),
-        clientSecret: getEnvValue("GOOGLE_CLIENT_SECRET"),
+        clientId: getAuthEnvValue("GOOGLE_CLIENT_ID"),
+        clientSecret: getAuthEnvValue("GOOGLE_CLIENT_SECRET"),
       },
     },
 
@@ -130,16 +139,13 @@ export function createAuth() {
         beforeDelete: async (user) => {
           const reqDb = createDb();
 
-          // Delete all user likes
           await reqDb.delete(postLikes).where(eq(postLikes.userId, user.id));
 
-          // Soft delete all user feedback
           await reqDb
             .update(feedbacks)
             .set({ deletedAt: new Date() })
             .where(eq(feedbacks.createdById, user.id));
 
-          // Soft delete user posts
           await reqDb
             .update(posts)
             .set({ deletedAt: new Date() })
@@ -149,10 +155,10 @@ export function createAuth() {
     },
 
     session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
+      expiresIn: 60 * 60 * 24 * 7,
       cookieCache: {
         enabled: true,
-        maxAge: 60 * 5, // 5 minutes
+        maxAge: 60 * 5,
       },
     },
 
@@ -164,8 +170,22 @@ export function createAuth() {
   });
 }
 
-// Default auth instance for CLI/build time
-export const auth = createAuth();
+export function getAuth() {
+  const env = getRuntimeEnv();
+  const cached = authCache.get(env as object);
+  if (cached) {
+    return cached;
+  }
 
-// Export type for auth instance
-export type Auth = ReturnType<typeof createAuth>;
+  const auth = createAuth();
+  authCache.set(env as object, auth);
+  return auth;
+}
+
+export const auth = new Proxy({} as Auth, {
+  get(_target, property, receiver) {
+    return Reflect.get(getAuth(), property, receiver);
+  },
+});
+
+export type { Auth };

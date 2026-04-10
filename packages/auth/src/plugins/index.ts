@@ -18,5 +18,3 @@ export function createAuthPlugins() {
     tanstackStartCookies(),
   ];
 }
-
-export const authPlugins = createAuthPlugins();

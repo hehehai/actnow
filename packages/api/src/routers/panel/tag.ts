@@ -22,6 +22,7 @@ import { ORPCError } from "@orpc/server";
 import { adminProcedure, protectedProcedure } from "../../index";
 import {
   buildPaginationResult,
+  combineFilters,
   generateId,
   getCountFromResult,
   getPaginationOffset,
@@ -55,7 +56,7 @@ export const tagRouter = {
         conditions.push(eq(tags.type, type));
       }
 
-      const whereClause = and(...conditions);
+      const whereClause = combineFilters(conditions);
 
       // Get total count
       const totalResult = await db
@@ -115,7 +116,7 @@ export const tagRouter = {
         }
 
         const existingValue = await db.query.tags.findFirst({
-          where: and(...valueConditions),
+          where: combineFilters(valueConditions),
         });
 
         if (existingValue) {
@@ -235,7 +236,7 @@ export const tagRouter = {
         conditions.push(eq(tags.type, type));
       }
 
-      const whereClause = and(...conditions);
+      const whereClause = combineFilters(conditions);
 
       const tagList = await db
         .select({

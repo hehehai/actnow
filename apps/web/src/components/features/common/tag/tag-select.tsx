@@ -200,7 +200,7 @@ export function TagSelect({
             </div>
             {value.length > 0 && (
               <span
-                className="i-hugeicons-cancel-01 -translate-y-1/2 absolute top-1/2 right-2 size-4 shrink-0 opacity-50 hover:opacity-100"
+                className="i-hugeicons-cancel-01 absolute top-1/2 right-2 size-4 shrink-0 -translate-y-1/2 opacity-50 hover:opacity-100"
                 onClick={handleClear}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {

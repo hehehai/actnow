@@ -1,0 +1,32 @@
+name = "actnow-web"
+compatibility_date = "2026-04-10"
+compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
+main = "src/server.ts"
+
+[observability]
+enabled = true
+
+[vars]
+CORS_ORIGIN = "https://actnow.dev"
+BETTER_AUTH_URL = "https://actnow.dev"
+POLAR_ENVIRONMENT = "sandbox"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "actnow"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../../packages/db/src/migrations"
+
+[env.development]
+name = "actnow-web"
+
+[env.development.vars]
+CORS_ORIGIN = "http://localhost:3002"
+BETTER_AUTH_URL = "http://localhost:3002"
+POLAR_ENVIRONMENT = "sandbox"
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "actnow-dev"
+database_id = "11111111-1111-1111-1111-111111111111"
+migrations_dir = "../../packages/db/src/migrations"

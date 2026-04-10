@@ -10,8 +10,8 @@ const badgeVariants = cva(
     variants: {
       shape: {
         simple: "rounded-full border px-2 py-0.5",
-        bar: "before:-translate-y-1/2 rounded-[7px] border border-transparent py-1 pr-1.5 pl-3.5 before:absolute before:top-1/2 before:left-1.5 before:h-[55%] before:w-0.75 before:rounded-full before:bg-current",
-        dot: "before:-translate-y-1/2 rounded-[7px] border border-transparent py-1 pr-1.5 pl-4.5 before:absolute before:top-1/2 before:left-1.5 before:size-2 before:rounded-full before:bg-current",
+        bar: "rounded-[7px] border border-transparent py-1 pr-1.5 pl-3.5 before:absolute before:top-1/2 before:left-1.5 before:h-[55%] before:w-0.75 before:-translate-y-1/2 before:rounded-full before:bg-current",
+        dot: "rounded-[7px] border border-transparent py-1 pr-1.5 pl-4.5 before:absolute before:top-1/2 before:left-1.5 before:size-2 before:-translate-y-1/2 before:rounded-full before:bg-current",
       },
       variant: {
         default: "",

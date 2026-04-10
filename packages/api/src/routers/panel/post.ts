@@ -21,19 +21,14 @@ import { ORPCError } from "@orpc/server";
 import { adminProcedure } from "../../index";
 import {
   buildPaginationResult,
+  combineFilters,
   generateId,
   getCountFromResult,
   getPaginationOffset,
   getSortOrder,
   handleDbError,
 } from "../../lib/utils";
-
-async function syncPostTags(db: any, postId: string, tagIds: string[]) {
-  await db.delete(postTags).where(eq(postTags.postId, postId));
-  if (!tagIds.length) return;
-  const unique = Array.from(new Set(tagIds));
-  await db.insert(postTags).values(unique.map((tagId) => ({ postId, tagId })));
-}
+import { groupTagsByPost, syncPostTags } from "../../services/app/post-shared";
 
 export const postRouter = {
   list: adminProcedure
@@ -64,7 +59,7 @@ export const postRouter = {
         }
       }
 
-      const conditions: any[] = [isNull(posts.deletedAt)];
+      const conditions: Array<SQL | undefined> = [isNull(posts.deletedAt)];
       if (visibility === "public") {
         conditions.push(eq(posts.isPublic, true));
       }
@@ -81,7 +76,7 @@ export const postRouter = {
         conditions.push(eq(posts.createdById, createdById));
       }
 
-      const whereClause = (and(...conditions) ?? conditions[0]) as SQL<unknown>;
+      const whereClause = combineFilters(conditions);
 
       const total = getCountFromResult(
         await db.select({ count: count() }).from(posts).where(whereClause)
@@ -118,7 +113,7 @@ export const postRouter = {
         })
         .from(posts)
         .leftJoin(user, eq(posts.createdById, user.id))
-        .where(whereClause as any)
+        .where(whereClause)
         .orderBy(getSortOrder(sortColumn, sortOrder))
         .limit(limit)
         .offset(offset);
@@ -139,15 +134,7 @@ export const postRouter = {
             .where(inArray(postTags.postId, postIds))
         : [];
 
-      const tagMap = new Map<string, typeof tagRows>();
-      for (const tag of tagRows) {
-        const existing = tagMap.get(tag.postId);
-        if (existing) {
-          existing.push(tag);
-        } else {
-          tagMap.set(tag.postId, [tag]);
-        }
-      }
+      const tagMap = groupTagsByPost(tagRows);
 
       const items = rows.map((record) => ({
         ...record,

@@ -11,6 +11,7 @@ import { ORPCError } from "@orpc/server";
 import { adminProcedure } from "../../index";
 import {
   buildPaginationResult,
+  combineFilters,
   getCountFromResult,
   getPaginationOffset,
   getSortOrder,
@@ -26,7 +27,7 @@ export const feedbackPanelRouter = {
 
       const offset = getPaginationOffset({ page, pageSize });
 
-      const conditions: any[] = [isNull(feedbacks.deletedAt)];
+      const conditions: Array<SQL | undefined> = [isNull(feedbacks.deletedAt)];
 
       if (status !== "ALL") {
         conditions.push(eq(feedbacks.status, status));
@@ -46,7 +47,7 @@ export const feedbackPanelRouter = {
         );
       }
 
-      const whereClause = (and(...conditions) ?? conditions[0]) as SQL<unknown>;
+      const whereClause = combineFilters(conditions);
 
       const total = getCountFromResult(
         await db.select({ count: count() }).from(feedbacks).where(whereClause)
@@ -70,7 +71,7 @@ export const feedbackPanelRouter = {
         })
         .from(feedbacks)
         .leftJoin(user, eq(feedbacks.createdById, user.id))
-        .where(whereClause as any)
+        .where(whereClause)
         .orderBy(
           getSortOrder(
             sortBy === "updatedAt" ? feedbacks.updatedAt : feedbacks.createdAt,

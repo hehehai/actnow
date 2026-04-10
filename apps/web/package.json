@@ -3,10 +3,19 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:prepare": "pnpm run db:migrate:local",
     "build": "vite build",
-    "dev": "vite dev --port=3002",
+    "dev": "CLOUDFLARE_ENV=development pnpm run dev:prepare && CLOUDFLARE_ENV=development vite dev --port=3002",
+    "dev:clean": "rm -rf node_modules/.vite && pnpm run dev",
     "preview": "vite preview",
-    "check-types": "tsgo --noEmit"
+    "check-types": "tsgo --noEmit",
+    "deploy": "vite build && wrangler deploy",
+    "destroy": "wrangler delete",
+    "cf-typegen": "wrangler types --env development",
+    "db:migrate": "pnpm run db:migrate:local",
+    "db:migrate:local": "wrangler d1 migrations apply DB --env development --local --persist-to .wrangler/state",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --env development",
+    "db:migrate:production": "wrangler d1 migrations apply DB --remote"
   },
   "dependencies": {
     "@actnow/api": "workspace:*",
@@ -59,6 +68,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.13.7",
     "@aws-sdk/client-s3": "^3.990.0",
     "@aws-sdk/s3-request-presigner": "^3.990.0",
     "@devmehq/email-validator-js": "^2.10.4",
@@ -76,7 +86,7 @@
     "drizzle-orm": "catalog:",
     "jsdom": "^28.1.0",
     "nitro": "3.0.1-alpha.2",
-    "postgres": "^3.4.8",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "wrangler": "^4.10.0"
   }
 }

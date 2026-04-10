@@ -12,8 +12,10 @@ import {
 import { account, session, user } from "@actnow/db/schema/auth";
 import { postLikes, posts } from "@actnow/db/schema/posts";
 import { ORPCError } from "@orpc/server";
+import type { PanelContext } from "../../lib/context-types";
 import {
   buildPaginationResult,
+  combineFilters,
   generateId,
   getCountFromResult,
   getPaginationOffset,
@@ -25,10 +27,6 @@ import {
   mapPanelUserListItem,
   mapUserSubscriptionSnapshot,
 } from "./user-shared";
-
-type PanelContext = {
-  db: any;
-};
 
 type UserFilterItem = {
   id: string;
@@ -105,6 +103,8 @@ type PanelUserDetail = {
   };
 };
 
+type PanelManagedUser = typeof user.$inferSelect;
+
 export async function listUsersForFilterService(
   context: PanelContext,
   input: { search?: string; limit: number }
@@ -115,6 +115,7 @@ export async function listUsersForFilterService(
     eq(user.role, "USER"),
     ...buildUserListConditions({ search }),
   ];
+  const whereClause = combineFilters(conditions);
 
   return db
     .select({
@@ -124,7 +125,7 @@ export async function listUsersForFilterService(
       image: user.image,
     })
     .from(user)
-    .where(and(...conditions))
+    .where(whereClause)
     .orderBy(desc(user.updatedAt))
     .limit(limit);
 }
@@ -154,7 +155,7 @@ export async function listUsersService(
     dateFrom,
     dateTo,
   });
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const whereClause = combineFilters(conditions);
 
   const totalResult = await db
     .select({ count: count() })
@@ -267,26 +268,7 @@ export async function createUserService(
     image?: string | null;
     password: string;
   }
-): Promise<{
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  role: string | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  subscriptionPlan: string;
-  subscriptionStatus: string;
-  subscriptionCycle: string | null;
-  subscriptionCurrentPeriodEnd: Date | null;
-  subscriptionUpdatedAt: Date | null;
-  socialLinks: Array<{ platform: string; url: string }>;
-  bio: string | null;
-}> {
+): Promise<PanelManagedUser> {
   const { password, ...userData } = input;
   const { db } = context;
 
@@ -329,26 +311,7 @@ export async function updateUserService(
     image?: string | null;
     password?: string;
   }
-): Promise<{
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  role: string | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  subscriptionPlan: string;
-  subscriptionStatus: string;
-  subscriptionCycle: string | null;
-  subscriptionCurrentPeriodEnd: Date | null;
-  subscriptionUpdatedAt: Date | null;
-  socialLinks: Array<{ platform: string; url: string }>;
-  bio: string | null;
-}> {
+): Promise<PanelManagedUser> {
   const { id, password, ...updateData } = input;
   const { db } = context;
 
@@ -459,26 +422,7 @@ export async function batchDeleteUsersService(
 export async function banUserService(
   context: PanelContext,
   input: { id: string; reason: string; expiresAt?: Date }
-): Promise<{
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  role: string | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  subscriptionPlan: string;
-  subscriptionStatus: string;
-  subscriptionCycle: string | null;
-  subscriptionCurrentPeriodEnd: Date | null;
-  subscriptionUpdatedAt: Date | null;
-  socialLinks: Array<{ platform: string; url: string }>;
-  bio: string | null;
-}> {
+): Promise<PanelManagedUser> {
   const { db } = context;
   const existing = await db.query.user.findFirst({
     where: eq(user.id, input.id),
@@ -505,26 +449,7 @@ export async function banUserService(
 export async function unbanUserService(
   context: PanelContext,
   input: { id: string }
-): Promise<{
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  role: string | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  subscriptionPlan: string;
-  subscriptionStatus: string;
-  subscriptionCycle: string | null;
-  subscriptionCurrentPeriodEnd: Date | null;
-  subscriptionUpdatedAt: Date | null;
-  socialLinks: Array<{ platform: string; url: string }>;
-  bio: string | null;
-}> {
+): Promise<PanelManagedUser> {
   const { db } = context;
   const existing = await db.query.user.findFirst({
     where: eq(user.id, input.id),

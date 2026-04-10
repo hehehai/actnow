@@ -13,7 +13,7 @@
       "!**/routeTree.gen.ts",
       "!bts.jsonc",
       "!**/.wrangler",
-      "!**/wrangler.jsonc",
+      "!**/wrangler.toml",
       "!**/.source"
     ]
   },

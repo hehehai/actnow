@@ -1,8 +1,10 @@
-import { getBaseUrl, site } from "@actnow/common";
+import { site } from "@actnow/common";
+import { isDevelopment } from "@actnow/common/runtime-env";
 import { createDb } from "@actnow/db";
 import { user } from "@actnow/db/schema/auth";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { eq } from "drizzle-orm";
+import { getAppBaseUrl } from "../env";
 
 export function createEmailOtpPlugin() {
   return emailOTP({
@@ -34,7 +36,7 @@ export function createEmailOtpPlugin() {
         const [name = email] = email.split("@");
         const userName = existingUser?.name || name;
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevelopment()) {
           console.info("sendVerificationOTP", {
             email,
             otp,
@@ -50,7 +52,7 @@ export function createEmailOtpPlugin() {
 
         if (isPasswordReset) {
           // Password reset email
-          const verifyUrl = `${getBaseUrl()}/reset-password?email=${encodeURIComponent(email)}&token=${otp}`;
+          const verifyUrl = `${getAppBaseUrl()}/reset-password?email=${encodeURIComponent(email)}&token=${otp}`;
 
           await sendEmail({
             to: email,
@@ -59,13 +61,13 @@ export function createEmailOtpPlugin() {
               name: userName,
               verifyUrl,
               verifyCode: otp,
-              baseUrl: getBaseUrl(),
+              baseUrl: getAppBaseUrl(),
             }),
           });
         } else {
           // Verification email (sign-in, sign-up, email-verification)
           const sendTitle = existingUser ? "Sign in" : "Sign up";
-          const verifyUrl = `${getBaseUrl()}/verify-email?email=${encodeURIComponent(email)}&token=${otp}`;
+          const verifyUrl = `${getAppBaseUrl()}/verify-email?email=${encodeURIComponent(email)}&token=${otp}`;
 
           await sendEmail({
             to: email,
@@ -74,7 +76,7 @@ export function createEmailOtpPlugin() {
               name: userName,
               verifyUrl,
               verifyCode: otp,
-              baseUrl: getBaseUrl(),
+              baseUrl: getAppBaseUrl(),
             }),
           });
         }
@@ -88,6 +90,3 @@ export function createEmailOtpPlugin() {
     sendVerificationOnSignUp: true,
   });
 }
-
-// Default export for backward compatibility
-export const emailOtpPlugin = createEmailOtpPlugin();

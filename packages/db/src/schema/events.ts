@@ -1,36 +1,25 @@
-import {
-  index,
-  jsonb,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { index, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { user } from "./auth";
+import { CURRENT_TIMESTAMP_MS, jsonText, timestampMs } from "./helpers";
 
-// Event type enum - extensible for future events
-export const eventTypeEnum = pgEnum("event_type", [
+export const EVENT_TYPES = [
   "POST_LIKED",
   "POST_UNLIKED",
   "POST_VIEWED",
-]);
+] as const;
 
-// Generic event logs table for tracking various business events
-export const eventLogs = pgTable(
+export const eventLogs = sqliteTable(
   "event_logs",
   {
     id: text("id").primaryKey(),
-    eventType: eventTypeEnum("event_type").notNull(),
-
-    // Generic association fields (used based on event type)
+    eventType: text("event_type", { enum: EVENT_TYPES }).notNull(),
     userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
-    targetId: text("target_id"), // Target object ID (postId, tagId, etc.)
-    targetType: text("target_type"), // Target type ("post", "tag", etc.)
-
-    // Extra data (JSON format for event-specific data)
-    metadata: jsonb("metadata"),
-
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    targetId: text("target_id"),
+    targetType: text("target_type"),
+    metadata: jsonText<Record<string, unknown> | null>("metadata"),
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
   },
   (table) => [
     index("event_logs_type_created_at_idx").on(
@@ -42,6 +31,5 @@ export const eventLogs = pgTable(
   ]
 );
 
-// Type exports
 export type EventLog = typeof eventLogs.$inferSelect;
 export type NewEventLog = typeof eventLogs.$inferInsert;

@@ -1,17 +1,22 @@
 import { site } from "./site";
 
 export function getBaseUrl() {
+  const processEnv: Record<string, string | undefined> =
+    typeof process !== "undefined" ? (process.env ?? {}) : {};
+
   // Vercel (legacy/alternative deployment)
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  const vercelUrl = processEnv.VERCEL_URL;
+  if (vercelUrl) {
+    return `https://${vercelUrl}`;
   }
-  if (process.env.VERCEL_ENV === "production") {
+
+  if (processEnv.VERCEL_ENV === "production") {
     return site.url;
   }
 
   // Development
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:3001";
+  if (processEnv.NODE_ENV === "development") {
+    return "http://localhost:3002";
   }
 
   // Production (Cloudflare Workers or other)

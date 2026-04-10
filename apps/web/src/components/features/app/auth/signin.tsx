@@ -7,6 +7,7 @@ import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { signInPassword } from "@/functions/sign-in-password";
 import { authClient } from "@/lib/auth-client";
 import { SigninEmail } from "./signin-email";
 import { SigninEmailOtp } from "./signin-email-otp";
@@ -61,38 +62,20 @@ export const SignIn = () => {
   const handlePasswordSubmit = async (data: SignInPasswordFormData) => {
     setIsPending(true);
     try {
-      const response = await authClient.signIn.email({
-        email: data.email,
-        password: data.password,
-      });
-      if (response.error) {
-        // Handle banned user error
-        const errorCode = (response.error as { code?: string })?.code;
+      const response = await signInPassword({ data });
+      if (!response.ok) {
+        const errorCode = response.error.code;
         if (errorCode === "USER_BANNED") {
-          const banReason = (response.error as { banReason?: string })
-            ?.banReason;
-          toast.error(
-            banReason
-              ? `Your account has been banned: ${banReason}`
-              : "Your account has been banned. Please contact support.",
-            { duration: 6000 }
-          );
+          toast.error("Your account has been banned. Please contact support.", {
+            duration: 6000,
+          });
           return;
         }
-        toast.error(
-          response.error.message ||
-            (response.error as { statusText?: string }).statusText ||
-            "Invalid email or password"
-        );
+        toast.error(response.error.message || "Invalid email or password");
         return;
       }
-      if (
-        (response.data as { twoFactorRedirect?: boolean })?.twoFactorRedirect
-      ) {
-        toast.info("Two-factor authentication required");
-        return;
-      }
-      navigate({ to: "/" });
+
+      window.location.assign("/");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to sign in");
     } finally {

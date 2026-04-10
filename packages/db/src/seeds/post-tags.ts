@@ -1,5 +1,6 @@
 import type { db as DbType } from "../index";
 import { postTags } from "../schema/tags";
+import { insertInBatches } from "./insert-in-batches";
 
 // Randomly assign 1-4 tags to each post
 function getRandomTags(tagIds: string[], count: number): string[] {
@@ -25,7 +26,7 @@ export async function seedPostTags(
     }
   }
 
-  await db.insert(postTags).values(postTagRecords).onConflictDoNothing();
+  await insertInBatches(db, postTags, postTagRecords);
 
   console.info(`Seeded ${postTagRecords.length} post-tag associations`);
 

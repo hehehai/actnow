@@ -1,6 +1,8 @@
+import { hashPassword } from "better-auth/crypto";
 import { nanoid } from "nanoid";
 import type { db as DbType } from "../index";
 import { account, user } from "../schema/auth";
+import { insertInBatches } from "./insert-in-batches";
 
 // Realistic user data
 const mockUsers = [
@@ -69,12 +71,10 @@ export async function seedUsers(db: typeof DbType) {
     banned: false,
   }));
 
-  await db.insert(user).values(userRecords).onConflictDoNothing();
+  await insertInBatches(db, user, userRecords);
 
   // Create credential accounts for all users (password: "password123")
-  // Hash generated with bcrypt, 10 rounds
-  const hashedPassword =
-    "$2a$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u";
+  const hashedPassword = await hashPassword("password123");
 
   const accountRecords = userRecords.map((u) => ({
     id: nanoid(),
@@ -84,7 +84,7 @@ export async function seedUsers(db: typeof DbType) {
     password: hashedPassword,
   }));
 
-  await db.insert(account).values(accountRecords).onConflictDoNothing();
+  await insertInBatches(db, account, accountRecords);
 
   // Query actual users from database to get correct IDs
   const existingUsers = await db

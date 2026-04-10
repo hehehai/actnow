@@ -1,13 +1,7 @@
 import { SubscriptionPlan, SubscriptionStatus, UserRole } from "@actnow/common";
 import { relations, sql } from "drizzle-orm";
-import {
-  boolean,
-  index,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { CURRENT_TIMESTAMP_MS, jsonText, timestampMs } from "./helpers";
 
 export type SocialLinkPlatform = "x" | "website" | "facebook" | "instagram";
 
@@ -16,11 +10,13 @@ export type SocialLink = {
   url: string;
 };
 
-export const user = pgTable("user", {
+export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").default(false).notNull(),
+  emailVerified: integer("email_verified", { mode: "boolean" })
+    .default(false)
+    .notNull(),
   image: text("image"),
   polarCustomerId: text("polar_customer_id").unique(),
   subscriptionPlan: text("subscription_plan")
@@ -30,33 +26,35 @@ export const user = pgTable("user", {
     .default(SubscriptionStatus.FREE)
     .notNull(),
   subscriptionCycle: text("subscription_cycle"),
-  subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
-  subscriptionUpdatedAt: timestamp("subscription_updated_at"),
+  subscriptionCurrentPeriodEnd: timestampMs("subscription_current_period_end"),
+  subscriptionUpdatedAt: timestampMs("subscription_updated_at"),
   bio: text("bio"),
-  socialLinks: jsonb("social_links")
-    .$type<SocialLink[]>()
-    .default(sql`'[]'::jsonb`)
+  socialLinks: jsonText<SocialLink[]>("social_links")
+    .default(sql`'[]'`)
     .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
+  createdAt: timestampMs("created_at").default(CURRENT_TIMESTAMP_MS).notNull(),
+  updatedAt: timestampMs("updated_at")
+    .default(CURRENT_TIMESTAMP_MS)
+    .$onUpdate(() => new Date())
     .notNull(),
   role: text("role").default(UserRole.USER),
-  banned: boolean("banned").default(false),
+  banned: integer("banned", { mode: "boolean" }).default(false),
   banReason: text("ban_reason"),
-  banExpires: timestamp("ban_expires"),
+  banExpires: timestampMs("ban_expires"),
 });
 
-export const session = pgTable(
+export const session = sqliteTable(
   "session",
   {
     id: text("id").primaryKey(),
-    expiresAt: timestamp("expires_at").notNull(),
+    expiresAt: timestampMs("expires_at").notNull(),
     token: text("token").notNull().unique(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .$onUpdate(() => /* @__PURE__ */ new Date())
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
+    updatedAt: timestampMs("updated_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .$onUpdate(() => new Date())
       .notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
@@ -68,7 +66,7 @@ export const session = pgTable(
   (table) => [index("session_userId_idx").on(table.userId)]
 );
 
-export const account = pgTable(
+export const account = sqliteTable(
   "account",
   {
     id: text("id").primaryKey(),
@@ -80,29 +78,34 @@ export const account = pgTable(
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
-    accessTokenExpiresAt: timestamp("access_token_expires_at"),
-    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    accessTokenExpiresAt: timestampMs("access_token_expires_at"),
+    refreshTokenExpiresAt: timestampMs("refresh_token_expires_at"),
     scope: text("scope"),
     password: text("password"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .$onUpdate(() => /* @__PURE__ */ new Date())
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
+    updatedAt: timestampMs("updated_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [index("account_userId_idx").on(table.userId)]
 );
 
-export const verification = pgTable(
+export const verification = sqliteTable(
   "verification",
   {
     id: text("id").primaryKey(),
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
-    expiresAt: timestamp("expires_at").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
+    expiresAt: timestampMs("expires_at").notNull(),
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
+    updatedAt: timestampMs("updated_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)]

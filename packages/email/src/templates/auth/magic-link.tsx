@@ -47,8 +47,8 @@ export const MagicLinkEmail = ({
 
 MagicLinkEmail.PreviewProps = {
   name: "actnow",
-  verifyUrl: "http://localhost:3001/api/auth/magic-link/verify?token=xxx",
-  baseUrl: "http://localhost:3001",
+  verifyUrl: "http://localhost:3002/api/auth/magic-link/verify?token=xxx",
+  baseUrl: "http://localhost:3002",
 } as MagicLinkEmailProps;
 
 export default MagicLinkEmail;

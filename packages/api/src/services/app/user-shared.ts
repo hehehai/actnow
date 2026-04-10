@@ -1,12 +1,5 @@
 import type { SocialLink } from "@actnow/common";
-
-interface PostTagRow {
-  postId: string;
-  id: string;
-  name: string;
-  value: string;
-  type: string;
-}
+import type { PostTagRow } from "./post-shared";
 
 interface PublicProfilePostRow {
   post: {
@@ -19,19 +12,6 @@ interface UpdateProfileInput {
   image?: string | null;
   bio?: string;
   socialLinks?: SocialLink[];
-}
-
-export function buildPostTagMap(tagRows: PostTagRow[]) {
-  const tagMap = new Map<string, PostTagRow[]>();
-  for (const tag of tagRows) {
-    const existing = tagMap.get(tag.postId);
-    if (existing) {
-      existing.push(tag);
-    } else {
-      tagMap.set(tag.postId, [tag]);
-    }
-  }
-  return tagMap;
 }
 
 export function mapPostsWithTags<T extends PublicProfilePostRow>(

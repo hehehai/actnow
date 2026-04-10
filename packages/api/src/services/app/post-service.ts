@@ -17,7 +17,8 @@ import { eventLogs } from "@actnow/db/schema/events";
 import { postLikes, posts } from "@actnow/db/schema/posts";
 import { postTags, tags } from "@actnow/db/schema/tags";
 import { ORPCError } from "@orpc/server";
-import { generateId, getTableCount } from "../../lib/utils";
+import type { AppContext, ProtectedAppContext } from "../../lib/context-types";
+import { combineFilters, generateId, getTableCount } from "../../lib/utils";
 import {
   fetchLikedPostIdSet,
   fetchPostTagRowsByPostIds,
@@ -28,24 +29,6 @@ import {
   syncPostTags,
   transformPostRecord,
 } from "./post-shared";
-
-type AppContext = {
-  db: any;
-  session?: {
-    user?: {
-      id?: string;
-    };
-  } | null;
-};
-
-type ProtectedAppContext = {
-  db: any;
-  session: {
-    user: {
-      id: string;
-    };
-  };
-};
 
 type PostWithTags = NonNullable<Awaited<ReturnType<typeof fetchPostWithTags>>>;
 type PostWithTagsAndLike = PostWithTags & { liked: boolean };
@@ -147,11 +130,11 @@ export async function listPostsService(
     tagFilteredPostIds = filteredPostIds;
   }
 
-  const conditions: SQL[] = [
+  const conditions: Array<SQL | undefined> = [
     isNull(posts.deletedAt),
     visibility === "public" || !userId
       ? eq(posts.isPublic, true)
-      : sql`${posts.isPublic} = true OR ${posts.createdById} = ${userId}`,
+      : or(eq(posts.isPublic, true), eq(posts.createdById, userId)),
   ];
 
   if (search) {
@@ -173,7 +156,7 @@ export async function listPostsService(
     conditions.push(lt(posts.createdAt, new Date(cursor)));
   }
 
-  const whereClause = and(...conditions);
+  const whereClause = combineFilters(conditions);
   const orderBy =
     sort === "popular"
       ? [desc(posts.likes), desc(posts.updatedAt)]
@@ -328,6 +311,7 @@ export async function getTrendingPostsService(
 ): Promise<TrendingResult> {
   const { postsLimit, tagsLimit } = input;
   const { db } = context;
+  const usageCount = sql<number>`COUNT(${postTags.postId})`;
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -365,14 +349,14 @@ export async function getTrendingPostsService(
       name: tags.name,
       value: tags.value,
       type: tags.type,
-      usageCount: sql<number>`COUNT(${postTags.postId})`,
+      usageCount,
     })
     .from(tags)
     .innerJoin(postTags, eq(postTags.tagId, tags.id))
     .innerJoin(posts, eq(postTags.postId, posts.id))
     .where(and(eq(posts.isPublic, true), isNull(tags.deletedAt)))
     .groupBy(tags.id)
-    .orderBy(desc(sql<number>`COUNT(${postTags.postId})`))
+    .orderBy(desc(usageCount))
     .limit(tagsLimit);
 
   return {
@@ -472,7 +456,7 @@ export async function createPostService(
     });
   }
 
-  await db.transaction(async (tx: any) => {
+  await db.transaction(async (tx) => {
     await tx.insert(posts).values({
       id: postId,
       prompt: data.prompt ?? "",
@@ -524,7 +508,7 @@ export async function updatePostService(
     });
   }
 
-  await db.transaction(async (tx: any) => {
+  await db.transaction(async (tx) => {
     await tx
       .update(posts)
       .set({

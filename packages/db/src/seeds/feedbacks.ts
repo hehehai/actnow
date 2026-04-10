@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { db as DbType } from "../index";
 import { feedbacks } from "../schema/feedback";
+import { insertInBatches } from "./insert-in-batches";
 
 // Realistic feedback data
 const mockFeedbacks = [
@@ -153,7 +154,7 @@ export async function seedFeedbacks(db: typeof DbType, userIds: string[]) {
       regularUserIds[Math.floor(Math.random() * regularUserIds.length)]!,
   }));
 
-  await db.insert(feedbacks).values(feedbackRecords).onConflictDoNothing();
+  await insertInBatches(db, feedbacks, feedbackRecords);
 
   console.info(`Seeded ${feedbackRecords.length} feedbacks`);
 

@@ -47,7 +47,7 @@ function BadgeLinearGradient({
     children: (
       <>
         {/* Gradient border layer - acts as the border */}
-        <div className="-inset-px absolute">
+        <div className="absolute -inset-px">
           <div
             className="h-full w-full rounded-full bg-[conic-gradient(from_var(--angle)_at_var(--x)_var(--y),#A3ECE900,#A3ECE9_20deg,#709FF5_100deg,#709FF5_120deg,#0000_83deg)]"
             ref={scope}

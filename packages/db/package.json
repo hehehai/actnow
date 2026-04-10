@@ -10,21 +10,21 @@
     }
   },
   "scripts": {
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/seed.ts"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.9",
+    "miniflare": "^4.20260409.0",
     "tsx": "^4.21.0"
   },
   "dependencies": {
+    "@actnow/common": "workspace:*",
+    "better-auth": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "nanoid": "^5.1.6",
-    "postgres": "^3.4.8",
+    "smol-toml": "^1.6.1",
     "zod": "catalog:"
   }
 }

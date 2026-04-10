@@ -6,6 +6,9 @@ import { and, eq, inArray, isNull } from "@actnow/db";
 import { user } from "@actnow/db/schema/auth";
 import { postLikes, posts } from "@actnow/db/schema/posts";
 import { postTags, tags } from "@actnow/db/schema/tags";
+import type { ApiDb } from "../../lib/context-types";
+
+type PostTagMutationDb = Pick<ApiDb, "delete" | "insert">;
 
 export type PostTagRow = {
   postId: string;
@@ -73,7 +76,7 @@ export function transformPostRecord(
 }
 
 export async function fetchPostWithTags(
-  db: any,
+  db: ApiDb,
   postId: string
 ): Promise<PostWithTags | null> {
   const record = await db
@@ -132,7 +135,11 @@ export async function fetchPostWithTags(
   };
 }
 
-export async function syncPostTags(db: any, postId: string, tagIds: string[]) {
+export async function syncPostTags(
+  db: PostTagMutationDb,
+  postId: string,
+  tagIds: string[]
+) {
   await db.delete(postTags).where(eq(postTags.postId, postId));
   const uniqueTagIds = Array.from(new Set(tagIds));
   if (!uniqueTagIds.length) {
@@ -143,7 +150,7 @@ export async function syncPostTags(db: any, postId: string, tagIds: string[]) {
     .values(uniqueTagIds.map((tagId) => ({ postId, tagId })));
 }
 
-export async function getUserPostingPolicy(db: any, userId: string) {
+export async function getUserPostingPolicy(db: ApiDb, userId: string) {
   const userRecord = await db.query.user.findFirst({
     where: eq(user.id, userId),
     columns: {
@@ -164,7 +171,7 @@ export async function getUserPostingPolicy(db: any, userId: string) {
   };
 }
 
-export async function fetchPostTagRowsByPostIds(db: any, postIds: string[]) {
+export async function fetchPostTagRowsByPostIds(db: ApiDb, postIds: string[]) {
   if (postIds.length === 0) {
     return [] as PostTagRow[];
   }
@@ -183,7 +190,7 @@ export async function fetchPostTagRowsByPostIds(db: any, postIds: string[]) {
 }
 
 export async function fetchLikedPostIdSet(
-  db: any,
+  db: ApiDb,
   userId: string | null | undefined,
   postIds: string[]
 ) {

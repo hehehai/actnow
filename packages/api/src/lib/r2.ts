@@ -1,3 +1,4 @@
+import { getEnvValue, getRequiredEnv } from "@actnow/common/runtime-env";
 import { format } from "date-fns";
 import slug from "slug";
 
@@ -6,10 +7,10 @@ import slug from "slug";
 // ============================================================================
 
 const R2_CONFIG = {
-  bucket: process.env.CLOUD_FLARE_S3_UPLOAD_BUCKET!,
-  accountId: process.env.CLOUD_FLARE_R2_ACCOUNT_ID!,
-  accessKeyId: process.env.CLOUD_FLARE_S3_UPLOAD_KEY!,
-  secretAccessKey: process.env.CLOUD_FLARE_S3_UPLOAD_SECRET!,
+  bucket: () => getRequiredEnv("CLOUD_FLARE_S3_UPLOAD_BUCKET"),
+  accountId: () => getRequiredEnv("CLOUD_FLARE_R2_ACCOUNT_ID"),
+  accessKeyId: () => getRequiredEnv("CLOUD_FLARE_S3_UPLOAD_KEY"),
+  secretAccessKey: () => getRequiredEnv("CLOUD_FLARE_S3_UPLOAD_SECRET"),
 } as const;
 
 // Lazy-loaded S3 client to avoid loading AWS SDK at module initialization
@@ -20,10 +21,10 @@ async function getR2Client() {
     const { S3Client } = await import("@aws-sdk/client-s3");
     r2Client = new S3Client({
       region: "auto",
-      endpoint: `https://${R2_CONFIG.accountId}.r2.cloudflarestorage.com`,
+      endpoint: `https://${R2_CONFIG.accountId()}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: R2_CONFIG.accessKeyId,
-        secretAccessKey: R2_CONFIG.secretAccessKey,
+        accessKeyId: R2_CONFIG.accessKeyId(),
+        secretAccessKey: R2_CONFIG.secretAccessKey(),
       },
     });
   }
@@ -77,7 +78,7 @@ export async function getUploadSignedUrl(
     const uploadUrl = await getSignedUrl(
       client,
       new PutObjectCommand({
-        Bucket: R2_CONFIG.bucket,
+        Bucket: R2_CONFIG.bucket(),
         Key: safeFilename,
       }),
       { expiresIn }
@@ -94,7 +95,7 @@ export async function getR2File(fileName: string) {
     const client = await getR2Client();
     const file = await client.send(
       new GetObjectCommand({
-        Bucket: R2_CONFIG.bucket,
+        Bucket: R2_CONFIG.bucket(),
         Key: fileName,
       })
     );
@@ -116,7 +117,7 @@ export async function getDownloadSignedUrl(
     const url = await getSignedUrl(
       client,
       new GetObjectCommand({
-        Bucket: R2_CONFIG.bucket,
+        Bucket: R2_CONFIG.bucket(),
         Key: fileName,
       }),
       { expiresIn }
@@ -131,7 +132,7 @@ export async function deleteR2File(fileName: string): Promise<void> {
     const client = await getR2Client();
     await client.send(
       new DeleteObjectCommand({
-        Bucket: R2_CONFIG.bucket,
+        Bucket: R2_CONFIG.bucket(),
         Key: fileName,
       })
     );
@@ -150,7 +151,7 @@ export async function uploadR2File(
 
     await client.send(
       new PutObjectCommand({
-        Bucket: R2_CONFIG.bucket,
+        Bucket: R2_CONFIG.bucket(),
         Key: safeFilename,
         Body: buffer,
         ContentType: file.type,
@@ -161,7 +162,7 @@ export async function uploadR2File(
     return {
       type: file.type,
       filename: safeFilename,
-      url: `${process.env.VITE_CLOUD_FLARE_R2_URL}/${safeFilename}`,
+      url: `${getEnvValue("VITE_CLOUD_FLARE_R2_URL")}/${safeFilename}`,
     };
   });
 }

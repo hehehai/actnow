@@ -1,9 +1,10 @@
 import { hashPassword as hashBetterAuthPassword } from "@actnow/auth/crypto";
-import { asc, desc, type PgColumn, sql } from "@actnow/db";
+import { and, asc, desc, type SQL, sql } from "@actnow/db";
 import { ORPCError } from "@orpc/server";
+import type { ApiDb } from "./context-types";
 
-// Regex for extracting field name from PostgreSQL unique constraint error
-const POSTGRES_KEY_FIELD_REGEX = /Key \(([^)]+)\)=/;
+const SQLITE_FIELD_REGEX =
+  /(?:UNIQUE|NOT NULL) constraint failed: [^.]+\.(.+)$/i;
 
 // Pagination types
 export interface PaginationInput {
@@ -40,8 +41,21 @@ export function buildPaginationResult<T>(
 }
 
 // Sort order helper
-export function getSortOrder(column: PgColumn, order: "asc" | "desc" = "desc") {
+export function getSortOrder(
+  column: Parameters<typeof asc>[0],
+  order: "asc" | "desc" = "desc"
+) {
   return order === "asc" ? asc(column) : desc(column);
+}
+
+export function combineFilters(
+  conditions: Array<SQL | undefined>
+): SQL | undefined {
+  const filters = conditions.filter((condition): condition is SQL =>
+    Boolean(condition)
+  );
+
+  return filters.length > 0 ? and(...filters) : undefined;
 }
 
 // Get count from query result
@@ -53,9 +67,9 @@ export function getCountFromResult(
 
 // Get row count for a table with optional where clause
 export async function getTableCount(
-  db: any,
-  table: any,
-  whereClause?: any
+  db: ApiDb,
+  table: Parameters<ReturnType<ApiDb["select"]>["from"]>[0],
+  whereClause?: SQL
 ): Promise<number> {
   const query = db.select({ count: sql<number>`COUNT(*)` }).from(table);
   const rows = whereClause ? await query.where(whereClause) : await query;
@@ -114,64 +128,66 @@ export async function hashPassword(password: string): Promise<string> {
   return hashBetterAuthPassword(password);
 }
 
-// PostgreSQL error interface
-interface PostgresError {
+interface SqliteError {
   code?: string;
+  message?: string;
   detail?: string;
-  constraint?: string;
 }
 
-// Check if error is a PostgreSQL error
-function isPostgresError(error: unknown): error is PostgresError {
+function isSqliteError(error: unknown): error is SqliteError {
   return (
     typeof error === "object" &&
     error !== null &&
-    "code" in error &&
-    typeof (error as PostgresError).code === "string"
+    ("message" in error || "code" in error)
   );
 }
 
-// Extract field name from PostgreSQL unique constraint error detail
-function extractFieldFromDetail(detail?: string): string | null {
-  if (!detail) return null;
-  // Pattern: "Key (field)=(value) already exists."
-  const match = detail.match(POSTGRES_KEY_FIELD_REGEX);
+function extractFieldFromMessage(message?: string): string | null {
+  if (!message) return null;
+  const match = message.match(SQLITE_FIELD_REGEX);
   return match?.[1] ?? null;
 }
 
 // Handle database errors and convert to ORPCError
 export function handleDbError(error: unknown): never {
-  // Drizzle wraps PostgreSQL errors in DrizzleQueryError with the actual error in .cause
   const dbError =
     error && typeof error === "object" && "cause" in error
       ? (error as { cause: unknown }).cause
       : error;
 
-  if (isPostgresError(dbError)) {
-    // Unique constraint violation
-    if (dbError.code === "23505") {
-      const field = extractFieldFromDetail(dbError.detail);
-      const message = field
+  if (isSqliteError(dbError)) {
+    const message = dbError.message ?? "";
+
+    if (
+      dbError.code === "SQLITE_CONSTRAINT_UNIQUE" ||
+      message.includes("UNIQUE constraint failed")
+    ) {
+      const field = extractFieldFromMessage(message);
+      const errorMessage = field
         ? `${field} already exists`
         : "Record already exists";
-      throw new ORPCError("CONFLICT", { message });
+      throw new ORPCError("CONFLICT", { message: errorMessage });
     }
 
-    // Foreign key violation
-    if (dbError.code === "23503") {
+    if (
+      dbError.code === "SQLITE_CONSTRAINT_FOREIGNKEY" ||
+      message.includes("FOREIGN KEY constraint failed")
+    ) {
       throw new ORPCError("BAD_REQUEST", {
         message: "Referenced record does not exist",
       });
     }
 
-    // Not null violation
-    if (dbError.code === "23502") {
+    if (
+      dbError.code === "SQLITE_CONSTRAINT_NOTNULL" ||
+      message.includes("NOT NULL constraint failed")
+    ) {
+      const field = extractFieldFromMessage(message);
       throw new ORPCError("BAD_REQUEST", {
-        message: "Required field is missing",
+        message: field ? `${field} is required` : "Required field is missing",
       });
     }
   }
 
-  // Re-throw unknown errors
   throw error;
 }

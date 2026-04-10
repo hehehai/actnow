@@ -1,9 +1,10 @@
+import { getEnvValue } from "@actnow/common/runtime-env";
 import { Polar } from "@polar-sh/sdk";
 
 type PolarEnvKey = "POLAR_ACCESS_TOKEN" | "POLAR_ENVIRONMENT";
 
 function getPolarEnv(key: PolarEnvKey): string {
-  return process.env[key] ?? "";
+  return getEnvValue(key);
 }
 
 function createPolarClient() {

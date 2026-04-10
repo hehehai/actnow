@@ -1,4 +1,5 @@
 import { SubscriptionPlan, SubscriptionStatus } from "@actnow/common";
+import { getEnvValue as getRuntimeEnvValue } from "@actnow/common/runtime-env";
 
 type PolarProductEnvKey =
   | "POLAR_PRODUCT_PRO_MONTHLY_ID"
@@ -21,7 +22,7 @@ export type SubscriptionSnapshot = {
 };
 
 function getEnvValue(key: PolarProductEnvKey): string {
-  return process.env[key] ?? "";
+  return getRuntimeEnvValue(key);
 }
 
 export function getPolarPlanByProductIdMap(): Map<string, string> {

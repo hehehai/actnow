@@ -39,7 +39,7 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
                 <span
                   className={cn(
                     buttonVariants({ size: "icon-xs", variant: "ghost" }),
-                    "-translate-y-1/2 absolute top-1/2 right-1 ml-auto"
+                    "absolute top-1/2 right-1 ml-auto -translate-y-1/2"
                   )}
                   onClick={(e) => {
                     e.stopPropagation();

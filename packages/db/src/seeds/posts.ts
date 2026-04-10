@@ -2,6 +2,7 @@ import { isNull } from "@actnow/db";
 import { nanoid } from "nanoid";
 import type { db as DbType } from "../index";
 import { posts } from "../schema/posts";
+import { insertInBatches } from "./insert-in-batches";
 
 // Realistic post data
 const mockPosts = [
@@ -226,7 +227,7 @@ export async function seedPosts(db: typeof DbType, userIds: string[]) {
     createdById: userIds[Math.floor(Math.random() * userIds.length)]!,
   }));
 
-  await db.insert(posts).values(postRecords).onConflictDoNothing();
+  await insertInBatches(db, posts, postRecords);
 
   // Query actual posts from database to get correct IDs
   const existingPosts = await db

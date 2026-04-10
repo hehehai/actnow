@@ -1,36 +1,34 @@
 import { relations, sql } from "drizzle-orm";
 import {
-  boolean,
   index,
   integer,
-  jsonb,
-  pgTable,
+  sqliteTable,
   text,
-  timestamp,
   uniqueIndex,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 import { user } from "./auth";
+import { CURRENT_TIMESTAMP_MS, jsonText, timestampMs } from "./helpers";
 
-export const posts = pgTable("posts", {
+export const posts = sqliteTable("posts", {
   id: text("id").primaryKey(),
   prompt: text("prompt").default("").notNull(),
   comment: text("comment").notNull(),
-  media: jsonb("media").$type<string[]>().default(sql`'[]'::jsonb`).notNull(),
-  isPublic: boolean("is_public").default(false).notNull(),
+  media: jsonText<string[]>("media").default(sql`'[]'`).notNull(),
+  isPublic: integer("is_public", { mode: "boolean" }).default(false).notNull(),
   likes: integer("likes").default(0).notNull(),
   visits: integer("visits").default(0).notNull(),
   createdById: text("created_by_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
+  createdAt: timestampMs("created_at").default(CURRENT_TIMESTAMP_MS).notNull(),
+  updatedAt: timestampMs("updated_at")
+    .default(CURRENT_TIMESTAMP_MS)
+    .$onUpdate(() => new Date())
     .notNull(),
-  deletedAt: timestamp("deleted_at"),
+  deletedAt: timestampMs("deleted_at"),
 });
 
-export const postLikes = pgTable(
+export const postLikes = sqliteTable(
   "post_likes",
   {
     id: text("id").primaryKey(),
@@ -39,10 +37,10 @@ export const postLikes = pgTable(
       .references(() => posts.id, { onDelete: "cascade" }),
     userId: text("user_id")
       .notNull()
-      .references(() => user.id, {
-        onDelete: "cascade",
-      }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestampMs("created_at")
+      .default(CURRENT_TIMESTAMP_MS)
+      .notNull(),
   },
   (table) => [
     uniqueIndex("post_likes_user_post_unique").on(table.postId, table.userId),

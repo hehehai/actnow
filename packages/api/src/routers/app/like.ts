@@ -10,7 +10,8 @@ import { postLikes, posts } from "@actnow/db/schema/posts";
 import { postTags, tags } from "@actnow/db/schema/tags";
 import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../../index";
-import { generateId } from "../../lib/utils";
+import { combineFilters, generateId } from "../../lib/utils";
+import { groupTagsByPost } from "../../services/app/post-shared";
 
 export const likeRouter = {
   toggleLike: protectedProcedure
@@ -46,7 +47,7 @@ export const likeRouter = {
           await tx
             .update(posts)
             .set({
-              likes: sql`GREATEST(${posts.likes} - 1, 0)`,
+              likes: sql<number>`max(${posts.likes} - 1, 0)`,
               updatedAt: new Date(),
             })
             .where(eq(posts.id, input.postId));
@@ -108,6 +109,8 @@ export const likeRouter = {
         conditions.push(cursorCondition);
       }
 
+      const whereClause = combineFilters(conditions);
+
       const likes = await db
         .select({
           likeId: postLikes.id,
@@ -132,7 +135,7 @@ export const likeRouter = {
         .from(postLikes)
         .innerJoin(posts, eq(postLikes.postId, posts.id))
         .leftJoin(user, eq(posts.createdById, user.id))
-        .where(and(...conditions))
+        .where(whereClause)
         .orderBy(desc(postLikes.createdAt))
         .limit(limit + 1);
 
@@ -154,15 +157,7 @@ export const likeRouter = {
             .where(inArray(postTags.postId, postIds))
         : [];
 
-      const tagMap = new Map<string, typeof tagRows>();
-      for (const tag of tagRows) {
-        const existing = tagMap.get(tag.postId);
-        if (existing) {
-          existing.push(tag);
-        } else {
-          tagMap.set(tag.postId, [tag]);
-        }
-      }
+      const tagMap = groupTagsByPost(tagRows);
 
       const resultItems = items.map((item) => ({
         post: {

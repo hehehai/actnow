@@ -2,6 +2,7 @@ import { isNull } from "@actnow/db";
 import { nanoid } from "nanoid";
 import type { db as DbType } from "../index";
 import { tags } from "../schema/tags";
+import { insertInBatches } from "./insert-in-batches";
 
 const platformTags = [
   "midjourney",
@@ -104,7 +105,7 @@ export async function seedTags(db: typeof DbType) {
     type,
   }));
 
-  await db.insert(tags).values(tagRecords).onConflictDoNothing();
+  await insertInBatches(db, tags, tagRecords);
 
   // Query actual tags from database to get correct IDs
   const existingTags = await db
