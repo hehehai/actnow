@@ -7,8 +7,8 @@ main = "src/server.ts"
 enabled = true
 
 [vars]
-CORS_ORIGIN = "https://actnow.dev"
-BETTER_AUTH_URL = "https://actnow.dev"
+CORS_ORIGIN = "https://start.actnow.dev"
+BETTER_AUTH_URL = "https://start.actnow.dev"
 POLAR_ENVIRONMENT = "sandbox"
 
 [[d1_databases]]
