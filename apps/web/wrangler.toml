@@ -14,7 +14,7 @@ POLAR_ENVIRONMENT = "sandbox"
 [[d1_databases]]
 binding = "DB"
 database_name = "actnow"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "21dedbf5-42f6-4274-952b-a2362b3bd7cf"
 migrations_dir = "../../packages/db/src/migrations"
 
 [env.development]
