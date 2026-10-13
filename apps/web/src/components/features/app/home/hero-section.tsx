@@ -1,7 +1,6 @@
 import { PostFeedSort, type PostFeedSortType, site } from "@actnow/common";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { TagSelect } from "@/components/features/common/tag/tag-select";
-import { BadgeLinearGradient } from "@/components/shared/badge-linear-gradient";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface HeroSectionProps {
@@ -34,12 +33,6 @@ export function HeroSection({ sort, currentTagSlugs }: HeroSectionProps) {
     <section className="w-full">
       <div className="container mx-auto flex flex-col gap-8 px-4 pt-12 pb-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-6">
-          <Link to="/weekly">
-            <BadgeLinearGradient>
-              <span className="text-balance">Weekly Highlights</span>
-              <span className="i-hugeicons-arrow-right-01" />
-            </BadgeLinearGradient>
-          </Link>
           <div className="mt-8">
             <h2 className="text-balance font-semibold text-3xl leading-tight md:text-3xl lg:text-4xl">
               {primaryTagline}

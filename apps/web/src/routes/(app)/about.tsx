@@ -41,7 +41,6 @@ function AboutComponent() {
           <li>Discover trending ideas and popular posts</li>
           <li>Like and save your favorite content</li>
           <li>Tag-based categorization for easy discovery</li>
-          <li>Weekly leaderboard of top-rated posts</li>
         </ul>
 
         <h2 className="font-semibold text-foreground text-xl">Contact</h2>

@@ -1,7 +1,6 @@
 import {
   getLeaderboardTimeRange,
   getMonthRange,
-  getWeekStart,
   likeLeaderboardSchema,
   statPeriodSchema,
 } from "@actnow/common";
@@ -239,54 +238,6 @@ export const statRouter = {
 
   getUserGrowthChart: adminProcedure.handler(async ({ context }) => {
     const { db } = context;
-    const now = new Date();
-    const thisWeekStart = getWeekStart(now);
-    const lastWeekStart = new Date(thisWeekStart);
-    lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-
-    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
-
-    const thisWeekData: Array<{ day: string; count: number }> = [];
-    const lastWeekData: Array<{ day: string; count: number }> = [];
-
-    for (let i = 0; i < 7; i++) {
-      const thisWeekDayStart = new Date(thisWeekStart);
-      thisWeekDayStart.setDate(thisWeekDayStart.getDate() + i);
-      const thisWeekDayEnd = new Date(thisWeekDayStart);
-      thisWeekDayEnd.setDate(thisWeekDayEnd.getDate() + 1);
-
-      const thisWeekCount = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(user)
-          .where(
-            and(
-              gte(user.createdAt, thisWeekDayStart),
-              lt(user.createdAt, thisWeekDayEnd)
-            )
-          )
-      );
-      thisWeekData.push({ day: dayNames[i] ?? "", count: thisWeekCount });
-
-      const lastWeekDayStart = new Date(lastWeekStart);
-      lastWeekDayStart.setDate(lastWeekDayStart.getDate() + i);
-      const lastWeekDayEnd = new Date(lastWeekDayStart);
-      lastWeekDayEnd.setDate(lastWeekDayEnd.getDate() + 1);
-
-      const lastWeekCount = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(user)
-          .where(
-            and(
-              gte(user.createdAt, lastWeekDayStart),
-              lt(user.createdAt, lastWeekDayEnd)
-            )
-          )
-      );
-      lastWeekData.push({ day: dayNames[i] ?? "", count: lastWeekCount });
-    }
-
     const monthNames = [
       "Jan",
       "Feb",
@@ -323,11 +274,7 @@ export const statRouter = {
       });
     }
 
-    return {
-      thisWeek: thisWeekData,
-      lastWeek: lastWeekData,
-      lastThreeMonths,
-    };
+    return lastThreeMonths;
   }),
 
   getLikeLeaderboard: adminProcedure

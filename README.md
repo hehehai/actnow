@@ -11,7 +11,6 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 
 - **Share Inspiration** - Post your creative ideas, code snippets, and design concepts
 - **Discover Content** - Browse posts with multiple feed options (Latest, Trending, Popular)
-- **Weekly Leaderboard** - Discover top-rated posts each week
 - **Social Engagement** - Like and save your favorite posts
 - **Tag System** - Organize and discover content by tags
 - **Subscription Billing** - Better Auth + Polar plans (`Free` / `Pro` / `Pro+`) with monthly and yearly billing

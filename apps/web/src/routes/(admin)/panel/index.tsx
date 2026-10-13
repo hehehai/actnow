@@ -48,35 +48,10 @@ function StatCardsSkeleton() {
   );
 }
 
-function UserGrowthChartSkeleton() {
-  return (
-    <Card className="col-span-2">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Skeleton className="size-5" />
-          <Skeleton className="h-5 w-32" />
-        </div>
-        <Skeleton className="h-4 w-24" />
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_220px]">
-          <Skeleton className="h-70 w-full" />
-          <div className="flex flex-col gap-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton className="h-10 w-full" key={i} />
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function RouteComponent() {
   const { data: dashboardStats, isLoading: statsLoading } = useQuery(
     orpc.panel.stat.getDashboardStats.queryOptions()
   );
-
   const { data: userGrowthData, isLoading: growthLoading } = useQuery(
     orpc.panel.stat.getUserGrowthChart.queryOptions()
   );
@@ -94,17 +69,31 @@ function RouteComponent() {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-          {/* User Growth Chart (2/3 width) */}
           {growthLoading || !userGrowthData ? (
             <UserGrowthChartSkeleton />
           ) : (
-            <UserGrowthChart data={userGrowthData} />
+            <UserGrowthChart data={{ lastThreeMonths: userGrowthData }} />
           )}
-
-          {/* Like Leaderboard (1/3 width) */}
           <LikeLeaderboard />
         </div>
       </div>
     </div>
+  );
+}
+
+function UserGrowthChartSkeleton() {
+  return (
+    <Card className="col-span-2">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-5" />
+          <Skeleton className="h-5 w-32" />
+        </div>
+        <Skeleton className="h-4 w-24" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-70 w-full" />
+      </CardContent>
+    </Card>
   );
 }

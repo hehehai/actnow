@@ -15,13 +15,6 @@ export function getMonthRange(monthsAgo: number): DateRange {
   return { start, end };
 }
 
-export function getWeekStart(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(d.setDate(diff));
-}
-
 export function getDayStart(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
@@ -29,8 +22,6 @@ export function getDayStart(date: Date): Date {
 export type LeaderboardRange =
   | "today"
   | "yesterday"
-  | "this_week"
-  | "last_week"
   | "this_month"
   | "last_month"
   | "this_year";
@@ -48,13 +39,6 @@ export function getLeaderboardTimeRange(
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
       return { start: yesterday, end: today };
-    }
-    case "this_week":
-      return { start: getWeekStart(now), end: now };
-    case "last_week": {
-      const lastWeekStart = getWeekStart(now);
-      lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-      return { start: lastWeekStart, end: getWeekStart(now) };
     }
     case "this_month":
       return {

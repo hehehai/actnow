@@ -17,8 +17,6 @@ import { userDetailSheet } from "@/stores/handlers";
 type LeaderboardRange =
   | "today"
   | "yesterday"
-  | "this_week"
-  | "last_week"
   | "this_month"
   | "last_month"
   | "this_year";
@@ -26,8 +24,6 @@ type LeaderboardRange =
 const rangeLabels: Record<LeaderboardRange, string> = {
   today: "Today",
   yesterday: "Yesterday",
-  this_week: "This Week",
-  last_week: "Last Week",
   this_month: "This Month",
   last_month: "Last Month",
   this_year: "This Year",
