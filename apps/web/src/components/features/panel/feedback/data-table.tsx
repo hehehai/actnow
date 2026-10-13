@@ -1,9 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/react-table";
+import { flexRender, getCoreRowModel, useReactTable } from "@/lib/react-table";
 import { useMemo } from "react";
 import { DataTablePagination } from "@/components/shared/data-table/data-table-pagination";
 import { Frame } from "@/components/shared/frame";

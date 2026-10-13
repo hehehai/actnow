@@ -6,7 +6,7 @@ import { getEnvValue } from "@actnow/common/runtime-env";
 import { createDb, eq } from "@actnow/db";
 import { user } from "@actnow/db/schema/auth";
 import { checkout, polar, portal, webhooks } from "@polar-sh/better-auth";
-import { Polar } from "@polar-sh/sdk";
+import { createPolarCore } from "@polar-sh/sdk/2026-10";
 
 type PolarEnvKey =
   | "BETTER_AUTH_URL"
@@ -65,9 +65,9 @@ export function createPolarPlugin() {
     Boolean(item.productId)
   );
 
-  const polarClient = new Polar({
+  const polarClient = createPolarCore({
     accessToken,
-    server: polarEnvironment === "production" ? "production" : "sandbox",
+    environment: polarEnvironment === "production" ? "production" : "sandbox",
   });
 
   return polar({
@@ -86,8 +86,8 @@ export function createPolarPlugin() {
       webhooks({
         secret: webhookSecret,
         onCustomerStateChanged: async (payload) => {
-          const externalUserId = payload.data.externalId;
-          const activeSubscriptions = payload.data.activeSubscriptions;
+          const externalUserId = payload.data.external_id;
+          const activeSubscriptions = payload.data.active_subscriptions;
 
           if (!externalUserId) {
             return;
@@ -107,7 +107,7 @@ export function createPolarPlugin() {
               subscriptionStatus: snapshot.status,
               subscriptionCycle: snapshot.cycle,
               subscriptionCurrentPeriodEnd: snapshot.currentPeriodEnd,
-              subscriptionUpdatedAt: payload.timestamp,
+              subscriptionUpdatedAt: new Date(payload.timestamp),
               updatedAt: new Date(),
             })
             .where(eq(user.id, externalUserId))

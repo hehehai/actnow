@@ -9,9 +9,9 @@ import {
   Link,
   Preview,
   Section,
+  Tailwind,
   Text,
-} from "@react-email/components";
-import { Tailwind } from "@react-email/tailwind";
+} from "react-email";
 
 interface BaseLayoutProps {
   previewText: string;

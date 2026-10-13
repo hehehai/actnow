@@ -1,10 +1,10 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/react-table";
 import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@/lib/react-table";
 import { useMemo } from "react";
 import { Frame, FrameFooter } from "@/components/shared/frame";
 import {
@@ -63,7 +63,7 @@ export function FeedbackDataTable({
     getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row) => String(row.id),
     initialState: {
-      pagination: { pageSize: defaultPageSize },
+      pagination: { pageIndex: 0, pageSize: defaultPageSize },
     },
   });
 

@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table";
+import type { RowData, Table } from "@/lib/react-table";
 import type { ReactNode } from "react";
 import { FrameFooter } from "@/components/shared/frame";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ interface ServerPagination {
   onPageChange: (page: number) => void;
 }
 
-interface UsePaginationStateOptions<TData> {
+interface UsePaginationStateOptions<TData extends RowData> {
   table: Table<TData>;
   serverPagination?: ServerPagination;
 }
@@ -52,7 +52,7 @@ interface PaginationState {
 }
 
 /** Context passed to selectionActions render function */
-export interface SelectionContext<TData> {
+export interface SelectionContext<TData extends RowData> {
   /** Selected row data */
   selectedRows: TData[];
   /** Selected row IDs */
@@ -63,7 +63,7 @@ export interface SelectionContext<TData> {
   clearSelection: () => void;
 }
 
-interface DataTablePaginationProps<TData> {
+interface DataTablePaginationProps<TData extends RowData> {
   table: Table<TData>;
   /** Function to get the ID from a row, defaults to (row) => row.id */
   getRowId?: (row: TData) => string;
@@ -82,7 +82,7 @@ interface DataTablePaginationProps<TData> {
 /**
  * Hook to manage pagination state for both client and server-side pagination
  */
-function usePaginationState<TData>({
+function usePaginationState<TData extends RowData>({
   table,
   serverPagination,
 }: UsePaginationStateOptions<TData>): PaginationState {
@@ -274,7 +274,7 @@ function PaginationControls({
 // Main Component
 // ============================================================================
 
-export function DataTablePagination<TData>({
+export function DataTablePagination<TData extends RowData>({
   table,
   getRowId = (row) => (row as { id: string }).id,
   serverPagination,

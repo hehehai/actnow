@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/react-table";
 import { SortableColumnHeader } from "@/components/shared/data-table";
 import { createSelectionColumn } from "@/components/shared/data-table/column-helpers";
 import { CreatorCell } from "@/components/shared/data-table/common-cells";

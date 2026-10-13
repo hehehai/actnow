@@ -14,10 +14,9 @@
     "@types/react": "^19.3.0"
   },
   "dependencies": {
-    "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.1.0",
-    "@react-email/tailwind": "^2.0.7",
     "react": "catalog:",
+    "react-email": "^6.11.1",
     "resend": "catalog:"
   }
 }

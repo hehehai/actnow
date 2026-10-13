@@ -2,13 +2,13 @@ import type {
   ColumnDef,
   ExpandedState,
   RowSelectionState,
-} from "@tanstack/react-table";
+} from "@/lib/react-table";
 import {
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@/lib/react-table";
 import { Fragment, useMemo, useState } from "react";
 import { DataTablePagination } from "@/components/shared/data-table/data-table-pagination";
 import { Frame } from "@/components/shared/frame";

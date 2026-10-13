@@ -25,9 +25,9 @@ import { getSessionSubscriptionSnapshot } from "@/lib/subscription-snapshot";
 
 type PolarOrder = {
   id: string;
-  createdAt: Date | string | null;
+  created_at: Date | string | null;
   status: string;
-  totalAmount: number;
+  total_amount: number;
   currency: string;
   product?: {
     name?: string | null;
@@ -110,19 +110,20 @@ export function SubscriptionTab() {
     );
   }
 
-  const activeSubscription = customerState?.activeSubscriptions?.[0];
+  const activeSubscription = customerState?.active_subscriptions?.[0];
   const sessionSnapshot = getSessionSubscriptionSnapshot(session.user);
   const snapshot = profile?.subscription ?? sessionSnapshot;
   const plan = snapshot?.plan ?? SubscriptionPlan.FREE;
   const status = activeSubscription?.status ?? snapshot?.status ?? "FREE";
   const cycle =
-    activeSubscription?.recurringInterval === "year"
+    activeSubscription?.recurring_interval === "year"
       ? "yearly"
-      : activeSubscription?.recurringInterval === "month"
+      : activeSubscription?.recurring_interval === "month"
         ? "monthly"
         : snapshot?.cycle;
-  const periodEnd = activeSubscription?.currentPeriodEnd ?? snapshot?.periodEnd;
-  const orders = (ordersData?.result?.items ?? []) as PolarOrder[];
+  const periodEnd =
+    activeSubscription?.current_period_end ?? snapshot?.periodEnd;
+  const orders = (ordersData?.items ?? []) as PolarOrder[];
 
   return (
     <div className="space-y-6">
@@ -196,7 +197,7 @@ export function SubscriptionTab() {
                         {order.product?.name ?? "Subscription"}
                       </p>
                       <p className="text-muted-foreground text-xs">
-                        {formatDateTime(order.createdAt, "—")}
+                        {formatDateTime(order.created_at, "—")}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -204,7 +205,7 @@ export function SubscriptionTab() {
                         {order.status.replaceAll("_", " ").toUpperCase()}
                       </Badge>
                       <span className="font-medium tabular-nums">
-                        {formatOrderAmount(order.totalAmount, order.currency)}
+                        {formatOrderAmount(order.total_amount, order.currency)}
                       </span>
                     </div>
                   </div>

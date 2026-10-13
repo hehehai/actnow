@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/react-table";
 import { CreatorCell } from "@/components/shared/data-table/common-cells";
 import { Badge } from "@/components/ui/badge";
 import type { client } from "@/lib/orpc";

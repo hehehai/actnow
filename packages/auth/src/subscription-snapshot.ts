@@ -8,10 +8,10 @@ type PolarProductEnvKey =
   | "POLAR_PRODUCT_PRO_PLUS_YEARLY_ID";
 
 export type PolarActiveSubscriptionLike = {
-  productId: string;
+  product_id: string;
   status: string;
-  recurringInterval: string;
-  currentPeriodEnd: Date | null;
+  recurring_interval: string;
+  current_period_end: string | null;
 };
 
 export type SubscriptionSnapshot = {
@@ -104,11 +104,11 @@ export function getSnapshotFromSubscriptions(
 
   let selected = subscriptions[0];
   let selectedPlan =
-    planByProductId.get(selected.productId) ?? SubscriptionPlan.FREE;
+    planByProductId.get(selected.product_id) ?? SubscriptionPlan.FREE;
 
   for (const subscription of subscriptions.slice(1)) {
     const plan =
-      planByProductId.get(subscription.productId) ?? SubscriptionPlan.FREE;
+      planByProductId.get(subscription.product_id) ?? SubscriptionPlan.FREE;
     if (getPlanRank(plan) > getPlanRank(selectedPlan)) {
       selected = subscription;
       selectedPlan = plan;
@@ -118,7 +118,9 @@ export function getSnapshotFromSubscriptions(
   return {
     plan: selectedPlan,
     status: normalizeStatus(selected.status),
-    cycle: normalizeCycle(selected.recurringInterval),
-    currentPeriodEnd: selected.currentPeriodEnd ?? null,
+    cycle: normalizeCycle(selected.recurring_interval),
+    currentPeriodEnd: selected.current_period_end
+      ? new Date(selected.current_period_end)
+      : null,
   };
 }

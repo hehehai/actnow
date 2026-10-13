@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@/lib/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { SubscriptionStatusBadge } from "@/components/features/common/subscription/subscription-status-badge";
 import { SortableColumnHeader } from "@/components/shared/data-table";

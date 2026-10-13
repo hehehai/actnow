@@ -62,7 +62,7 @@ function toPasswordSignInError(error: unknown): PasswordSignInError | null {
 }
 
 export const signInPassword = createServerFn({ method: "POST" })
-  .inputValidator(signInPasswordSchema)
+  .validator(signInPasswordSchema)
   .handler(async ({ data }): Promise<PasswordSignInResult> => {
     const request = getRequest();
 

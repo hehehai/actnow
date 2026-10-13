@@ -1,5 +1,5 @@
 import { site } from "@actnow/common";
-import { Button, Heading, Link, Section, Text } from "@react-email/components";
+import { Button, Heading, Link, Section, Text } from "react-email";
 import { BaseLayout } from "./base-layout";
 
 interface VerificationEmailProps {

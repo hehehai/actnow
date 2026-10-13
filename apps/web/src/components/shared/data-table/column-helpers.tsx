@@ -1,8 +1,10 @@
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, RowData } from "@/lib/react-table";
 import type { ReactNode } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export function createSelectionColumn<TData>(): ColumnDef<TData> {
+export function createSelectionColumn<
+  TData extends RowData,
+>(): ColumnDef<TData> {
   return {
     cell: ({ row }) => (
       <Checkbox
@@ -29,12 +31,12 @@ export function createSelectionColumn<TData>(): ColumnDef<TData> {
   };
 }
 
-interface ActionsColumnOptions<TData> {
+interface ActionsColumnOptions<TData extends RowData> {
   render: (row: TData) => ReactNode;
   size?: number;
 }
 
-export function createActionsColumn<TData>({
+export function createActionsColumn<TData extends RowData>({
   render,
   size = 60,
 }: ActionsColumnOptions<TData>): ColumnDef<TData> {

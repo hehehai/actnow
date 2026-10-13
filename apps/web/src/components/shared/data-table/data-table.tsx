@@ -6,9 +6,10 @@ import {
   getSortedRowModel,
   type PaginationState,
   type RowSelectionState,
+  type RowData,
   type SortingState,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@/lib/react-table";
 import { useState } from "react";
 import { Frame } from "@/components/shared/frame";
 import {
@@ -22,7 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DataTablePagination } from "./data-table-pagination";
 
-interface DataTableProps<TData> {
+interface DataTableProps<TData extends RowData> {
   data: TData[];
   columns: ColumnDef<TData>[];
   pageSize?: number;
@@ -34,7 +35,7 @@ interface DataTableProps<TData> {
   className?: string;
 }
 
-export function DataTable<TData>({
+export function DataTable<TData extends RowData>({
   data,
   columns,
   pageSize = 10,

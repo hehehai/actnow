@@ -328,7 +328,7 @@ export async function ensureBillingCustomerService(
 
   return {
     id: customer.id,
-    email: customer.email,
+    email: customer.email ?? currentUser.email,
   };
 }
 
@@ -347,7 +347,10 @@ export async function syncBillingSnapshotService(
 
   const customerState = await getPolarCustomerStateByExternalId(currentUser.id);
   const snapshot = getSnapshotFromSubscriptions(
-    customerState.activeSubscriptions,
+    customerState.active_subscriptions.map((subscription) => ({
+      ...subscription,
+      current_period_end: subscription.current_period_end,
+    })),
     getPolarPlanByProductIdMap()
   );
 
