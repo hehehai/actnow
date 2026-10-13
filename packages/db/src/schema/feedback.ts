@@ -11,7 +11,9 @@ export const feedbacks = sqliteTable(
     id: text("id").primaryKey(),
     title: text("title", { length: 200 }).notNull(),
     content: text("content"),
-    snapshots: jsonText<string[]>("snapshots").default(sql`'[]'`).notNull(),
+    snapshots: jsonText<string[]>("snapshots")
+      .default(sql`'[]'`)
+      .notNull(),
     status: text("status", { enum: FEEDBACK_STATUSES })
       .default("PENDING")
       .notNull(),

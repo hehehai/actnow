@@ -2,9 +2,8 @@ async function seed() {
   const { createDb } = await import("./index");
   const { createLocalD1Database } = await import("./local-d1");
   const { runAllSeeds } = await import("./seeds");
-  const { account, session, user, verification } = await import(
-    "./schema/auth"
-  );
+  const { account, session, user, verification } =
+    await import("./schema/auth");
   const { eventLogs } = await import("./schema/events");
   const { feedbacks } = await import("./schema/feedback");
   const { postLikes, posts } = await import("./schema/posts");

@@ -46,9 +46,8 @@ export function createEmailOtpPlugin() {
 
         // Lazy load email dependencies to reduce initial bundle size
         const { sendEmail } = await import("@actnow/email");
-        const { ResetPasswordEmail, VerificationEmail } = await import(
-          "@actnow/email/templates/auth"
-        );
+        const { ResetPasswordEmail, VerificationEmail } =
+          await import("@actnow/email/templates/auth");
 
         if (isPasswordReset) {
           // Password reset email

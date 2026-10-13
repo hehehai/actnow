@@ -14,17 +14,17 @@
     "db:seed": "tsx src/seed.ts"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.9",
-    "miniflare": "^4.20260409.0",
-    "tsx": "^4.21.0"
+    "drizzle-kit": "^0.31.11",
+    "miniflare": "5.20261006.1-alpha",
+    "tsx": "^4.23.15"
   },
   "dependencies": {
     "@actnow/common": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
-    "nanoid": "^5.1.6",
-    "smol-toml": "^1.6.1",
+    "nanoid": "^6.0.2",
+    "smol-toml": "^1.9.1",
     "zod": "catalog:"
   }
 }

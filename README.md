@@ -21,29 +21,29 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 
 ## Subscription Rules
 
-| Plan | Max Posts | Private Posts |
-|------|-----------|---------------|
-| `FREE` | 20 | Not allowed (public only) |
-| `PRO` | 3000 | Allowed |
-| `PRO_PLUS` | 10000 | Allowed |
+| Plan       | Max Posts | Private Posts             |
+| ---------- | --------- | ------------------------- |
+| `FREE`     | 20        | Not allowed (public only) |
+| `PRO`      | 3000      | Allowed                   |
+| `PRO_PLUS` | 10000     | Allowed                   |
 
 - Post limits and visibility constraints are enforced server-side in API services.
 - Subscription snapshot is synced from Polar webhook events into local user fields for fast UI queries (menu/profile/panel).
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| **Frontend** | React 19, TanStack Start (SSR), TanStack Router |
-| **Styling** | Tailwind CSS v4, shadcn/ui (base-nova) |
-| **API Layer** | oRPC (end-to-end type-safe RPC) |
-| **Database** | Cloudflare D1 + Drizzle ORM |
-| **Authentication** | Better Auth (Email/Password, GitHub, Google OAuth) |
-| **File Storage** | Cloudflare R2 + Image/Video Transformations |
-| **Email** | React Email + Resend |
-| **Deployment** | Cloudflare Workers + Wrangler |
-| **Code Quality** | Biome + Ultracite |
-| **Package Manager** | pnpm (monorepo workspaces) |
+| Category            | Technology                                         |
+| ------------------- | -------------------------------------------------- |
+| **Frontend**        | React 19, TanStack Start (SSR), TanStack Router    |
+| **Styling**         | Tailwind CSS v4, shadcn/ui (base-nova)             |
+| **API Layer**       | oRPC (end-to-end type-safe RPC)                    |
+| **Database**        | Cloudflare D1 + Drizzle ORM                        |
+| **Authentication**  | Better Auth (Email/Password, GitHub, Google OAuth) |
+| **File Storage**    | Cloudflare R2 + Image/Video Transformations        |
+| **Email**           | React Email + Resend                               |
+| **Deployment**      | Cloudflare Workers + Wrangler                      |
+| **Code Quality**    | Vite+ (Oxlint + Oxfmt)                             |
+| **Package Manager** | pnpm (monorepo workspaces)                         |
 
 ## Project Structure
 
@@ -147,8 +147,9 @@ pnpm run dev:web      # Start web app only
 pnpm run check-types  # Check TypeScript types across all packages
 
 # Code Quality
-pnpm run check        # Biome formatting and linting
-npx ultracite fix     # Auto-fix code issues
+pnpm run check        # Run Vite+ lint and format checks
+pnpm run lint         # Lint with Oxlint
+pnpm run format       # Format with Oxfmt
 
 # Database
 pnpm run db:generate            # Generate migration files
@@ -174,10 +175,10 @@ pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types fro
 
 #### Core Configuration
 
-| Variable | Required | Description | Notes |
-|----------|----------|-------------|-------|
-| `CORS_ORIGIN` | Yes | Allowed origin for auth and API requests | Set to your app URL in production (e.g. `https://your-domain.com`). |
-| `BETTER_AUTH_URL` | Yes | Base URL used by Better Auth for redirects and emails | Should match the public URL of the app. |
+| Variable          | Required | Description                                           | Notes                                                               |
+| ----------------- | -------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| `CORS_ORIGIN`     | Yes      | Allowed origin for auth and API requests              | Set to your app URL in production (e.g. `https://your-domain.com`). |
+| `BETTER_AUTH_URL` | Yes      | Base URL used by Better Auth for redirects and emails | Should match the public URL of the app.                             |
 
 #### Database (D1)
 
@@ -188,25 +189,25 @@ pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types fro
 
 #### Authentication
 
-| Variable | Required | Description | Notes |
-|----------|----------|-------------|-------|
-| `BETTER_AUTH_SECRET` | Yes | Token signing secret | Generate with `pnpm dlx @better-auth/cli@latest secret` and keep it private. |
-| `GITHUB_CLIENT_ID` | Optional | GitHub OAuth client ID | Needed for GitHub login. |
-| `GITHUB_CLIENT_SECRET` | Optional | GitHub OAuth client secret | Needed for GitHub login; keep secret. |
-| `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID | Needed for Google login. |
-| `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth client secret | Needed for Google login; keep secret. |
+| Variable               | Required | Description                | Notes                                                                        |
+| ---------------------- | -------- | -------------------------- | ---------------------------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`   | Yes      | Token signing secret       | Generate with `pnpm dlx @better-auth/cli@latest secret` and keep it private. |
+| `GITHUB_CLIENT_ID`     | Optional | GitHub OAuth client ID     | Needed for GitHub login.                                                     |
+| `GITHUB_CLIENT_SECRET` | Optional | GitHub OAuth client secret | Needed for GitHub login; keep secret.                                        |
+| `GOOGLE_CLIENT_ID`     | Optional | Google OAuth client ID     | Needed for Google login.                                                     |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth client secret | Needed for Google login; keep secret.                                        |
 
 #### Polar Billing
 
-| Variable | Required | Description | Notes |
-|----------|----------|-------------|-------|
-| `POLAR_ACCESS_TOKEN` | Yes | Polar organization access token | Create in Polar organization settings. |
-| `POLAR_WEBHOOK_SECRET` | Yes | Secret used to verify Polar webhook payloads | Configure webhook endpoint at `/api/auth/polar/webhooks`. |
-| `POLAR_ENVIRONMENT` | Yes | Polar environment (`sandbox` or `production`) | Keep token/product IDs aligned with the selected environment. |
-| `POLAR_PRODUCT_PRO_MONTHLY_ID` | Yes | Polar product ID for Pro monthly | Used by pricing checkout slug `pro-monthly`. |
-| `POLAR_PRODUCT_PRO_YEARLY_ID` | Yes | Polar product ID for Pro yearly | Used by pricing checkout slug `pro-yearly`. |
-| `POLAR_PRODUCT_PRO_PLUS_MONTHLY_ID` | Yes | Polar product ID for Pro+ monthly | Used by pricing checkout slug `pro-plus-monthly`. |
-| `POLAR_PRODUCT_PRO_PLUS_YEARLY_ID` | Yes | Polar product ID for Pro+ yearly | Used by pricing checkout slug `pro-plus-yearly`. |
+| Variable                            | Required | Description                                   | Notes                                                         |
+| ----------------------------------- | -------- | --------------------------------------------- | ------------------------------------------------------------- |
+| `POLAR_ACCESS_TOKEN`                | Yes      | Polar organization access token               | Create in Polar organization settings.                        |
+| `POLAR_WEBHOOK_SECRET`              | Yes      | Secret used to verify Polar webhook payloads  | Configure webhook endpoint at `/api/auth/polar/webhooks`.     |
+| `POLAR_ENVIRONMENT`                 | Yes      | Polar environment (`sandbox` or `production`) | Keep token/product IDs aligned with the selected environment. |
+| `POLAR_PRODUCT_PRO_MONTHLY_ID`      | Yes      | Polar product ID for Pro monthly              | Used by pricing checkout slug `pro-monthly`.                  |
+| `POLAR_PRODUCT_PRO_YEARLY_ID`       | Yes      | Polar product ID for Pro yearly               | Used by pricing checkout slug `pro-yearly`.                   |
+| `POLAR_PRODUCT_PRO_PLUS_MONTHLY_ID` | Yes      | Polar product ID for Pro+ monthly             | Used by pricing checkout slug `pro-plus-monthly`.             |
+| `POLAR_PRODUCT_PRO_PLUS_YEARLY_ID`  | Yes      | Polar product ID for Pro+ yearly              | Used by pricing checkout slug `pro-plus-yearly`.              |
 
 ### API Namespaces
 
@@ -216,26 +217,26 @@ pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types fro
 
 #### Email (Resend)
 
-| Variable | Required | Description | Notes |
-|----------|----------|-------------|-------|
-| `EMAIL_USER` | Yes | From email address used in transactional emails | Must be a sender verified in Resend. |
-| `RESEND_API_KEY` | Yes | Resend API key | Required for verification and magic-link emails. |
+| Variable         | Required | Description                                     | Notes                                            |
+| ---------------- | -------- | ----------------------------------------------- | ------------------------------------------------ |
+| `EMAIL_USER`     | Yes      | From email address used in transactional emails | Must be a sender verified in Resend.             |
+| `RESEND_API_KEY` | Yes      | Resend API key                                  | Required for verification and magic-link emails. |
 
 #### Cloudflare R2 Storage
 
-| Variable | Required | Description | Notes |
-|----------|----------|-------------|-------|
-| `CLOUD_FLARE_R2_ACCOUNT_ID` | Optional | Cloudflare account ID for R2 | Required if you enable media uploads. |
-| `CLOUD_FLARE_S3_UPLOAD_BUCKET` | Optional | R2 bucket name | Required if you enable media uploads. |
-| `CLOUD_FLARE_S3_UPLOAD_KEY` | Optional | R2 S3 access key | Keep secret. |
-| `CLOUD_FLARE_S3_UPLOAD_SECRET` | Optional | R2 S3 secret key | Keep secret. |
-| `VITE_CLOUD_FLARE_R2_URL` | Optional | Public base URL for reading media | Can be an R2 public URL or custom domain; exposed to the client. |
+| Variable                       | Required | Description                       | Notes                                                            |
+| ------------------------------ | -------- | --------------------------------- | ---------------------------------------------------------------- |
+| `CLOUD_FLARE_R2_ACCOUNT_ID`    | Optional | Cloudflare account ID for R2      | Required if you enable media uploads.                            |
+| `CLOUD_FLARE_S3_UPLOAD_BUCKET` | Optional | R2 bucket name                    | Required if you enable media uploads.                            |
+| `CLOUD_FLARE_S3_UPLOAD_KEY`    | Optional | R2 S3 access key                  | Keep secret.                                                     |
+| `CLOUD_FLARE_S3_UPLOAD_SECRET` | Optional | R2 S3 secret key                  | Keep secret.                                                     |
+| `VITE_CLOUD_FLARE_R2_URL`      | Optional | Public base URL for reading media | Can be an R2 public URL or custom domain; exposed to the client. |
 
 #### Platform/Runtime (Optional)
 
-| Variable | Required | Description | Notes |
-|----------|----------|-------------|-------|
-| `VERCEL_URL` | Optional | Legacy alternate deployment URL | Only used as a fallback in shared URL helpers. |
+| Variable     | Required | Description                             | Notes                                          |
+| ------------ | -------- | --------------------------------------- | ---------------------------------------------- |
+| `VERCEL_URL` | Optional | Legacy alternate deployment URL         | Only used as a fallback in shared URL helpers. |
 | `VERCEL_ENV` | Optional | Legacy alternate deployment environment | Only used as a fallback in shared URL helpers. |
 
 ## Build

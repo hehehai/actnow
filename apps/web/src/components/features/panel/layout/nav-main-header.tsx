@@ -3,8 +3,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { NavThemeToggle } from "./nav-theme-toggle";
 
-interface NavMainHeaderProps
-  extends Omit<React.HTMLAttributes<HTMLHeadElement>, "title"> {
+interface NavMainHeaderProps extends Omit<
+  React.HTMLAttributes<HTMLHeadElement>,
+  "title"
+> {
   left?: React.ReactNode;
   right?: React.ReactNode;
   tabLeft?: React.ReactNode;

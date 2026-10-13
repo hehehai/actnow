@@ -13,7 +13,9 @@ export const posts = sqliteTable("posts", {
   id: text("id").primaryKey(),
   prompt: text("prompt").default("").notNull(),
   comment: text("comment").notNull(),
-  media: jsonText<string[]>("media").default(sql`'[]'`).notNull(),
+  media: jsonText<string[]>("media")
+    .default(sql`'[]'`)
+    .notNull(),
   isPublic: integer("is_public", { mode: "boolean" }).default(false).notNull(),
   likes: integer("likes").default(0).notNull(),
   visits: integer("visits").default(0).notNull(),

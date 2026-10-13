@@ -9,38 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as appRouteRouteImport } from './routes/(app)/route'
-import { Route as appIndexRouteImport } from './routes/(app)/index'
-import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
-import { Route as authSignupRouteImport } from './routes/(auth)/signup'
-import { Route as authSigninRouteImport } from './routes/(auth)/signin'
-import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
-import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
-import { Route as appWeeklyRouteImport } from './routes/(app)/weekly'
-import { Route as appPricesRouteImport } from './routes/(app)/prices'
-import { Route as appAboutRouteImport } from './routes/(app)/about'
-import { Route as app404RouteImport } from './routes/(app)/404'
+import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/route'
-import { Route as appUserSlugIndexRouteImport } from './routes/(app)/$userSlug/index'
+import { Route as appIndexRouteImport } from './routes/(app)/index'
+import { Route as app404RouteImport } from './routes/(app)/404'
+import { Route as appAboutRouteImport } from './routes/(app)/about'
+import { Route as appPricesRouteImport } from './routes/(app)/prices'
+import { Route as appWeeklyRouteImport } from './routes/(app)/weekly'
+import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authSigninRouteImport } from './routes/(auth)/signin'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
-import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
-import { Route as appuserFeedbackRouteImport } from './routes/(app)/(user)/feedback'
-import { Route as appUserSlugPostSlugRouteImport } from './routes/(app)/$userSlug/$postSlug'
-import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
-import { Route as adminPanelTagsRouteImport } from './routes/(admin)/panel/tags'
-import { Route as adminPanelPostsRouteImport } from './routes/(admin)/panel/posts'
 import { Route as adminPanelFeedbackRouteImport } from './routes/(admin)/panel/feedback'
+import { Route as adminPanelPostsRouteImport } from './routes/(admin)/panel/posts'
+import { Route as adminPanelTagsRouteImport } from './routes/(admin)/panel/tags'
+import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
+import { Route as appUserSlugIndexRouteImport } from './routes/(app)/$userSlug/index'
+import { Route as appUserSlugPostSlugRouteImport } from './routes/(app)/$userSlug/$postSlug'
+import { Route as appuserFeedbackRouteImport } from './routes/(app)/(user)/feedback'
+import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 
+const appRouteRoute = appRouteRouteImport.update({
+  id: '/(app)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const appRouteRoute = appRouteRouteImport.update({
-  id: '/(app)',
+const adminPanelRouteRoute = adminPanelRouteRouteImport.update({
+  id: '/(admin)/panel',
+  path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const appIndexRoute = appIndexRouteImport.update({
@@ -48,44 +53,9 @@ const appIndexRoute = appIndexRouteImport.update({
   path: '/',
   getParentRoute: () => appRouteRoute,
 } as any)
-const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authSignupRoute = authSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authSigninRoute = authSigninRouteImport.update({
-  id: '/signin',
-  path: '/signin',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authResetPasswordRoute = authResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authLoginRoute = authLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
-  id: '/forget-password',
-  path: '/forget-password',
-  getParentRoute: () => authRouteRoute,
-} as any)
-const appWeeklyRoute = appWeeklyRouteImport.update({
-  id: '/weekly',
-  path: '/weekly',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appPricesRoute = appPricesRouteImport.update({
-  id: '/prices',
-  path: '/prices',
+const app404Route = app404RouteImport.update({
+  id: '/404',
+  path: '/404',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appAboutRoute = appAboutRouteImport.update({
@@ -93,59 +63,54 @@ const appAboutRoute = appAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => appRouteRoute,
 } as any)
-const app404Route = app404RouteImport.update({
-  id: '/404',
-  path: '/404',
+const appPricesRoute = appPricesRouteImport.update({
+  id: '/prices',
+  path: '/prices',
   getParentRoute: () => appRouteRoute,
 } as any)
-const adminPanelRouteRoute = adminPanelRouteRouteImport.update({
-  id: '/(admin)/panel',
-  path: '/panel',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const appUserSlugIndexRoute = appUserSlugIndexRouteImport.update({
-  id: '/$userSlug/',
-  path: '/$userSlug/',
+const appWeeklyRoute = appWeeklyRouteImport.update({
+  id: '/weekly',
+  path: '/weekly',
   getParentRoute: () => appRouteRoute,
+} as any)
+const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
+  id: '/forget-password',
+  path: '/forget-password',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authResetPasswordRoute = authResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authSigninRoute = authSigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => authRouteRoute,
 } as any)
 const adminPanelIndexRoute = adminPanelIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
-const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
-  id: '/api/rpc/$',
-  path: '/api/rpc/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const appuserLikesRoute = appuserLikesRouteImport.update({
-  id: '/(user)/likes',
-  path: '/likes',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appuserFeedbackRoute = appuserFeedbackRouteImport.update({
-  id: '/(user)/feedback',
+const adminPanelFeedbackRoute = adminPanelFeedbackRouteImport.update({
+  id: '/feedback',
   path: '/feedback',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appUserSlugPostSlugRoute = appUserSlugPostSlugRouteImport.update({
-  id: '/$userSlug/$postSlug',
-  path: '/$userSlug/$postSlug',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => adminPanelRouteRoute,
-} as any)
-const adminPanelTagsRoute = adminPanelTagsRouteImport.update({
-  id: '/tags',
-  path: '/tags',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
 const adminPanelPostsRoute = adminPanelPostsRouteImport.update({
@@ -153,10 +118,45 @@ const adminPanelPostsRoute = adminPanelPostsRouteImport.update({
   path: '/posts',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
-const adminPanelFeedbackRoute = adminPanelFeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
+const adminPanelTagsRoute = adminPanelTagsRouteImport.update({
+  id: '/tags',
+  path: '/tags',
   getParentRoute: () => adminPanelRouteRoute,
+} as any)
+const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => adminPanelRouteRoute,
+} as any)
+const appUserSlugIndexRoute = appUserSlugIndexRouteImport.update({
+  id: '/$userSlug/',
+  path: '/$userSlug/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appUserSlugPostSlugRoute = appUserSlugPostSlugRouteImport.update({
+  id: '/$userSlug/$postSlug',
+  path: '/$userSlug/$postSlug',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appuserFeedbackRoute = appuserFeedbackRouteImport.update({
+  id: '/(user)/feedback',
+  path: '/feedback',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appuserLikesRoute = appuserLikesRouteImport.update({
+  id: '/(user)/likes',
+  path: '/likes',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
+  id: '/api/rpc/$',
+  path: '/api/rpc/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -325,6 +325,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(app)': {
+      id: '/(app)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)': {
       id: '/(auth)'
       path: ''
@@ -332,11 +339,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(app)': {
-      id: '/(app)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof appRouteRouteImport
+    '/(admin)/panel': {
+      id: '/(admin)/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof adminPanelRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(app)/': {
@@ -346,60 +353,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(auth)/verify-email': {
-      id: '/(auth)/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof authVerifyEmailRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/signup': {
-      id: '/(auth)/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof authSignupRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/signin': {
-      id: '/(auth)/signin'
-      path: '/signin'
-      fullPath: '/signin'
-      preLoaderRoute: typeof authSigninRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/reset-password': {
-      id: '/(auth)/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof authResetPasswordRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(auth)/forget-password': {
-      id: '/(auth)/forget-password'
-      path: '/forget-password'
-      fullPath: '/forget-password'
-      preLoaderRoute: typeof authForgetPasswordRouteImport
-      parentRoute: typeof authRouteRoute
-    }
-    '/(app)/weekly': {
-      id: '/(app)/weekly'
-      path: '/weekly'
-      fullPath: '/weekly'
-      preLoaderRoute: typeof appWeeklyRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/prices': {
-      id: '/(app)/prices'
-      path: '/prices'
-      fullPath: '/prices'
-      preLoaderRoute: typeof appPricesRouteImport
+    '/(app)/404': {
+      id: '/(app)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof app404RouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/about': {
@@ -409,26 +367,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAboutRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/404': {
-      id: '/(app)/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof app404RouteImport
+    '/(app)/prices': {
+      id: '/(app)/prices'
+      path: '/prices'
+      fullPath: '/prices'
+      preLoaderRoute: typeof appPricesRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(admin)/panel': {
-      id: '/(admin)/panel'
-      path: '/panel'
-      fullPath: '/panel'
-      preLoaderRoute: typeof adminPanelRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(app)/$userSlug/': {
-      id: '/(app)/$userSlug/'
-      path: '/$userSlug'
-      fullPath: '/$userSlug/'
-      preLoaderRoute: typeof appUserSlugIndexRouteImport
+    '/(app)/weekly': {
+      id: '/(app)/weekly'
+      path: '/weekly'
+      fullPath: '/weekly'
+      preLoaderRoute: typeof appWeeklyRouteImport
       parentRoute: typeof appRouteRoute
+    }
+    '/(auth)/forget-password': {
+      id: '/(auth)/forget-password'
+      path: '/forget-password'
+      fullPath: '/forget-password'
+      preLoaderRoute: typeof authForgetPasswordRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/signin': {
+      id: '/(auth)/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof authSigninRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authVerifyEmailRouteImport
+      parentRoute: typeof authRouteRoute
     }
     '/(admin)/panel/': {
       id: '/(admin)/panel/'
@@ -437,53 +430,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof adminPanelIndexRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
-    '/api/rpc/$': {
-      id: '/api/rpc/$'
-      path: '/api/rpc/$'
-      fullPath: '/api/rpc/$'
-      preLoaderRoute: typeof ApiRpcSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(app)/(user)/likes': {
-      id: '/(app)/(user)/likes'
-      path: '/likes'
-      fullPath: '/likes'
-      preLoaderRoute: typeof appuserLikesRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/(user)/feedback': {
-      id: '/(app)/(user)/feedback'
+    '/(admin)/panel/feedback': {
+      id: '/(admin)/panel/feedback'
       path: '/feedback'
-      fullPath: '/feedback'
-      preLoaderRoute: typeof appuserFeedbackRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/$userSlug/$postSlug': {
-      id: '/(app)/$userSlug/$postSlug'
-      path: '/$userSlug/$postSlug'
-      fullPath: '/$userSlug/$postSlug'
-      preLoaderRoute: typeof appUserSlugPostSlugRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(admin)/panel/users': {
-      id: '/(admin)/panel/users'
-      path: '/users'
-      fullPath: '/panel/users'
-      preLoaderRoute: typeof adminPanelUsersRouteImport
-      parentRoute: typeof adminPanelRouteRoute
-    }
-    '/(admin)/panel/tags': {
-      id: '/(admin)/panel/tags'
-      path: '/tags'
-      fullPath: '/panel/tags'
-      preLoaderRoute: typeof adminPanelTagsRouteImport
+      fullPath: '/panel/feedback'
+      preLoaderRoute: typeof adminPanelFeedbackRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
     '/(admin)/panel/posts': {
@@ -493,12 +444,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof adminPanelPostsRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
-    '/(admin)/panel/feedback': {
-      id: '/(admin)/panel/feedback'
-      path: '/feedback'
-      fullPath: '/panel/feedback'
-      preLoaderRoute: typeof adminPanelFeedbackRouteImport
+    '/(admin)/panel/tags': {
+      id: '/(admin)/panel/tags'
+      path: '/tags'
+      fullPath: '/panel/tags'
+      preLoaderRoute: typeof adminPanelTagsRouteImport
       parentRoute: typeof adminPanelRouteRoute
+    }
+    '/(admin)/panel/users': {
+      id: '/(admin)/panel/users'
+      path: '/users'
+      fullPath: '/panel/users'
+      preLoaderRoute: typeof adminPanelUsersRouteImport
+      parentRoute: typeof adminPanelRouteRoute
+    }
+    '/(app)/$userSlug/': {
+      id: '/(app)/$userSlug/'
+      path: '/$userSlug'
+      fullPath: '/$userSlug/'
+      preLoaderRoute: typeof appUserSlugIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/$userSlug/$postSlug': {
+      id: '/(app)/$userSlug/$postSlug'
+      path: '/$userSlug/$postSlug'
+      fullPath: '/$userSlug/$postSlug'
+      preLoaderRoute: typeof appUserSlugPostSlugRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(user)/feedback': {
+      id: '/(app)/(user)/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof appuserFeedbackRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(user)/likes': {
+      id: '/(app)/(user)/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof appuserLikesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rpc/$': {
+      id: '/api/rpc/$'
+      path: '/api/rpc/$'
+      fullPath: '/api/rpc/$'
+      preLoaderRoute: typeof ApiRpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }

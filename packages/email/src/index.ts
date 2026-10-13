@@ -48,8 +48,10 @@ export async function sendEmail({
   }
 }
 
-interface BatchSendEmailOptions
-  extends Omit<SendEmailOptions, "to" | "renderData"> {
+interface BatchSendEmailOptions extends Omit<
+  SendEmailOptions,
+  "to" | "renderData"
+> {
   to: string[];
   renderData: ReactElement<any, string | JSXElementConstructor<any>>[];
 }

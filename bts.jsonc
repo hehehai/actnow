@@ -12,10 +12,7 @@
   "frontend": [
     "tanstack-start"
   ],
-  "addons": [
-    "biome",
-    "ultracite"
-  ],
+  "addons": [],
   "examples": [
     "post"
   ],

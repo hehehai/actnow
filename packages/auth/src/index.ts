@@ -63,9 +63,8 @@ export function createAuth() {
         }
 
         const { sendEmail } = await import("@actnow/email");
-        const { VerificationEmail } = await import(
-          "@actnow/email/templates/auth"
-        );
+        const { VerificationEmail } =
+          await import("@actnow/email/templates/auth");
 
         await sendEmail({
           to: user.email,
