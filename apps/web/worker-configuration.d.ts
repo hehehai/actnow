@@ -6,6 +6,7 @@ declare namespace Cloudflare {
 		mainModule: typeof import("./src/server");
 	}
 	interface Env {
+		R2: R2Bucket;
 		DB: D1Database;
 		CORS_ORIGIN: string;
 		BETTER_AUTH_URL: string;

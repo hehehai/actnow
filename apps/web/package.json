@@ -68,8 +68,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1150.0",
-    "@aws-sdk/s3-request-presigner": "^3.1150.0",
     "@babel/core": "^8.0.7",
     "@cloudflare/vite-plugin": "^1.63.1",
     "@devmehq/email-validator-js": "^2.10.4",

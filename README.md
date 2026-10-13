@@ -32,18 +32,18 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 
 ## Tech Stack
 
-| Category            | Technology                                         |
-| ------------------- | -------------------------------------------------- |
-| **Frontend**        | React 19, TanStack Start (SSR), TanStack Router    |
-| **Styling**         | Tailwind CSS v4, shadcn/ui (base-nova)             |
-| **API Layer**       | oRPC (end-to-end type-safe RPC)                    |
-| **Database**        | Cloudflare D1 + Drizzle ORM                        |
-| **Authentication**  | Better Auth (Email/Password, GitHub, Google OAuth) |
-| **File Storage**    | Cloudflare R2 + Image/Video Transformations        |
-| **Email**           | React Email + Resend                               |
-| **Deployment**      | Cloudflare Workers + Wrangler                      |
-| **Code Quality**    | Vite+ (Oxlint + Oxfmt)                             |
-| **Package Manager** | pnpm (monorepo workspaces)                         |
+| Category            | Technology                                                  |
+| ------------------- | ----------------------------------------------------------- |
+| **Frontend**        | React 19, TanStack Start (SSR), TanStack Router             |
+| **Styling**         | Tailwind CSS v4, shadcn/ui (base-nova)                      |
+| **API Layer**       | oRPC (end-to-end type-safe RPC)                             |
+| **Database**        | Cloudflare D1 + Drizzle ORM                                 |
+| **Authentication**  | Better Auth (Email/Password, GitHub, Google OAuth)          |
+| **File Storage**    | Cloudflare R2 Workers binding + Image/Video Transformations |
+| **Email**           | React Email + Resend                                        |
+| **Deployment**      | Cloudflare Workers + Wrangler                               |
+| **Code Quality**    | Vite+ (Oxlint + Oxfmt)                                      |
+| **Package Manager** | pnpm (monorepo workspaces)                                  |
 
 ## Project Structure
 
@@ -105,7 +105,7 @@ Edit `apps/web/.dev.vars` with your values (see [Environment Variables](#environ
 For local TanStack Start + Cloudflare development, this is the preferred config source.
 `apps/web/.env` is now only a legacy fallback for plain Node-based tooling.
 
-3. Configure D1 in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml):
+3. Configure D1 in [`apps/web/wrangler.toml`](apps/web/wrangler.toml):
 
 - Local development uses the checked-in `env.development` D1 binding together with `.wrangler/state`.
 - Before running against a real Cloudflare database, replace `database_id` with your actual D1 database ID.
@@ -140,8 +140,8 @@ Visit [http://localhost:3002](http://localhost:3002)
 
 ```bash
 # Development
-pnpm run dev          # Start all apps (runs local D1 migrations, then vite dev with CLOUDFLARE_ENV=development)
-pnpm run dev:web      # Start web app only
+pnpm run dev          # Run the development scripts defined by workspace packages
+pnpm run dev:web      # Start the web app (applies local D1 migrations first)
 
 # Type Checking
 pnpm run check-types  # Check TypeScript types across all packages
@@ -166,7 +166,7 @@ pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types fro
 ### Files and loading
 
 - Use `apps/web/.dev.vars` for local Worker development with `vite dev` / Wrangler bindings.
-- Keep non-secret runtime defaults in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml).
+- Keep non-secret runtime defaults in [`apps/web/wrangler.toml`](apps/web/wrangler.toml).
 - `apps/web/.env` is only a fallback for plain Node-based tooling.
 - In the Cloudflare runtime, server-side code reads Worker bindings/env first.
 - Only variables prefixed with `VITE_` are exposed to the browser. **Never** put secrets in `VITE_` variables.
@@ -182,8 +182,8 @@ pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types fro
 
 #### Database (D1)
 
-- D1 is configured through the `DB` binding in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml), not through `DATABASE_URL`.
-- Local D1 state is persisted in [`apps/web/.wrangler/state`](/Users/guanwei/x/doit/actnow-react/apps/web/.wrangler/state) after running migrations.
+- D1 is configured through the `DB` binding in [`apps/web/wrangler.toml`](apps/web/wrangler.toml), not through `DATABASE_URL`.
+- Local D1 state is persisted in `apps/web/.wrangler/state` after running migrations.
 - Local development uses the `development` environment in Wrangler config.
 - Replace the placeholder `database_id` values in Wrangler config before applying remote migrations or deploying.
 
@@ -224,13 +224,11 @@ pnpm run cf-typegen             # Generate Wrangler/Cloudflare runtime types fro
 
 #### Cloudflare R2 Storage
 
-| Variable                       | Required | Description                       | Notes                                                            |
-| ------------------------------ | -------- | --------------------------------- | ---------------------------------------------------------------- |
-| `CLOUD_FLARE_R2_ACCOUNT_ID`    | Optional | Cloudflare account ID for R2      | Required if you enable media uploads.                            |
-| `CLOUD_FLARE_S3_UPLOAD_BUCKET` | Optional | R2 bucket name                    | Required if you enable media uploads.                            |
-| `CLOUD_FLARE_S3_UPLOAD_KEY`    | Optional | R2 S3 access key                  | Keep secret.                                                     |
-| `CLOUD_FLARE_S3_UPLOAD_SECRET` | Optional | R2 S3 secret key                  | Keep secret.                                                     |
-| `VITE_CLOUD_FLARE_R2_URL`      | Optional | Public base URL for reading media | Can be an R2 public URL or custom domain; exposed to the client. |
+The Worker uses native `R2` bindings configured in [`apps/web/wrangler.toml`](apps/web/wrangler.toml): `refto` for production and `refto-dev` for the development environment. Create both buckets in Cloudflare before deploying; local development uses Wrangler's local R2 emulator. No S3 credentials are needed. For production media delivery, connect a custom domain to the production bucket and set `VITE_CLOUD_FLARE_R2_URL` to that public base URL. Cloudflare's `r2.dev` URL is intended for development, not production.
+
+| Variable                  | Required | Description                       | Notes                                                            |
+| ------------------------- | -------- | --------------------------------- | ---------------------------------------------------------------- |
+| `VITE_CLOUD_FLARE_R2_URL` | Optional | Public base URL for reading media | Can be an R2 public URL or custom domain; exposed to the client. |
 
 #### Platform/Runtime (Optional)
 
@@ -249,7 +247,7 @@ Build output is located at `apps/web/dist/` (`client/` for static assets, `serve
 
 ## Deployment
 
-This project is now configured for Cloudflare Workers + D1 through the checked-in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml).
+This project is configured for Cloudflare Workers + D1 through the checked-in [`apps/web/wrangler.toml`](apps/web/wrangler.toml).
 
 ### Production Build
 
@@ -259,7 +257,7 @@ pnpm run build
 
 ### Cloudflare Deploy Checklist
 
-1. Create real D1 databases in Cloudflare and replace the placeholder `database_id` values in [`apps/web/wrangler.toml`](/Users/guanwei/x/doit/actnow-react/apps/web/wrangler.toml).
+1. Create real D1 databases in Cloudflare and replace the placeholder `database_id` values in [`apps/web/wrangler.toml`](apps/web/wrangler.toml).
 2. Apply the schema to the remote D1 database:
 
 ```bash

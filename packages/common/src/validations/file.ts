@@ -7,10 +7,6 @@ import {
   MAX_SIZE_USER,
 } from "../constants/file";
 
-export const uploadUrlSchema = z.string().min(1);
-
-export type UploadUrlSchema = z.infer<typeof uploadUrlSchema>;
-
 export const publicUploadSchema = z.object({
   file: z
     .file()
@@ -35,10 +31,3 @@ export const adminUploadSchema = z.object({
 });
 
 export type AdminUploadSchema = z.infer<typeof adminUploadSchema>;
-
-export const getFileUrlSchema = z.object({
-  fileName: z.string().min(1),
-  expiresIn: z.number().min(60).max(86_400).optional().default(3600), // max: 86400 seconds (1 day)
-});
-
-export type GetFileUrlSchema = z.infer<typeof getFileUrlSchema>;

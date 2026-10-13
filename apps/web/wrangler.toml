@@ -17,6 +17,10 @@ database_name = "actnow"
 database_id = "21dedbf5-42f6-4274-952b-a2362b3bd7cf"
 migrations_dir = "../../packages/db/src/migrations"
 
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "refto"
+
 [env.development]
 name = "actnow-web"
 
@@ -30,3 +34,7 @@ binding = "DB"
 database_name = "actnow-dev"
 database_id = "11111111-1111-1111-1111-111111111111"
 migrations_dir = "../../packages/db/src/migrations"
+
+[[env.development.r2_buckets]]
+binding = "R2"
+bucket_name = "refto-dev"
