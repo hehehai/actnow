@@ -33,7 +33,7 @@ type SearchParams = z.infer<typeof searchSchema>;
 
 const tagsMeta = createPageMeta({
   title: "Manage Tags",
-  description: "Manage tags on Refto.",
+  description: "Organize topics used across Actnow posts.",
   url: "/panel/tags",
   noIndex: true,
 });

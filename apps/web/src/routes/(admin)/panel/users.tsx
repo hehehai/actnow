@@ -37,7 +37,7 @@ type SearchParams = z.infer<typeof searchSchema>;
 
 const usersMeta = createPageMeta({
   title: "Manage Users",
-  description: "Manage users on Refto.",
+  description: "Manage the Actnow community.",
   url: "/panel/users",
   noIndex: true,
 });

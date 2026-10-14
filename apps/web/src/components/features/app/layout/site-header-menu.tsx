@@ -18,9 +18,12 @@ export function SiteHeaderMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button className="rounded-full" variant="secondary">
+          <Button
+            className="rounded-full max-sm:size-9 max-sm:px-0"
+            variant="secondary"
+          >
             <AppIcon />
-            Menu
+            <span className="max-sm:hidden">Menu</span>
           </Button>
         }
       />

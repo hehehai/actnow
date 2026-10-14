@@ -30,20 +30,22 @@ export const NavMainHeader = ({
 }: NavMainHeaderProps) => (
   <div
     className={cn(
-      "w-full space-y-3.5 border-border border-b pt-3.5 pb-3.5",
+      "w-full space-y-3.5 border-border border-b bg-card/45 pt-4 pb-4",
       className
     )}
     {...props}
   >
     <header
-      className={cn("flex shrink-0 items-center justify-between gap-2 px-4")}
+      className={cn(
+        "flex shrink-0 flex-wrap items-start justify-between gap-3 px-4 sm:flex-nowrap sm:items-center"
+      )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex w-full min-w-0 flex-1 items-start gap-2 sm:w-auto sm:items-center">
         <SidebarTrigger className="-ml-1 size-8 bg-accent/60" />
         {left}
       </div>
       {children}
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
         {right}
         <NavThemeToggle />
       </div>

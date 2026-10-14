@@ -11,7 +11,7 @@ import { createPageMeta } from "@/lib/seo";
 
 const dashboardMeta = createPageMeta({
   title: "Admin Dashboard",
-  description: "Refto admin dashboard.",
+  description: "Actnow studio overview.",
   url: "/panel",
   noIndex: true,
 });
@@ -58,7 +58,11 @@ function RouteComponent() {
 
   return (
     <div className="w-full">
-      <NavMainHeader left={<h2 className="font-semibold">Dashboard</h2>} />
+      <NavMainHeader
+        left={
+          <h1 className="font-semibold text-xl tracking-[-0.03em]">Overview</h1>
+        }
+      />
       <div className="space-y-6 p-6">
         {/* Stat Cards */}
         {statsLoading || !dashboardStats ? (

@@ -11,7 +11,7 @@ const searchSchema = z.object({
 
 const resetPasswordMeta = createPageMeta({
   title: "Reset Password",
-  description: "Set a new password for your Refto account.",
+  description: "Set a new password for your Actnow account.",
   url: "/reset-password",
   noIndex: true,
 });

@@ -21,7 +21,6 @@ import {
   getFirstSubscriptionSnapshot,
   getSessionSubscriptionSnapshot,
 } from "@/lib/subscription-snapshot";
-import { userProfileDialog } from "@/stores/handlers";
 
 interface SiteHeaderUserProps {
   initialUser: {
@@ -66,7 +65,7 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
       <DropdownMenuTrigger
         render={
           <Button
-            className="flex items-center rounded-full pl-3"
+            className="flex max-w-44 items-center rounded-full pl-2.5 sm:pl-3"
             variant="secondary"
           >
             <Avatar className="size-5" size="sm">
@@ -79,12 +78,14 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
                 {getInitials(displayUser.name, { fallback: "?" })}
               </AvatarFallback>
             </Avatar>
-            {displayUser.name}
+            <span className="hidden truncate sm:inline">
+              {displayUser.name}
+            </span>
           </Button>
         }
       />
 
-      <DropdownMenuContent align="end" className="rouned-xl w-50">
+      <DropdownMenuContent align="end" className="w-60 rounded-2xl">
         {/* User info section */}
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-1.5 font-normal">
@@ -112,8 +113,6 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
 
         {/* User actions */}
         <DropdownMenuGroup>
-          {/* Settings - will open dialog */}
-
           {user?.id && (
             <DropdownMenuItem
               render={<Link params={{ userSlug: user.id }} to="/$userSlug" />}
@@ -151,11 +150,11 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
             Likes
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => {
-              userProfileDialog.openWithPayload(undefined);
-            }}
-          >
+          <DropdownMenuItem render={<Link to="/account" />}>
+            <span className="i-hugeicons-home-01" />
+            Your space
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link to="/account/settings" />}>
             <span className="i-hugeicons-account-setting-03" />
             Settings
           </DropdownMenuItem>

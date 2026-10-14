@@ -30,39 +30,54 @@ export function HeroSection({ sort, currentTagSlugs }: HeroSectionProps) {
   };
 
   return (
-    <section className="w-full">
-      <div className="container mx-auto flex flex-col gap-8 px-4 pt-12 pb-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-6">
-          <div className="mt-8">
-            <h2 className="text-balance font-semibold text-3xl leading-tight md:text-3xl lg:text-4xl">
-              {primaryTagline}
-            </h2>
-            {secondaryTagline && (
-              <h2 className="mt-4 text-balance font-semibold text-3xl leading-tight md:text-3xl lg:text-4xl">
-                {secondaryTagline}
-              </h2>
-            )}
-          </div>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Tabs onValueChange={handleSortChange} value={sort}>
-              <TabsList>
-                <TabsTrigger className="px-4" value={PostFeedSort.LATEST}>
-                  Latest
-                </TabsTrigger>
-                <TabsTrigger className="px-4" value={PostFeedSort.POPULAR}>
-                  Popular
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {!!currentTagSlugs?.length && (
-              <TagSelect
-                className="w-60"
-                onChange={handleTagChange}
-                placeholder="Filter by tags..."
-                value={currentTagSlugs ?? []}
-              />
-            )}
-          </div>
+    <section
+      aria-labelledby="home-title"
+      className="container mx-auto max-w-7xl px-4 pt-8 pb-6 sm:pt-10"
+    >
+      <div className="flex flex-col gap-5 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+        <div className="max-w-2xl">
+          <p className="font-medium text-[11px] text-brand uppercase tracking-[0.16em]">
+            A community for creative work
+          </p>
+          <h1
+            className="mt-2 text-balance font-medium text-3xl leading-tight tracking-tight md:text-4xl"
+            id="home-title"
+          >
+            {primaryTagline}
+            <br className="hidden sm:block" /> {secondaryTagline}
+          </h1>
+          <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-relaxed sm:text-base">
+            Discover the ideas people are saving, making, and sharing right now.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Tabs onValueChange={handleSortChange} value={sort}>
+            <TabsList
+              aria-label="Sort posts"
+              className="h-11 gap-1 rounded-full bg-muted/70 p-1"
+            >
+              <TabsTrigger
+                className="rounded-full px-4"
+                value={PostFeedSort.LATEST}
+              >
+                Latest
+              </TabsTrigger>
+              <TabsTrigger
+                className="rounded-full px-4"
+                value={PostFeedSort.POPULAR}
+              >
+                Popular
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {currentTagSlugs?.length ? (
+            <TagSelect
+              className="w-56"
+              onChange={handleTagChange}
+              placeholder="Filter by topics…"
+              value={currentTagSlugs}
+            />
+          ) : null}
         </div>
       </div>
     </section>

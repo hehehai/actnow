@@ -19,7 +19,6 @@ export const panelPostFormDialog = Dialog.createHandle<{
 }>();
 
 // User Profile Dialog (for app section)
-export const userProfileDialog = Dialog.createHandle();
 
 // Feedback Dialog (for app section)
 export const feedbackDialog = Dialog.createHandle();

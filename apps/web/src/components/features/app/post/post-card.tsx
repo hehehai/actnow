@@ -15,11 +15,7 @@ interface PostCardProps {
     visits: number;
     createdAt: Date;
   };
-  tags: Array<{
-    id: string;
-    name: string;
-    type: string;
-  }>;
+  tags: Array<{ id: string; name: string; type: string }>;
   author?: {
     id: string | null;
     name: string | null;
@@ -28,6 +24,7 @@ interface PostCardProps {
   liked?: boolean;
   onLikeChange?: (liked: boolean) => void;
   hideAuthor?: boolean;
+  featured?: boolean;
 }
 
 export function PostCard({
@@ -37,137 +34,157 @@ export function PostCard({
   liked = false,
   onLikeChange,
   hideAuthor = false,
+  featured = false,
 }: PostCardProps) {
   const cover = post.media?.[0] ?? null;
   const title = post.comment ?? post.prompt ?? "Untitled post";
   const initials = getInitials(author?.name, { fallback: "AN" });
-
   const detailParams = author?.id
     ? { userSlug: author.id, postSlug: post.id }
     : null;
-
-  const MediaContent = (
-    <div className="aspect-video overflow-hidden bg-muted">
+  const imageContent = (
+    <div className="relative h-full overflow-hidden rounded-[calc(var(--radius)+6px)] bg-placeholder">
       {cover ? (
         <img
           alt={title}
-          className="size-full object-cover"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
           loading="lazy"
           src={cover}
         />
       ) : (
-        <div className="flex size-full items-center justify-center text-muted-foreground">
-          <span className="i-hugeicons-image-01 text-4xl" />
+        <div className="flex h-full min-h-40 items-end justify-between bg-placeholder-gradient p-5">
+          <span className="font-medium text-5xl text-placeholder-text/75 sm:text-6xl">
+            {title.slice(0, 2)}
+          </span>
+          <span className="text-placeholder-text/55 text-xs uppercase tracking-[0.18em]">
+            Actnow
+          </span>
         </div>
       )}
     </div>
   );
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border bg-card transition">
+    <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-brand">
       {detailParams ? (
         <Link
-          className="relative block"
+          className={`relative block overflow-hidden bg-card px-2 pt-2 ${featured ? "aspect-[1.9/1]" : "aspect-video"}`}
           params={detailParams}
           to="/$userSlug/$postSlug"
         >
-          {MediaContent}
+          {imageContent}
         </Link>
       ) : (
-        <div className="relative block">{MediaContent}</div>
+        <div
+          className={`relative block overflow-hidden bg-card px-2 pt-2 ${featured ? "aspect-[1.9/1]" : "aspect-video"}`}
+        >
+          {imageContent}
+        </div>
       )}
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <Badge variant="outline">Post</Badge>
-          <span className="text-muted-foreground text-xs tabular-nums">
-            {format(new Date(post.createdAt), "MMM d, yyyy")}
+      <div
+        className={`flex flex-1 flex-col ${featured ? "px-5 pt-4 pb-5 sm:px-6" : "px-3.5 pt-3 pb-3.5 sm:px-4 sm:pb-4"}`}
+      >
+        <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-medium text-brand">
+            {tags[0]?.name ?? "Community post"}
           </span>
+          <span aria-hidden="true">·</span>
+          <time dateTime={new Date(post.createdAt).toISOString()}>
+            {format(new Date(post.createdAt), "MMM d, yyyy")}
+          </time>
         </div>
 
         {detailParams ? (
           <Link
-            className="line-clamp-2 text-balance font-semibold text-lg"
+            className={`block text-balance font-medium leading-[1.2] tracking-[-0.02em] text-foreground transition-colors hover:text-brand ${featured ? "text-2xl sm:text-[1.75rem]" : "text-lg sm:text-xl"}`}
             params={detailParams}
             to="/$userSlug/$postSlug"
           >
             {title}
           </Link>
         ) : (
-          <p className="line-clamp-2 text-balance font-semibold text-lg">
+          <p
+            className={`text-balance font-medium leading-[1.2] tracking-[-0.02em] ${featured ? "text-2xl sm:text-[1.75rem]" : "text-lg sm:text-xl"}`}
+          >
             {title}
           </p>
         )}
 
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {tags.slice(0, 4).map((tag) => (
-              <Badge key={tag.id} variant="outline">
+        {post.prompt && post.comment && (
+          <p className="mt-1 line-clamp-2 text-muted-foreground text-sm leading-relaxed">
+            {post.prompt}
+          </p>
+        )}
+
+        {tags.length > 1 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {tags.slice(1, featured ? 6 : 4).map((tag) => (
+              <Badge
+                className="rounded-full px-2.5 py-1 font-normal"
+                key={tag.id}
+                variant="outline"
+              >
                 {tag.name}
               </Badge>
             ))}
-            {tags.length > 4 && (
-              <Badge variant="outline">+{tags.length - 4}</Badge>
-            )}
           </div>
         )}
-      </div>
 
-      <div className="flex items-center justify-between border-t px-4 py-3">
-        {hideAuthor ? (
-          <p className="text-muted-foreground text-xs tabular-nums">
-            {post.likes} like{post.likes === 1 ? "" : "s"} · {post.visits} view
-            {post.visits === 1 ? "" : "s"}
-          </p>
-        ) : author?.id ? (
-          <Link
-            className="flex items-center gap-2"
-            params={{ userSlug: author.id }}
-            to="/$userSlug"
-          >
-            <Avatar className="size-8">
-              {author?.image && (
-                <AvatarImage alt={author.name ?? ""} src={author.image} />
-              )}
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-            <div className="text-sm">
-              <p className="font-medium leading-tight">
-                {author?.name ?? "Anonymous"}
-              </p>
-              <p className="text-muted-foreground text-xs tabular-nums">
-                {post.likes} like{post.likes === 1 ? "" : "s"} · {post.visits}{" "}
-                view
-                {post.visits === 1 ? "" : "s"}
-              </p>
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-3 mt-4">
+          {hideAuthor ? (
+            <p className="text-muted-foreground text-xs tabular-nums">
+              {post.likes} likes <span className="px-1">·</span> {post.visits}{" "}
+              views
+            </p>
+          ) : author?.id ? (
+            <Link
+              className="flex min-w-0 items-center gap-2"
+              params={{ userSlug: author.id }}
+              to="/$userSlug"
+            >
+              <Avatar className="size-8 rounded-xl">
+                {author.image && (
+                  <AvatarImage alt={author.name ?? ""} src={author.image} />
+                )}
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 text-sm">
+                <p className="truncate font-medium leading-tight">
+                  {author.name ?? "Anonymous"}
+                </p>
+                <p className="mt-0.5 truncate text-muted-foreground text-xs tabular-nums">
+                  {post.likes} likes <span className="px-1">·</span>{" "}
+                  {post.visits} views
+                </p>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex min-w-0 items-center gap-2">
+              <Avatar className="size-8 rounded-xl">
+                {author?.image && (
+                  <AvatarImage alt={author.name ?? ""} src={author.image} />
+                )}
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 text-sm">
+                <p className="truncate font-medium leading-tight">
+                  {author?.name ?? "Anonymous"}
+                </p>
+                <p className="mt-0.5 truncate text-muted-foreground text-xs tabular-nums">
+                  {post.likes} likes <span className="px-1">·</span>{" "}
+                  {post.visits} views
+                </p>
+              </div>
             </div>
-          </Link>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Avatar className="size-8">
-              {author?.image && (
-                <AvatarImage alt={author?.name ?? ""} src={author.image} />
-              )}
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-            <div className="text-sm">
-              <p className="font-medium leading-tight">
-                {author?.name ?? "Anonymous"}
-              </p>
-              <p className="text-muted-foreground text-xs tabular-nums">
-                {post.likes} like{post.likes === 1 ? "" : "s"} · {post.visits}{" "}
-                view
-                {post.visits === 1 ? "" : "s"}
-              </p>
-            </div>
-          </div>
-        )}
-        <LikeButton
-          className="size-9"
-          liked={liked}
-          onLikeChange={onLikeChange}
-          postId={post.id}
-        />
+          )}
+          <LikeButton
+            className="size-9 shrink-0 rounded-full"
+            liked={liked}
+            onLikeChange={onLikeChange}
+            postId={post.id}
+          />
+        </div>
       </div>
     </article>
   );

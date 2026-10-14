@@ -1,12 +1,6 @@
 import { lazy } from "react";
 
 // App Dialogs
-export const LazyUserProfileDialog = lazy(() =>
-  import("@/components/features/app/profile/user-profile-dialog").then((m) => ({
-    default: m.UserProfileDialog,
-  }))
-);
-
 export const LazyChangeEmailDialog = lazy(() =>
   import("@/components/features/app/profile/change-email-dialog").then((m) => ({
     default: m.ChangeEmailDialog,

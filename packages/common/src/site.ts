@@ -18,6 +18,6 @@ export const site = {
   author: "hehehai",
   authorUrl: "https://hehehai.cn",
   githubUrl: "https://github.com/hehehai/actnow",
-  ogImage: "https://refto.one/images/og.jpg",
+  ogImage: "https://actnow.dev/images/og.jpg",
   icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],
 };

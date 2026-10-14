@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { PostCard } from "@/components/features/app/post/post-card";
 import { confirmDialog } from "@/components/shared/confirm-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,8 +23,9 @@ import { createPageMeta } from "@/lib/seo";
 import { postFormDialog } from "@/stores/handlers";
 
 const userProfileMeta = createPageMeta({
-  title: "Creator Profile",
-  description: "Discover public posts shared by the ActNow community.",
+  title: "Creator profile",
+  description:
+    "Discover ideas and creative work shared by the Actnow community.",
 });
 
 export const Route = createFileRoute("/(app)/$userSlug/")({
@@ -138,21 +138,25 @@ function UserProfilePage() {
   });
 
   return (
-    <div className="container mx-auto space-y-12 px-4 py-10">
-      <section className="rounded-3xl border bg-card p-6">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <div className="container mx-auto max-w-7xl space-y-12 px-4 py-8 sm:py-12">
+      <section className="relative overflow-hidden rounded-[2rem] border border-border/65 bg-card p-6 shadow-[0_16px_48px_-38px_rgba(83,54,32,0.42)] sm:p-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-24 size-72 rounded-full bg-accent/75 blur-3xl"
+        />
+        <div className="relative flex flex-col gap-7 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <Avatar className="size-20 text-2xl">
+            <Avatar className="size-20 rounded-[1.5rem] border-4 border-background text-2xl shadow-sm">
               {data.user.image && (
                 <AvatarImage alt={data.user.name ?? ""} src={data.user.image} />
               )}
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <Badge className="mb-2 w-fit" variant="outline">
-                Creator Profile
-              </Badge>
-              <h1 className="text-balance font-semibold text-3xl">
+              <p className="mb-2 text-xs font-semibold tracking-[0.15em] text-primary uppercase">
+                A member of Actnow
+              </p>
+              <h1 className="text-balance font-semibold text-3xl tracking-[-0.045em] sm:text-4xl">
                 {data.user.name ?? "Anonymous creator"}
               </h1>
               {joinedDate && (
@@ -163,7 +167,7 @@ function UserProfilePage() {
             </div>
           </div>
 
-          <div className="grid w-full gap-4 sm:grid-cols-2 md:w-auto">
+          <div className="grid w-full gap-3 sm:grid-cols-2 md:w-auto">
             <ProfileStat
               label={isOwnProfile ? "All posts" : "Public posts"}
               value={data.posts.length}
@@ -173,7 +177,7 @@ function UserProfilePage() {
         </div>
 
         {(data.user.bio || socialLinks.length > 0) && (
-          <div className="mt-6 border-t pt-6">
+          <div className="relative mt-7 border-t border-border/70 pt-6">
             {data.user.bio && (
               <p className="text-pretty text-muted-foreground text-sm">
                 {data.user.bio}
@@ -201,17 +205,32 @@ function UserProfilePage() {
       </section>
 
       <section>
-        <div className="mb-6">
-          <h2 className="text-balance font-semibold text-2xl">
-            {isOwnProfile ? "All Posts" : "Public Posts"}
-          </h2>
-          <p className="text-pretty text-muted-foreground">
-            {isOwnProfile
-              ? "All your posts are shown here, including private drafts."
-              : `Ideas and commitments shared by ${
-                  data.user.name ?? "this creator"
-                }.`}
-          </p>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-primary uppercase">
+              From the studio
+            </p>
+            <h2 className="text-balance font-semibold text-3xl tracking-[-0.04em]">
+              {isOwnProfile
+                ? "Your ideas"
+                : `${data.user.name ?? "Their"}’s ideas`}
+            </h2>
+            <p className="text-pretty text-muted-foreground">
+              {isOwnProfile
+                ? "Your public posts and private drafts, all in one place."
+                : `Ideas and commitments shared by ${
+                    data.user.name ?? "this creator"
+                  }.`}
+            </p>
+          </div>
+          {isOwnProfile && (
+            <Button
+              className="rounded-full"
+              onClick={() => postFormDialog.openWithPayload({ mode: "create" })}
+            >
+              <span className="i-hugeicons-plus-sign size-4" /> Share an idea
+            </Button>
+          )}
         </div>
 
         {data.posts.length ? (
@@ -293,7 +312,7 @@ function UserProfilePage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border bg-muted/40 p-10 text-center text-muted-foreground">
+          <div className="rounded-[1.5rem] border border-dashed border-border bg-card/60 p-10 text-center text-muted-foreground">
             <span className="i-hugeicons-checklist text-4xl" />
             <p className="mt-4 text-balance font-medium text-lg">
               {isOwnProfile ? "No posts yet" : "No public posts yet"}
@@ -312,9 +331,11 @@ function UserProfilePage() {
 
 function ProfileStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl border bg-background px-6 py-4 text-center">
+    <div className="min-w-32 rounded-2xl border border-border/70 bg-background/80 px-6 py-4 text-left shadow-sm">
       <p className="text-muted-foreground text-sm">{label}</p>
-      <p className="font-semibold text-2xl tabular-nums">{value}</p>
+      <p className="mt-1 font-semibold text-3xl tabular-nums tracking-[-0.04em]">
+        {value}
+      </p>
     </div>
   );
 }

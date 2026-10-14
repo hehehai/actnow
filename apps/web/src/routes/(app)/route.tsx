@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
+import { SiteFooter } from "@/components/features/app/layout/site-footer";
 import { SiteHeader } from "@/components/features/app/layout/site-header";
 import {
   LazyChangeEmailDialog,
@@ -10,7 +11,6 @@ import {
   LazyImagePreviewDialog,
   LazyPostFormDialog,
   LazySetPasswordDialog,
-  LazyUserProfileDialog,
   LazyVerifyEmailDialog,
 } from "@/components/shared/lazy-dialogs";
 import { getUser } from "@/functions/get-user";
@@ -32,13 +32,13 @@ function RouteComponent() {
   useGlobalHotkeys();
 
   return (
-    <div className="grid min-h-svh grid-rows-[auto_1fr]">
+    <div className="grid min-h-svh grid-rows-[auto_1fr_auto]">
       <SiteHeader user={session ?? null} />
-      <main className="overflow-auto">
+      <main className="min-w-0 bg-app">
         <Outlet />
       </main>
+      <SiteFooter />
       <Suspense fallback={null}>
-        <LazyUserProfileDialog />
         <LazyChangeEmailDialog />
         <LazyVerifyEmailDialog />
         <LazySetPasswordDialog />

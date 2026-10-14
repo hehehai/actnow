@@ -6,6 +6,7 @@ import { postFormDialog } from "@/stores/handlers";
 import { SiteFilterButton } from "./site-filter-button";
 import { SiteHeaderMenu } from "./site-header-menu";
 import { SiteHeaderUser } from "./site-header-user";
+import { SiteMobileNav, SiteNav } from "./site-nav";
 
 export interface SiteHeaderProps {
   user: {
@@ -20,51 +21,65 @@ export interface SiteHeaderProps {
 export function SiteHeader({ user }: SiteHeaderProps) {
   const navigate = useNavigate();
   return (
-    <header className="w-full">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
-        {/* Left: Logo */}
-        <Link className="font-semibold text-3xl" to="/">
-          {site.siteName}
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-app pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+      <div className="container mx-auto flex min-h-15 max-w-7xl items-center gap-x-2 px-4 sm:gap-x-6 lg:gap-x-8">
+        <Link
+          aria-label={site.siteName}
+          className="group flex min-w-0 shrink-0 items-center gap-2.5"
+          to="/"
+        >
+          <img
+            alt=""
+            className="size-8 shrink-0"
+            decoding="async"
+            src="/images/logo.svg"
+          />
+          <span className="truncate font-medium text-base sm:text-lg lg:max-xl:hidden">
+            {site.siteName}
+          </span>
         </Link>
 
-        {/* Right: Auth buttons + Menu */}
-        <div className="flex items-center gap-2.5">
+        <SiteMobileNav user={Boolean(user)} />
+        <SiteNav />
+
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           <SiteFilterButton />
           <Button
-            className="rounded-full"
+            aria-label={user ? "Create a post" : "Sign in to create a post"}
+            className="rounded-full max-sm:size-9 max-sm:px-0"
             onClick={() => {
               if (!user) {
-                navigate({ to: "/signin" });
+                void navigate({ to: "/signin" });
                 return;
               }
               postFormDialog.openWithPayload({ mode: "create" });
             }}
-            variant="default"
           >
             <SendIcon />
-            Create Post
+            <span className="max-sm:hidden">Create Post</span>
           </Button>
           {user ? (
             <SiteHeaderUser initialUser={user} />
           ) : (
             <>
               <Button
-                className="rounded-full"
+                className="hidden rounded-full sm:inline-flex"
                 nativeButton={false}
                 render={<Link to="/signin" />}
-                variant="default"
+                variant="outline"
               >
-                Signin
+                Sign in
               </Button>
               <Button
-                className="rounded-full"
+                className="rounded-full max-sm:h-9 max-sm:px-3 max-sm:text-xs"
                 nativeButton={false}
                 render={<Link to="/signup" />}
-                variant="secondary"
               >
-                Signup
+                Join free
               </Button>
-              <SiteHeaderMenu />
+              <span className="hidden lg:inline-flex">
+                <SiteHeaderMenu />
+              </span>
             </>
           )}
         </div>

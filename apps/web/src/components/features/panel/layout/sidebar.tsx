@@ -16,7 +16,7 @@ import { NavUser, type NavUserProps } from "./nav-user";
 const data = {
   navMain: [
     {
-      title: "Dashboard",
+      title: "Overview",
       url: "/panel",
       icon: "i-hugeicons-analytics-01",
       isActive: true,
@@ -27,7 +27,7 @@ const data = {
       icon: "i-hugeicons-user-settings-01",
     },
     {
-      title: "Posts",
+      title: "Content",
       url: "/panel/posts",
       icon: "i-hugeicons-task-daily-02",
     },
@@ -61,8 +61,8 @@ export function AppSidebar({
                 <Link to="/">
                   <Logo />
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">Refto</span>
-                    <span className="truncate text-xs">Admin Panel</span>
+                    <span className="truncate font-medium">Actnow</span>
+                    <span className="truncate text-xs">Studio</span>
                   </div>
                 </Link>
               }

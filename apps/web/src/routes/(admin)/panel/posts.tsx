@@ -101,8 +101,18 @@ function RouteComponent() {
       <NavMainHeader
         className="justify-between"
         left={
-          <div className="flex flex-1 items-center gap-3">
-            <h2 className="text-balance font-semibold">Posts</h2>
+          <div className="flex flex-1 flex-col items-start gap-3">
+            <div>
+              <p className="mb-1 text-[11px] font-semibold tracking-[0.14em] text-primary uppercase">
+                Actnow studio
+              </p>
+              <h1 className="text-balance font-semibold text-2xl tracking-[-0.04em]">
+                Content
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Review, organize, and publish community posts.
+              </p>
+            </div>
             <DataTableToolbar
               onSearchChange={handleSearchChange}
               searchPlaceholder="Search by prompt or comment..."

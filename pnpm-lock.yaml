@@ -93,6 +93,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@fontsource/fredoka':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/google-sans-flex':
         specifier: ^5.3.2
         version: 5.3.2
@@ -1348,6 +1351,9 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource/fredoka@5.3.0':
+    resolution: {integrity: sha512-s2IhjQ50wDnKkkaKmjhtL0rxQg6ITsVusiipM3m7zUwVZZbbCKsscNDkngwp28xVzfIt7neWrkgU1qKqyTycQg==}
 
   '@fontsource/google-sans-flex@5.3.2':
     resolution: {integrity: sha512-CpxNZIJgYXkIANJ8QBgJZktMA/OWkJ06A54y21lvlamOrpdbruUdJuOIw8UzGRppbJBki4ZMC0a+HukdiL49Uw==}
@@ -7894,6 +7900,8 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@fontsource/fredoka@5.3.0': {}
+
   '@fontsource/google-sans-flex@5.3.2': {}
 
   '@hono/node-server@2.1.5(hono@4.13.13)':
@@ -10441,7 +10449,6 @@ snapshots:
     optionalDependencies:
       msw: 2.12.4(@types/node@26.6.5)(typescript@5.9.3)
       vite: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.2)
-    optional: true
 
   '@vitest/mocker@5.0.3(msw@2.12.4(@types/node@26.6.5)(typescript@7.0.2))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.2))':
     dependencies:
@@ -10475,7 +10482,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.3(@types/node@26.6.5)(@vitest/browser-preview@5.0.3)(@vitest/ui@5.0.3(vitest@5.0.3))(@voidzero-dev/vite-plus-core@1.1.0(@types/node@26.6.5)(@typescript/native-preview@7.0.0-dev.20260707.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.8.2))(jsdom@30.1.2(@noble/hashes@2.4.0))(msw@2.12.4(@types/node@26.6.5)(typescript@7.0.2))
+      vitest: 5.0.3(@types/node@26.6.5)(@vitest/browser-preview@5.0.3)(@vitest/ui@5.0.3)(jsdom@30.1.2(@noble/hashes@2.4.0))(msw@2.12.4(@types/node@26.6.5)(typescript@5.9.3))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.2))
 
   '@vitest/utils@5.0.3':
     dependencies:
@@ -13326,7 +13333,6 @@ snapshots:
       jsdom: 30.1.2(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - msw
-    optional: true
 
   vitest@5.0.3(@types/node@26.6.5)(@vitest/browser-preview@5.0.3)(@vitest/ui@5.0.3)(jsdom@30.1.2(@noble/hashes@2.4.0))(msw@2.12.4(@types/node@26.6.5)(typescript@7.0.2))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.8.2)):
     dependencies:

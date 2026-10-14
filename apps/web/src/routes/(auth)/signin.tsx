@@ -12,7 +12,7 @@ const routeSearchSchema = z.object({
 const signinMeta = createPageMeta({
   title: "Sign In",
   description:
-    "Sign in to your Refto account to save and discover design inspiration.",
+    "Sign in to your Actnow account to save and share creative ideas.",
   url: "/signin",
   noIndex: true,
 });

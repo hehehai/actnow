@@ -40,15 +40,17 @@ export const SignUp = () => {
     <div className="w-full max-w-sm">
       <header>
         <img
-          alt="Logo"
+          alt="Actnow"
           className="mb-3 size-10"
           height={60}
           src="/images/logo.svg"
           width={60}
         />
-        <h1 className="mb-1 text-2xl">Sign Up</h1>
+        <h1 className="mb-1 text-2xl font-medium tracking-tight">
+          Create account
+        </h1>
         <p className="mb-8 text-secondary-foreground">
-          Create an account to get started
+          Join the community and start sharing your ideas.
         </p>
       </header>
       <SignupForm onSubmit={handleSubmit}>

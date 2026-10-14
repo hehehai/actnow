@@ -5,7 +5,7 @@ import { createPageMeta } from "@/lib/seo";
 const signupMeta = createPageMeta({
   title: "Sign Up",
   description:
-    "Create a Refto account to save your favorite designs and get inspired.",
+    "Create an Actnow account to save ideas and share creative work.",
   url: "/signup",
   noIndex: true,
 });

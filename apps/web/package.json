@@ -23,6 +23,7 @@
     "@actnow/common": "workspace:*",
     "@actnow/db": "workspace:*",
     "@base-ui/react": "^1.9.0",
+    "@fontsource/fredoka": "^5.3.0",
     "@fontsource/google-sans-flex": "^5.3.2",
     "@hugeicons/core-free-icons": "^4.3.5",
     "@hugeicons/react": "^1.1.10",

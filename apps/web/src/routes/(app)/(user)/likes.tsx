@@ -10,7 +10,7 @@ import { createPageMeta } from "@/lib/seo";
 
 const likesMeta = createPageMeta({
   title: "My Likes",
-  description: "Your saved design inspirations on Refto.",
+  description: "Ideas and creative work you have saved on Actnow.",
   url: "/likes",
   noIndex: true,
 });

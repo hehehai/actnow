@@ -29,10 +29,13 @@ import { Route as adminPanelTagsRouteImport } from './routes/(admin)/panel/tags'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
 import { Route as appUserSlugIndexRouteImport } from './routes/(app)/$userSlug/index'
 import { Route as appUserSlugPostSlugRouteImport } from './routes/(app)/$userSlug/$postSlug'
+import { Route as appuserAccountRouteRouteImport } from './routes/(app)/(user)/account/route'
 import { Route as appuserFeedbackRouteImport } from './routes/(app)/(user)/feedback'
 import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
+import { Route as appuserAccountIndexRouteImport } from './routes/(app)/(user)/account/index'
+import { Route as appuserAccountSettingsRouteImport } from './routes/(app)/(user)/account/settings'
 
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
@@ -132,6 +135,11 @@ const appUserSlugPostSlugRoute = appUserSlugPostSlugRouteImport.update({
   path: '/$userSlug/$postSlug',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appuserAccountRouteRoute = appuserAccountRouteRouteImport.update({
+  id: '/(user)/account',
+  path: '/account',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appuserFeedbackRoute = appuserFeedbackRouteImport.update({
   id: '/(user)/feedback',
   path: '/feedback',
@@ -152,6 +160,16 @@ const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   path: '/api/rpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const appuserAccountIndexRoute = appuserAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => appuserAccountRouteRoute,
+} as any)
+const appuserAccountSettingsRoute = appuserAccountSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => appuserAccountRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/panel': typeof adminPanelRouteRouteWithChildren
@@ -165,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/': typeof appIndexRoute
+  '/account': typeof appuserAccountRouteRouteWithChildren
   '/panel/feedback': typeof adminPanelFeedbackRoute
   '/panel/posts': typeof adminPanelPostsRoute
   '/panel/tags': typeof adminPanelTagsRoute
@@ -176,6 +195,8 @@ export interface FileRoutesByFullPath {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
   '/$userSlug/': typeof appUserSlugIndexRoute
+  '/account/settings': typeof appuserAccountSettingsRoute
+  '/account/': typeof appuserAccountIndexRoute
 }
 export interface FileRoutesByTo {
   '/404': typeof app404Route
@@ -199,6 +220,8 @@ export interface FileRoutesByTo {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
   '/$userSlug': typeof appUserSlugIndexRoute
+  '/account/settings': typeof appuserAccountSettingsRoute
+  '/account': typeof appuserAccountIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -215,6 +238,7 @@ export interface FileRoutesById {
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(app)/': typeof appIndexRoute
+  '/(app)/(user)/account': typeof appuserAccountRouteRouteWithChildren
   '/(admin)/panel/feedback': typeof adminPanelFeedbackRoute
   '/(admin)/panel/posts': typeof adminPanelPostsRoute
   '/(admin)/panel/tags': typeof adminPanelTagsRoute
@@ -226,6 +250,8 @@ export interface FileRoutesById {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
   '/(app)/$userSlug/': typeof appUserSlugIndexRoute
+  '/(app)/(user)/account/settings': typeof appuserAccountSettingsRoute
+  '/(app)/(user)/account/': typeof appuserAccountIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +267,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/verify-email'
     | '/'
+    | '/account'
     | '/panel/feedback'
     | '/panel/posts'
     | '/panel/tags'
@@ -252,6 +279,8 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/panel/'
     | '/$userSlug/'
+    | '/account/settings'
+    | '/account/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/404'
@@ -275,6 +304,8 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/panel'
     | '/$userSlug'
+    | '/account/settings'
+    | '/account'
   id:
     | '__root__'
     | '/(app)'
@@ -290,6 +321,7 @@ export interface FileRouteTypes {
     | '/(auth)/signup'
     | '/(auth)/verify-email'
     | '/(app)/'
+    | '/(app)/(user)/account'
     | '/(admin)/panel/feedback'
     | '/(admin)/panel/posts'
     | '/(admin)/panel/tags'
@@ -301,6 +333,8 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/(admin)/panel/'
     | '/(app)/$userSlug/'
+    | '/(app)/(user)/account/settings'
+    | '/(app)/(user)/account/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -453,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appUserSlugPostSlugRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/(user)/account': {
+      id: '/(app)/(user)/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof appuserAccountRouteRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/(user)/feedback': {
       id: '/(app)/(user)/feedback'
       path: '/feedback'
@@ -481,14 +522,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/(user)/account/': {
+      id: '/(app)/(user)/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof appuserAccountIndexRouteImport
+      parentRoute: typeof appuserAccountRouteRoute
+    }
+    '/(app)/(user)/account/settings': {
+      id: '/(app)/(user)/account/settings'
+      path: '/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof appuserAccountSettingsRouteImport
+      parentRoute: typeof appuserAccountRouteRoute
+    }
   }
 }
+
+interface appuserAccountRouteRouteChildren {
+  appuserAccountSettingsRoute: typeof appuserAccountSettingsRoute
+  appuserAccountIndexRoute: typeof appuserAccountIndexRoute
+}
+
+const appuserAccountRouteRouteChildren: appuserAccountRouteRouteChildren = {
+  appuserAccountSettingsRoute: appuserAccountSettingsRoute,
+  appuserAccountIndexRoute: appuserAccountIndexRoute,
+}
+
+const appuserAccountRouteRouteWithChildren =
+  appuserAccountRouteRoute._addFileChildren(appuserAccountRouteRouteChildren)
 
 interface appRouteRouteChildren {
   app404Route: typeof app404Route
   appAboutRoute: typeof appAboutRoute
   appPricesRoute: typeof appPricesRoute
   appIndexRoute: typeof appIndexRoute
+  appuserAccountRouteRoute: typeof appuserAccountRouteRouteWithChildren
   appUserSlugPostSlugRoute: typeof appUserSlugPostSlugRoute
   appuserFeedbackRoute: typeof appuserFeedbackRoute
   appuserLikesRoute: typeof appuserLikesRoute
@@ -500,6 +569,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAboutRoute: appAboutRoute,
   appPricesRoute: appPricesRoute,
   appIndexRoute: appIndexRoute,
+  appuserAccountRouteRoute: appuserAccountRouteRouteWithChildren,
   appUserSlugPostSlugRoute: appUserSlugPostSlugRoute,
   appuserFeedbackRoute: appuserFeedbackRoute,
   appuserLikesRoute: appuserLikesRoute,

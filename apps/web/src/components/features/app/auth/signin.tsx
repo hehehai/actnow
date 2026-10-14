@@ -168,15 +168,15 @@ export const SignIn = () => {
     <div className="w-full max-w-sm">
       <header>
         <img
-          alt="Logo"
+          alt="Actnow"
           className="mb-3 size-10"
           height={60}
           src="/images/logo.svg"
           width={60}
         />
-        <h1 className="mb-1 text-2xl">Sign In</h1>
+        <h1 className="mb-1 text-2xl font-medium tracking-tight">Sign in</h1>
         <p className="mb-8 text-secondary-foreground">
-          View all website information
+          Save your ideas and discover what others are making.
         </p>
       </header>
 

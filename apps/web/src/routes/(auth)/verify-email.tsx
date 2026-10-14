@@ -12,7 +12,7 @@ const searchSchema = z.object({
 
 const verifyEmailMeta = createPageMeta({
   title: "Verify Email",
-  description: "Verify your email address for your Refto account.",
+  description: "Verify your email address for your Actnow account.",
   url: "/verify-email",
   noIndex: true,
 });

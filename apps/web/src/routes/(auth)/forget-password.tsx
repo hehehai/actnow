@@ -4,7 +4,7 @@ import { createPageMeta } from "@/lib/seo";
 
 const forgetPasswordMeta = createPageMeta({
   title: "Forgot Password",
-  description: "Reset your Refto account password.",
+  description: "Reset your Actnow account password.",
   url: "/forget-password",
   noIndex: true,
 });

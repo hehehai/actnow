@@ -123,7 +123,7 @@ export function createDetailPageMeta(
     title: siteName,
     description:
       siteDescription ||
-      `Explore ${siteName} design on Refto. ${DEFAULT_DESCRIPTION}`,
+      `Discover creative ideas and work from ${siteName}. ${DEFAULT_DESCRIPTION}`,
     image: coverImage || DEFAULT_OG_IMAGE,
     url: pageVersionId ? `/${pageVersionId}` : undefined,
     type: "article",
@@ -157,7 +157,7 @@ export function createSiteDetailHead({
   breadcrumbs,
 }: SiteDetailHeadParams) {
   const description =
-    siteDescription || `Explore ${siteTitle} design on Refto.`;
+    siteDescription || `Discover creative work and ideas from ${siteTitle}.`;
   const tagKeywords =
     siteTags
       ?.map((tag) => tag?.name)
