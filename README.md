@@ -5,7 +5,7 @@ Inspiration is fleeting, Don't hesitate ~ Actnow. A platform for sharing and dis
 [![GitHub stars](https://img.shields.io/github/stars/hehehai/actnow)](https://github.com/hehehai/actnow/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/hehehai/actnow)](https://github.com/hehehai/actnow/network/members)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Factnow.dev)](https://actnow.dev)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Features
 
@@ -229,13 +229,6 @@ The Worker uses native `R2` bindings configured in [`apps/web/wrangler.toml`](ap
 | ------------------------- | -------- | --------------------------------- | ---------------------------------------------------------------- |
 | `VITE_CLOUD_FLARE_R2_URL` | Optional | Public base URL for reading media | Can be an R2 public URL or custom domain; exposed to the client. |
 
-#### Platform/Runtime (Optional)
-
-| Variable     | Required | Description                             | Notes                                          |
-| ------------ | -------- | --------------------------------------- | ---------------------------------------------- |
-| `VERCEL_URL` | Optional | Legacy alternate deployment URL         | Only used as a fallback in shared URL helpers. |
-| `VERCEL_ENV` | Optional | Legacy alternate deployment environment | Only used as a fallback in shared URL helpers. |
-
 ## Build
 
 ```bash
@@ -283,4 +276,4 @@ Wrangler will deploy the Worker plus the built client assets from `apps/web/dist
 
 ## License
 
-[Apache License 2.0](LICENSE)
+[MIT License](LICENSE)
