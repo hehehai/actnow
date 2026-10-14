@@ -56,7 +56,7 @@ export function PostCard({
     <article className="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-brand">
       {detailParams ? (
         <Link
-          className={`relative block overflow-hidden bg-card p-2 ${featured ? "aspect-[1.9/1]" : "aspect-[4/3]"}`}
+          className={`relative block overflow-hidden bg-card p-2 ${featured ? "aspect-[2.2/1]" : "aspect-video"}`}
           params={detailParams}
           to="/$userSlug/$postSlug"
         >
@@ -66,7 +66,7 @@ export function PostCard({
         </Link>
       ) : (
         <div
-          className={`relative overflow-hidden bg-card p-2 ${featured ? "aspect-[1.9/1]" : "aspect-[4/3]"}`}
+          className={`relative overflow-hidden bg-card p-2 ${featured ? "aspect-[2.2/1]" : "aspect-video"}`}
         >
           <div className="h-full overflow-hidden rounded-[calc(var(--radius)+6px)] bg-placeholder">
             {image}

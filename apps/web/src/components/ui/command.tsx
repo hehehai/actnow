@@ -19,7 +19,7 @@ function Command({
   return (
     <CommandPrimitive
       className={cn(
-        "flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
+        "flex size-full flex-col overflow-hidden rounded-2xl! bg-popover p-1 text-popover-foreground",
         className
       )}
       data-slot="command"
@@ -30,7 +30,7 @@ function Command({
 
 function CommandDialog({
   title = "Command Palette",
-  description = "Search for a command to run...",
+  description,
   children,
   className,
   showCloseButton = false,
@@ -44,14 +44,16 @@ function CommandDialog({
 }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
       <DialogContent
         className={cn("overflow-hidden rounded-xl! p-0", className)}
         showCloseButton={showCloseButton}
       >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+          {description ? (
+            <DialogDescription>{description}</DialogDescription>
+          ) : null}
+        </DialogHeader>
         {children}
       </DialogContent>
     </Dialog>
@@ -63,8 +65,8 @@ function CommandInput({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div className="p-1 pb-0" data-slot="command-input-wrapper">
-      <InputGroup className="h-9! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:pl-2!">
+    <div className="p-3 pb-3" data-slot="command-input-wrapper">
+      <InputGroup className="h-11! rounded-xl! border-border/80 bg-background shadow-sm! transition-[border-color,box-shadow] focus-within:border-brand-border focus-within:ring-2 focus-within:ring-brand/15 *:data-[slot=input-group-addon]:pl-3!">
         <CommandPrimitive.Input
           className={cn(
             "w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
@@ -92,7 +94,7 @@ function CommandList({
   return (
     <CommandPrimitive.List
       className={cn(
-        "no-scrollbar max-h-72 scroll-py-1 overflow-y-auto overflow-x-hidden outline-none",
+        "no-scrollbar max-h-[min(30rem,calc(100vh-12rem))] scroll-py-2 overflow-y-auto overflow-x-hidden outline-none",
         className
       )}
       data-slot="command-list"
@@ -121,7 +123,7 @@ function CommandGroup({
   return (
     <CommandPrimitive.Group
       className={cn(
-        "overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:text-xs",
+        "overflow-hidden p-1.5 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group-heading]]:text-xs",
         className
       )}
       data-slot="command-group"
@@ -151,7 +153,7 @@ function CommandItem({
   return (
     <CommandPrimitive.Item
       className={cn(
-        "group/command-item relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-selected:bg-muted data-selected:text-foreground data-[disabled=true]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 [[data-slot=dialog-content]_&]:rounded-lg! data-selected:*:[svg]:text-foreground",
+        "group/command-item relative flex min-h-11 cursor-default select-none items-center gap-3 rounded-xl px-3 py-2 text-sm outline-hidden transition-colors data-[disabled=true]:pointer-events-none data-selected:bg-muted data-selected:text-foreground data-[disabled=true]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 in-data-[slot=dialog-content]:rounded-xl! data-selected:*:[svg]:text-foreground",
         className
       )}
       data-slot="command-item"

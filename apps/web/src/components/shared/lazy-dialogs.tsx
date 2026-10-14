@@ -45,12 +45,6 @@ export const LazyConfirmDialog = lazy(() =>
   }))
 );
 
-export const LazyFilterDialog = lazy(() =>
-  import("@/components/features/app/filter/filter-dialog").then((m) => ({
-    default: m.FilterDialog,
-  }))
-);
-
 export const LazyImagePreviewDialog = lazy(() =>
   import("@/components/features/common/media/image-preview-dialog").then(
     (m) => ({

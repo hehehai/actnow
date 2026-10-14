@@ -31,14 +31,6 @@ export const verifyEmailDialog = Dialog.createHandle<{ email: string }>();
 export const setPasswordDialog = Dialog.createHandle();
 export const changePasswordDialog = Dialog.createHandle();
 
-// Filter Dialog (for global search)
-export const filterDialog = Dialog.createHandle<
-  | {
-      initialQuery?: string;
-    }
-  | undefined
->();
-
 // Image Preview Dialog
 export const imagePreviewDialog = Dialog.createHandle<{
   src?: string;

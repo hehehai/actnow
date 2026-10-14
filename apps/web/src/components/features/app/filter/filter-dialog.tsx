@@ -1,165 +1,176 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandInput,
+  CommandList,
+} from "@/components/ui/command";
+import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/lib/orpc";
 import type { ClientOutputs } from "@/lib/orpc-types";
-import { filterDialog } from "@/stores/handlers";
-import { FilterEmptyResults } from "./filter-empty-results";
-import { FilterRecentSearches } from "./filter-recent-searches";
-import { FilterSearchInput } from "./filter-search-input";
+import { FilterLatestPosts } from "./filter-latest-posts";
 import { FilterSearchResults } from "./filter-search-results";
 
-const RECENT_SEARCHES_KEY = "filter-recent-searches";
-const MAX_RECENT_SEARCHES = 5;
-const DEBOUNCE_MS = 300;
-type FilterPayload = { initialQuery?: string } | undefined;
+const DEBOUNCE_MS = 250;
 
-export function FilterDialog() {
-  return (
-    <Dialog<FilterPayload> handle={filterDialog}>
-      {({ payload }) => (
-        <DialogContent
-          className="flex h-[min(38rem,80vh)] max-h-150 flex-col gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-2xl"
-          showCloseButton={false}
-        >
-          <FilterDialogContent payload={payload} />
-        </DialogContent>
-      )}
-    </Dialog>
-  );
-}
-
-function FilterDialogContent({ payload }: { payload: FilterPayload }) {
+export function FilterDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const navigate = useNavigate();
-  const [searchValue, setSearchValue] = useState(payload?.initialQuery ?? "");
-  const [debouncedValue, setDebouncedValue] = useState("");
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState("");
+  const [query, setQuery] = useState("");
+  const searching = value.trim().length > 0;
 
   useEffect(() => {
-    const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
-    if (!stored) return;
-    try {
-      setRecentSearches(JSON.parse(stored));
-    } catch {
-      setRecentSearches([]);
-    }
-  }, []);
-  useEffect(() => {
-    if (!payload?.initialQuery) return;
-    setSearchValue(payload.initialQuery);
-    setDebouncedValue(payload.initialQuery);
-  }, [payload?.initialQuery]);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(searchValue), DEBOUNCE_MS);
+    const timer = setTimeout(() => setQuery(value.trim()), DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [searchValue]);
+  }, [value]);
 
-  const hasSearchValue = debouncedValue.trim().length > 0;
-  const { data: searchResults, isLoading } = useQuery<
+  useEffect(() => {
+    if (!open) {
+      setValue("");
+      setQuery("");
+    }
+  }, [open]);
+
+  const { data: latestPosts, isPending: latestPending } = useQuery({
+    ...orpc.app.post.list.queryOptions({
+      input: { limit: 3, sort: "latest" },
+    }),
+    enabled: open && !searching,
+  });
+  const { data: searchResults, isPending: searchPending } = useQuery<
     ClientOutputs["app"]["post"]["search"]
   >({
     ...orpc.app.post.search.queryOptions({
-      input: { q: debouncedValue, limit: 10 },
+      input: { q: query, limit: 10 },
     }),
-    enabled: hasSearchValue,
+    enabled: open && query.length > 0,
   });
-  const saveRecentSearch = useCallback((query: string) => {
-    const trimmed = query.trim();
-    if (!trimmed) return;
-    setRecentSearches((previous) => {
-      const next = [
-        trimmed,
-        ...previous.filter((item) => item !== trimmed),
-      ].slice(0, MAX_RECENT_SEARCHES);
-      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, []);
-  const removeRecentSearch = useCallback((query: string) => {
-    setRecentSearches((previous) => {
-      const next = previous.filter((item) => item !== query);
-      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, []);
-  const handlePostClick = useCallback(
-    ({ postId, userId }: { postId: string; userId: string | null }) => {
-      if (!userId) return;
-      saveRecentSearch(searchValue);
-      filterDialog.close();
-      navigate({
-        to: "/$userSlug/$postSlug",
-        params: { userSlug: userId, postSlug: postId },
-      });
-    },
-    [navigate, saveRecentSearch, searchValue]
-  );
-  const handleUserClick = useCallback(
-    (userId: string) => {
-      saveRecentSearch(searchValue);
-      filterDialog.close();
-      navigate({ to: "/$userSlug", params: { userSlug: userId } });
-    },
-    [navigate, saveRecentSearch, searchValue]
-  );
+
+  // Include the debounce window so a previous query never flashes under new text.
+  const loading = searching && (value.trim() !== query || searchPending);
   const hasResults = useMemo(
     () =>
       Boolean(
         searchResults &&
-        (searchResults.posts.length || searchResults.users.length)
+        (searchResults.posts.length > 0 || searchResults.users.length > 0)
       ),
     [searchResults]
   );
 
+  const goToPost = useCallback(
+    ({ postId, userId }: { postId: string; userId: string | null }) => {
+      if (!userId) return;
+      onOpenChange(false);
+      void navigate({
+        to: "/$userSlug/$postSlug",
+        params: { userSlug: userId, postSlug: postId },
+      });
+    },
+    [navigate, onOpenChange]
+  );
+  const goToUser = useCallback(
+    (userId: string) => {
+      onOpenChange(false);
+      void navigate({ to: "/$userSlug", params: { userSlug: userId } });
+    },
+    [navigate, onOpenChange]
+  );
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 border-b p-4">
-        <FilterSearchInput
-          onChange={setSearchValue}
-          onSubmit={() => saveRecentSearch(searchValue)}
-          value={searchValue}
-        />
-      </div>
-      <div className="min-h-0 flex-1 overflow-hidden">
-        {hasSearchValue ? (
-          <ScrollArea className="h-full">
-            <div className="p-4">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <span className="i-hugeicons-loading-01 size-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : hasResults ? (
-                <FilterSearchResults
-                  onPostClick={handlePostClick}
-                  onUserClick={handleUserClick}
-                  posts={searchResults?.posts ?? []}
-                  users={searchResults?.users ?? []}
-                />
-              ) : (
-                <FilterEmptyResults />
-              )}
-            </div>
-          </ScrollArea>
+    <CommandDialog
+      className="flex h-[min(32rem,calc(100dvh-2rem))] max-w-[calc(100%-1.5rem)] flex-col gap-0 rounded-2xl! border-border/80 bg-background/98 p-0 shadow-xl shadow-black/10 backdrop-blur-xl sm:max-w-2xl"
+      description="Search published Actnow content and people."
+      onOpenChange={onOpenChange}
+      open={open}
+      title="Search Actnow"
+    >
+      <Command
+        className="min-h-0 flex-1 rounded-none! bg-transparent p-0"
+        shouldFilter={false}
+      >
+        <div className="relative border-border/70 border-b">
+          <CommandInput
+            aria-label="Search published posts or people"
+            autoFocus
+            className="pr-14 text-base"
+            onValueChange={setValue}
+            placeholder="Search published posts or people..."
+            ref={inputRef}
+            value={value}
+          />
+          <button
+            aria-label="Close search"
+            className="absolute top-1/2 right-5 -translate-y-1/2 rounded-md border border-border/80 bg-background px-1.5 py-0.5 font-sans text-muted-foreground text-xs transition-colors hover:border-border hover:text-foreground"
+            onClick={() => onOpenChange(false)}
+            type="button"
+          >
+            ESC
+          </button>
+        </div>
+
+        {!searching ? (
+          <CommandList className="max-h-none flex-1 p-2 sm:p-3">
+            {latestPending ? (
+              <SearchSkeleton />
+            ) : latestPosts?.items.length ? (
+              <FilterLatestPosts
+                onPostClick={goToPost}
+                posts={latestPosts.items}
+              />
+            ) : (
+              <CommandEmpty>No published posts yet.</CommandEmpty>
+            )}
+          </CommandList>
         ) : (
-          <div className="flex h-full flex-col p-4">
-            <FilterRecentSearches
-              className="shrink-0"
-              onRemove={removeRecentSearch}
-              onSelect={(value) => {
-                setSearchValue(value);
-                setDebouncedValue(value);
-              }}
-              searches={recentSearches}
-            />
-            <p className="mt-8 text-sm text-muted-foreground">
-              Search published content by title or description, or find a member
-              by name.
-            </p>
-          </div>
+          <CommandList className="max-h-none flex-1 p-1 sm:p-2">
+            {query.length > 0 && !loading && !hasResults && (
+              <CommandEmpty>No matching posts or people.</CommandEmpty>
+            )}
+            {loading ? (
+              <SearchSkeleton />
+            ) : searchResults ? (
+              <FilterSearchResults
+                onPostClick={goToPost}
+                onUserClick={goToUser}
+                posts={searchResults.posts}
+                users={searchResults.users}
+              />
+            ) : null}
+          </CommandList>
         )}
-      </div>
+      </Command>
+    </CommandDialog>
+  );
+}
+
+function SearchSkeleton() {
+  return (
+    <div aria-busy="true" className="px-2 py-1.5" role="status">
+      <span className="sr-only">Searching</span>
+      <Skeleton className="mx-1 mt-2 mb-3 h-3 w-32" />
+      {[0, 1, 2].map((row) => (
+        <div
+          aria-hidden="true"
+          className="flex items-start gap-3 px-1 py-2.5"
+          key={row}
+        >
+          <Skeleton className="size-10 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1 space-y-2 pt-0.5">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className={row % 2 ? "h-3 w-2/5" : "h-3 w-3/5"} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

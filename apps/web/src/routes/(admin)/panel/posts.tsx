@@ -96,18 +96,7 @@ function RouteComponent() {
       <NavMainHeader
         className="justify-between"
         left={
-          <div className="flex flex-1 flex-col items-start gap-3">
-            <div>
-              <p className="mb-1 text-[11px] font-semibold tracking-[0.14em] text-primary uppercase">
-                Actnow studio
-              </p>
-              <h1 className="text-balance font-semibold text-2xl tracking-[-0.04em]">
-                Content
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Create drafts and publish content to your site.
-              </p>
-            </div>
+          <div className="flex min-w-0 flex-1 items-center">
             <DataTableToolbar
               onSearchChange={handleSearchChange}
               searchPlaceholder="Search title or description..."

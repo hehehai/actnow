@@ -1,9 +1,17 @@
 import { site, UserRole } from "@actnow/common";
 import { Link } from "@tanstack/react-router";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useGlobalHotkeys } from "@/hooks/use-global-hotkeys";
 import { SiteFilterButton } from "./site-filter-button";
 import { SiteHeaderUser } from "./site-header-user";
 import { SiteMobileNav, SiteNav } from "./site-nav";
+
+const loadFilterDialog = () =>
+  import("@/components/features/app/filter/filter-dialog");
+const LazyFilterDialog = lazy(() =>
+  loadFilterDialog().then((module) => ({ default: module.FilterDialog }))
+);
 
 export interface SiteHeaderProps {
   user: {
@@ -16,6 +24,17 @@ export interface SiteHeaderProps {
 }
 
 export function SiteHeader({ user }: SiteHeaderProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchMounted, setSearchMounted] = useState(false);
+  const openSearch = useCallback(() => {
+    setSearchMounted(true);
+    setSearchOpen(true);
+  }, []);
+  const prefetchSearch = useCallback(() => {
+    void loadFilterDialog();
+  }, []);
+  useGlobalHotkeys(openSearch);
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-app pt-[env(safe-area-inset-top)] backdrop-blur-xl">
       <div className="container mx-auto flex min-h-15 max-w-7xl items-center gap-x-2 px-4 sm:gap-x-6 lg:gap-x-8">
@@ -39,7 +58,19 @@ export function SiteHeader({ user }: SiteHeaderProps) {
         <SiteNav />
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-          <SiteFilterButton />
+          <SiteFilterButton
+            onFocus={prefetchSearch}
+            onOpen={openSearch}
+            onPointerEnter={prefetchSearch}
+          />
+          {searchMounted ? (
+            <Suspense fallback={null}>
+              <LazyFilterDialog
+                onOpenChange={setSearchOpen}
+                open={searchOpen}
+              />
+            </Suspense>
+          ) : null}
           {user ? (
             <>
               {user.role === UserRole.ADMIN && (

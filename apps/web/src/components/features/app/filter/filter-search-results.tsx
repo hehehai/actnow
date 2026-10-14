@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CommandGroup, CommandItem } from "@/components/ui/command";
 import { getInitials } from "@/lib/formatters";
 
 interface FilterSearchResultsProps {
@@ -21,63 +22,59 @@ export function FilterSearchResults({
   onUserClick,
 }: FilterSearchResultsProps) {
   return (
-    <div className="space-y-8">
+    <>
       {posts.length > 0 && (
-        <section>
-          <h3 className="mb-2 font-medium text-sm">Content</h3>
-          <div className="space-y-2">
-            {posts.map((post) => (
-              <button
-                className="w-full rounded-2xl border px-4 py-3 text-left transition hover:border-brand"
-                disabled={!post.authorId}
-                key={post.id}
-                onClick={() =>
-                  onPostClick({
-                    postId: post.id,
-                    userId: post.authorId ?? null,
-                  })
-                }
-                type="button"
-              >
-                <p className="line-clamp-2 font-medium">{post.title}</p>
+        <CommandGroup heading="Posts">
+          {posts.map((post) => (
+            <CommandItem
+              className="items-start py-2.5"
+              key={post.id}
+              onSelect={() =>
+                onPostClick({ postId: post.id, userId: post.authorId ?? null })
+              }
+              value={`post:${post.title}:${post.id}`}
+            >
+              <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-subtle/45 text-brand-strong">
+                <span className="i-hugeicons-news-01 size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-medium">{post.title}</span>
                 {post.description && (
-                  <p className="mt-1 line-clamp-1 text-muted-foreground text-sm">
+                  <span className="mt-0.5 block truncate text-muted-foreground text-sm">
                     {post.description}
-                  </p>
+                  </span>
                 )}
-                <p className="mt-2 text-muted-foreground text-xs tabular-nums">
+                <span className="mt-1 block text-muted-foreground text-xs tabular-nums">
                   {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-              </button>
-            ))}
-          </div>
-        </section>
+                </span>
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
       )}
       {users.length > 0 && (
-        <section>
-          <h3 className="mb-2 font-medium text-sm">People</h3>
-          <div className="space-y-2">
-            {users.map((user) => (
-              <button
-                className="flex w-full items-center gap-2 rounded-2xl border px-4 py-3 text-left transition hover:border-brand"
-                key={user.id}
-                onClick={() => onUserClick(user.id)}
-                type="button"
-              >
-                <Avatar className="size-8">
-                  {user.image && (
-                    <AvatarImage alt={user.name ?? ""} src={user.image} />
-                  )}
-                  <AvatarFallback>
-                    {getInitials(user.name, { fallback: "AN" })}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{user.name ?? "Anonymous"}</span>
-              </button>
-            ))}
-          </div>
-        </section>
+        <CommandGroup heading="People">
+          {users.map((user) => (
+            <CommandItem
+              key={user.id}
+              onSelect={() => onUserClick(user.id)}
+              value={`user:${user.name ?? "Anonymous"}:${user.id}`}
+            >
+              <Avatar className="size-8">
+                {user.image && (
+                  <AvatarImage alt={user.name ?? ""} src={user.image} />
+                )}
+                <AvatarFallback>
+                  {getInitials(user.name, { fallback: "AN" })}
+                </AvatarFallback>
+              </Avatar>
+              <span className="min-w-0 truncate font-medium">
+                {user.name ?? "Anonymous"}
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
       )}
-    </div>
+    </>
   );
 }
