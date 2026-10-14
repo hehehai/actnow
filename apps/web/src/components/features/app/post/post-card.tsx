@@ -1,190 +1,123 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/formatters";
-import { LikeButton } from "./like-button";
 
 interface PostCardProps {
   post: {
     id: string;
-    prompt?: string | null;
-    comment: string | null;
-    media: string[] | null;
-    likes: number;
-    visits: number;
+    title: string;
+    description: string;
+    cover: string | null;
+    status?: "draft" | "published";
     createdAt: Date;
+    publishedAt: Date | null;
   };
-  tags: Array<{ id: string; name: string; type: string }>;
   author?: {
     id: string | null;
     name: string | null;
     image: string | null;
   } | null;
-  liked?: boolean;
-  onLikeChange?: (liked: boolean) => void;
   hideAuthor?: boolean;
   featured?: boolean;
 }
 
 export function PostCard({
   post,
-  tags,
   author,
-  liked = false,
-  onLikeChange,
   hideAuthor = false,
   featured = false,
 }: PostCardProps) {
-  const cover = post.media?.[0] ?? null;
-  const title = post.comment ?? post.prompt ?? "Untitled post";
   const initials = getInitials(author?.name, { fallback: "AN" });
-  const detailParams = author?.id
-    ? { userSlug: author.id, postSlug: post.id }
-    : null;
-  const imageContent = (
-    <div className="relative h-full overflow-hidden rounded-[calc(var(--radius)+6px)] bg-placeholder">
-      {cover ? (
-        <img
-          alt={title}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-          loading="lazy"
-          src={cover}
-        />
-      ) : (
-        <div className="flex h-full min-h-40 items-end justify-between bg-placeholder-gradient p-5">
-          <span className="font-medium text-5xl text-placeholder-text/75 sm:text-6xl">
-            {title.slice(0, 2)}
-          </span>
-          <span className="text-placeholder-text/55 text-xs uppercase tracking-[0.18em]">
-            Actnow
-          </span>
-        </div>
-      )}
+  const detailParams =
+    author?.id && post.status !== "draft"
+      ? { userSlug: author.id, postSlug: post.id }
+      : null;
+  const image = post.cover ? (
+    <img
+      alt=""
+      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
+      loading="lazy"
+      src={post.cover}
+    />
+  ) : (
+    <div className="flex h-full items-end justify-between bg-placeholder-gradient p-5">
+      <span className="line-clamp-2 max-w-[80%] font-medium text-3xl text-placeholder-text/80">
+        {post.title}
+      </span>
+      <span className="text-placeholder-text/60 text-xs uppercase tracking-[0.16em]">
+        Actnow
+      </span>
     </div>
   );
+  const date = post.publishedAt ?? post.createdAt;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-brand">
+    <article className="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-border bg-card transition-colors hover:border-brand">
       {detailParams ? (
         <Link
-          className={`relative block overflow-hidden bg-card px-2 pt-2 ${featured ? "aspect-[1.9/1]" : "aspect-video"}`}
+          className={`relative block overflow-hidden bg-card p-2 ${featured ? "aspect-[1.9/1]" : "aspect-[4/3]"}`}
           params={detailParams}
           to="/$userSlug/$postSlug"
         >
-          {imageContent}
+          <div className="h-full overflow-hidden rounded-[calc(var(--radius)+6px)] bg-placeholder">
+            {image}
+          </div>
         </Link>
       ) : (
         <div
-          className={`relative block overflow-hidden bg-card px-2 pt-2 ${featured ? "aspect-[1.9/1]" : "aspect-video"}`}
+          className={`relative overflow-hidden bg-card p-2 ${featured ? "aspect-[1.9/1]" : "aspect-[4/3]"}`}
         >
-          {imageContent}
+          <div className="h-full overflow-hidden rounded-[calc(var(--radius)+6px)] bg-placeholder">
+            {image}
+          </div>
         </div>
       )}
-
       <div
-        className={`flex flex-1 flex-col ${featured ? "px-5 pt-4 pb-5 sm:px-6" : "px-3.5 pt-3 pb-3.5 sm:px-4 sm:pb-4"}`}
+        className={`flex flex-1 flex-col ${featured ? "px-5 pt-4 pb-5 sm:px-6" : "px-4 pt-3 pb-4"}`}
       >
-        <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-medium text-brand">
-            {tags[0]?.name ?? "Community post"}
+        <time
+          className="text-xs text-muted-foreground"
+          dateTime={date.toISOString()}
+        >
+          {format(date, "MMM d, yyyy")}
+        </time>
+        {post.status === "draft" && (
+          <span className="mt-1 w-fit rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            Draft
           </span>
-          <span aria-hidden="true">·</span>
-          <time dateTime={new Date(post.createdAt).toISOString()}>
-            {format(new Date(post.createdAt), "MMM d, yyyy")}
-          </time>
-        </div>
-
+        )}
         {detailParams ? (
           <Link
-            className={`block text-balance font-medium leading-[1.2] tracking-[-0.02em] text-foreground transition-colors hover:text-brand ${featured ? "text-2xl sm:text-[1.75rem]" : "text-lg sm:text-xl"}`}
+            className={`mt-1 line-clamp-2 text-balance font-medium leading-tight tracking-tight text-foreground transition-colors hover:text-brand ${featured ? "text-2xl sm:text-3xl" : "text-lg"}`}
             params={detailParams}
             to="/$userSlug/$postSlug"
           >
-            {title}
+            {post.title}
           </Link>
         ) : (
-          <p
-            className={`text-balance font-medium leading-[1.2] tracking-[-0.02em] ${featured ? "text-2xl sm:text-[1.75rem]" : "text-lg sm:text-xl"}`}
-          >
-            {title}
+          <h2 className="mt-1 line-clamp-2 text-balance font-medium text-lg leading-tight">
+            {post.title}
+          </h2>
+        )}
+        {post.description && (
+          <p className="mt-2 line-clamp-3 text-muted-foreground text-sm leading-relaxed">
+            {post.description}
           </p>
         )}
-
-        {post.prompt && post.comment && (
-          <p className="mt-1 line-clamp-2 text-muted-foreground text-sm leading-relaxed">
-            {post.prompt}
-          </p>
-        )}
-
-        {tags.length > 1 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {tags.slice(1, featured ? 6 : 4).map((tag) => (
-              <Badge
-                className="rounded-full px-2.5 py-1 font-normal"
-                key={tag.id}
-                variant="outline"
-              >
-                {tag.name}
-              </Badge>
-            ))}
+        {!hideAuthor && author && (
+          <div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
+            <Avatar className="size-8 rounded-xl">
+              {author.image && (
+                <AvatarImage alt={author.name ?? ""} src={author.image} />
+              )}
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <span className="truncate text-sm font-medium">
+              {author.name ?? "Actnow editor"}
+            </span>
           </div>
         )}
-
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-3 mt-4">
-          {hideAuthor ? (
-            <p className="text-muted-foreground text-xs tabular-nums">
-              {post.likes} likes <span className="px-1">·</span> {post.visits}{" "}
-              views
-            </p>
-          ) : author?.id ? (
-            <Link
-              className="flex min-w-0 items-center gap-2"
-              params={{ userSlug: author.id }}
-              to="/$userSlug"
-            >
-              <Avatar className="size-8 rounded-xl">
-                {author.image && (
-                  <AvatarImage alt={author.name ?? ""} src={author.image} />
-                )}
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 text-sm">
-                <p className="truncate font-medium leading-tight">
-                  {author.name ?? "Anonymous"}
-                </p>
-                <p className="mt-0.5 truncate text-muted-foreground text-xs tabular-nums">
-                  {post.likes} likes <span className="px-1">·</span>{" "}
-                  {post.visits} views
-                </p>
-              </div>
-            </Link>
-          ) : (
-            <div className="flex min-w-0 items-center gap-2">
-              <Avatar className="size-8 rounded-xl">
-                {author?.image && (
-                  <AvatarImage alt={author.name ?? ""} src={author.image} />
-                )}
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 text-sm">
-                <p className="truncate font-medium leading-tight">
-                  {author?.name ?? "Anonymous"}
-                </p>
-                <p className="mt-0.5 truncate text-muted-foreground text-xs tabular-nums">
-                  {post.likes} likes <span className="px-1">·</span>{" "}
-                  {post.visits} views
-                </p>
-              </div>
-            </div>
-          )}
-          <LikeButton
-            className="size-9 shrink-0 rounded-full"
-            liked={liked}
-            onLikeChange={onLikeChange}
-            postId={post.id}
-          />
-        </div>
       </div>
     </article>
   );

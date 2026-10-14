@@ -1,139 +1,11 @@
-import {
-  getLeaderboardTimeRange,
-  getMonthRange,
-  likeLeaderboardSchema,
-  statPeriodSchema,
-} from "@actnow/common";
-import { and, count, desc, eq, gte, isNull, lt, sql } from "@actnow/db";
+import { getMonthRange } from "@actnow/common";
+import { and, count, eq, gte, isNull, lt } from "@actnow/db";
 import { user } from "@actnow/db/schema/auth";
-import { eventLogs } from "@actnow/db/schema/events";
-import { postLikes, posts } from "@actnow/db/schema/posts";
+import { posts } from "@actnow/db/schema/posts";
 import { adminProcedure } from "../../index";
-import {
-  calculateChangePercent,
-  getCountFromResult,
-  getTimeRange,
-} from "../../lib/utils";
+import { calculateChangePercent, getCountFromResult } from "../../lib/utils";
 
 export const statRouter = {
-  getStats: adminProcedure
-    .input(statPeriodSchema)
-    .handler(async ({ input, context }) => {
-      const { period } = input;
-      const { db } = context;
-      const { currentStart, previousStart, previousEnd } = getTimeRange(period);
-
-      const totalUsers = getCountFromResult(
-        await db.select({ count: count() }).from(user)
-      );
-
-      const newUsers = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(user)
-          .where(gte(user.createdAt, currentStart))
-      );
-
-      const previousUsers = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(user)
-          .where(
-            and(
-              gte(user.createdAt, previousStart),
-              lt(user.createdAt, previousEnd)
-            )
-          )
-      );
-
-      const totalPosts = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(posts)
-          .where(isNull(posts.deletedAt))
-      );
-
-      const publicPosts = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(posts)
-          .where(and(isNull(posts.deletedAt), eq(posts.isPublic, true)))
-      );
-
-      const newPosts = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(posts)
-          .where(
-            and(gte(posts.createdAt, currentStart), isNull(posts.deletedAt))
-          )
-      );
-
-      const previousPosts = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(posts)
-          .where(
-            and(
-              gte(posts.createdAt, previousStart),
-              lt(posts.createdAt, previousEnd),
-              isNull(posts.deletedAt)
-            )
-          )
-      );
-
-      const totalLikes = getCountFromResult(
-        await db.select({ count: count() }).from(postLikes)
-      );
-
-      const newLikes = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(eventLogs)
-          .where(
-            and(
-              eq(eventLogs.eventType, "POST_LIKED"),
-              gte(eventLogs.createdAt, currentStart)
-            )
-          )
-      );
-
-      const previousLikes = getCountFromResult(
-        await db
-          .select({ count: count() })
-          .from(eventLogs)
-          .where(
-            and(
-              eq(eventLogs.eventType, "POST_LIKED"),
-              gte(eventLogs.createdAt, previousStart),
-              lt(eventLogs.createdAt, previousEnd)
-            )
-          )
-      );
-
-      return {
-        users: {
-          total: totalUsers,
-          newCount: newUsers,
-          previousCount: previousUsers,
-          changePercent: calculateChangePercent(newUsers, previousUsers),
-        },
-        posts: {
-          total: totalPosts,
-          public: publicPosts,
-          newCount: newPosts,
-          previousCount: previousPosts,
-          changePercent: calculateChangePercent(newPosts, previousPosts),
-        },
-        likes: {
-          total: totalLikes,
-          newCount: newLikes,
-          previousCount: previousLikes,
-          changePercent: calculateChangePercent(newLikes, previousLikes),
-        },
-      };
-    }),
-
   getDashboardStats: adminProcedure.handler(async ({ context }) => {
     const { db } = context;
     const thisMonth = getMonthRange(0);
@@ -144,6 +16,18 @@ export const statRouter = {
         .select({ count: count() })
         .from(posts)
         .where(isNull(posts.deletedAt))
+    );
+    const publishedPosts = getCountFromResult(
+      await db
+        .select({ count: count() })
+        .from(posts)
+        .where(and(isNull(posts.deletedAt), eq(posts.status, "published")))
+    );
+    const draftPosts = getCountFromResult(
+      await db
+        .select({ count: count() })
+        .from(posts)
+        .where(and(isNull(posts.deletedAt), eq(posts.status, "draft")))
     );
     const thisMonthPosts = getCountFromResult(
       await db
@@ -162,33 +46,6 @@ export const statRouter = {
             isNull(posts.deletedAt),
             gte(posts.createdAt, lastMonth.start),
             lt(posts.createdAt, lastMonth.end)
-          )
-        )
-    );
-
-    const totalLikes = getCountFromResult(
-      await db.select({ count: count() }).from(postLikes)
-    );
-    const thisMonthLikes = getCountFromResult(
-      await db
-        .select({ count: count() })
-        .from(eventLogs)
-        .where(
-          and(
-            eq(eventLogs.eventType, "POST_LIKED"),
-            gte(eventLogs.createdAt, thisMonth.start)
-          )
-        )
-    );
-    const lastMonthLikes = getCountFromResult(
-      await db
-        .select({ count: count() })
-        .from(eventLogs)
-        .where(
-          and(
-            eq(eventLogs.eventType, "POST_LIKED"),
-            gte(eventLogs.createdAt, lastMonth.start),
-            lt(eventLogs.createdAt, lastMonth.end)
           )
         )
     );
@@ -217,15 +74,11 @@ export const statRouter = {
     return {
       posts: {
         total: totalPosts,
+        published: publishedPosts,
+        draft: draftPosts,
         currentMonth: thisMonthPosts,
         previousMonth: lastMonthPosts,
         changePercent: calculateChangePercent(thisMonthPosts, lastMonthPosts),
-      },
-      likes: {
-        total: totalLikes,
-        currentMonth: thisMonthLikes,
-        previousMonth: lastMonthLikes,
-        changePercent: calculateChangePercent(thisMonthLikes, lastMonthLikes),
       },
       users: {
         total: totalUsers,
@@ -267,53 +120,12 @@ export const statRouter = {
             )
           )
       );
-      const monthIndex = new Date(range.start).getMonth();
       lastThreeMonths.push({
-        month: monthNames[monthIndex] ?? "",
+        month: monthNames[new Date(range.start).getMonth()] ?? "",
         count: monthCount,
       });
     }
 
     return lastThreeMonths;
   }),
-
-  getLikeLeaderboard: adminProcedure
-    .input(likeLeaderboardSchema)
-    .handler(async ({ input, context }) => {
-      const { range, limit } = input;
-      const { db } = context;
-      const { start, end } = getLeaderboardTimeRange(range);
-
-      const likeCount = sql<number>`COUNT(${postLikes.postId})`;
-
-      const leaderboard = await db
-        .select({
-          userId: user.id,
-          userName: user.name,
-          userImage: user.image,
-          likeCount,
-        })
-        .from(postLikes)
-        .innerJoin(posts, eq(postLikes.postId, posts.id))
-        .innerJoin(user, eq(posts.createdById, user.id))
-        .where(
-          and(
-            gte(postLikes.createdAt, start),
-            lt(postLikes.createdAt, end),
-            isNull(posts.deletedAt)
-          )
-        )
-        .groupBy(user.id)
-        .orderBy(desc(likeCount))
-        .limit(limit);
-
-      return leaderboard.map((entry) => ({
-        user: {
-          id: entry.userId,
-          name: entry.userName,
-          image: entry.userImage,
-        },
-        likeCount: entry.likeCount,
-      }));
-    }),
 };

@@ -1,14 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource/fredoka/400.css";
-@import "@fontsource/fredoka/500.css";
+@import "@fontsource/google-sans-flex";
 @plugin "@egoist/tailwindcss-icons";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --font-sans-stack: "Fredoka", system-ui, sans-serif;
+  --font-sans-stack: "Google Sans Flex", system-ui, sans-serif;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.21 0.006 285.885);

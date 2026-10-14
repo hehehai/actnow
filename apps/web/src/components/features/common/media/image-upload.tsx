@@ -12,7 +12,7 @@ interface ImageUploadProps {
   disabled?: boolean;
   className?: string;
   variant?: "avatar" | "square";
-  size?: "sm" | "default" | "lg";
+  size?: "sm" | "default" | "lg" | "cover";
   uploadType?: "user" | "admin" | "public";
   placeholder?: React.ReactNode;
   fallback?: string;
@@ -23,12 +23,14 @@ const sizeMap = {
   sm: "size-12",
   default: "size-16",
   lg: "size-20",
+  cover: "w-full aspect-[4/3]",
 };
 
 const iconSizeMap = {
   sm: "size-4",
   default: "size-6",
   lg: "size-8",
+  cover: "size-8",
 };
 
 export function ImageUpload({

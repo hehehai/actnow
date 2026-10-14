@@ -7,11 +7,10 @@ import {
   getSnapshotFromSubscriptions,
 } from "@actnow/auth/subscription-snapshot";
 import type { SocialLink } from "@actnow/common";
-import { and, desc, eq, inArray, isNull, ne, sql } from "@actnow/db";
+import { and, desc, eq, isNull, ne } from "@actnow/db";
 import { account, session, user } from "@actnow/db/schema/auth";
 import { feedbacks } from "@actnow/db/schema/feedback";
-import { postLikes, posts } from "@actnow/db/schema/posts";
-import { postTags, tags } from "@actnow/db/schema/tags";
+import { posts } from "@actnow/db/schema/posts";
 import { ORPCError } from "@orpc/server";
 import type {
   ApiDb,
@@ -19,28 +18,19 @@ import type {
   ProtectedAppContext,
 } from "../../lib/context-types";
 import { combineFilters, generateId, hashPassword } from "../../lib/utils";
-import { groupTagsByPost } from "./post-shared";
-import { buildProfileUpdateData, mapPostsWithTags } from "./user-shared";
-
-type PopularUserItem = {
-  id: string;
-  name: string | null;
-  image: string | null;
-  totalLikes: number;
-  totalPosts: number;
-};
+import { buildProfileUpdateData } from "./user-shared";
 
 type PublicProfilePostRow = {
   post: {
     id: string;
-    prompt: string | null;
-    comment: string | null;
-    media: string[] | null;
-    likes: number;
-    visits: number;
-    isPublic: boolean;
+    title: string;
+    description: string;
+    cover: string | null;
+    content: string;
+    status: "draft" | "published";
+    publishedAt: Date | null;
     createdAt: Date;
-    updatedAt: Date;
+    createdById: string;
   };
   author: {
     id: string | null;
@@ -58,11 +48,7 @@ type PublicProfileOutput = {
     socialLinks: SocialLink[];
     createdAt: Date;
   };
-  posts: Array<
-    PublicProfilePostRow & {
-      tags: Array<{ id: string; name: string; value: string; type: string }>;
-    }
-  >;
+  posts: PublicProfilePostRow[];
 };
 
 type CurrentProfileOutput = {
@@ -135,31 +121,6 @@ type MutationSuccess = { success: true };
 
 type DeletedCountResult = { deletedCount: number };
 
-export async function getPopularUsersService(
-  context: AppContext,
-  input: { limit: number }
-): Promise<PopularUserItem[]> {
-  const { limit } = input;
-  const { db } = context;
-  const totalLikes = sql<number>`COALESCE(SUM(${posts.likes}), 0)`;
-  const totalPosts = sql<number>`COUNT(${posts.id})`;
-
-  return db
-    .select({
-      id: user.id,
-      name: user.name,
-      image: user.image,
-      totalLikes,
-      totalPosts,
-    })
-    .from(posts)
-    .innerJoin(user, eq(posts.createdById, user.id))
-    .where(and(eq(posts.isPublic, true), isNull(posts.deletedAt)))
-    .groupBy(user.id)
-    .orderBy(desc(totalLikes))
-    .limit(limit);
-}
-
 export async function getPublicProfileService(
   context: AppContext,
   input: { id: string }
@@ -187,49 +148,29 @@ export async function getPublicProfileService(
     .select({
       post: {
         id: posts.id,
-        prompt: posts.prompt,
-        comment: posts.comment,
-        media: posts.media,
-        likes: posts.likes,
-        visits: posts.visits,
-        isPublic: posts.isPublic,
+        title: posts.title,
+        description: posts.description,
+        cover: posts.cover,
+        content: posts.content,
+        status: posts.status,
+        publishedAt: posts.publishedAt,
         createdAt: posts.createdAt,
-        updatedAt: posts.updatedAt,
+        createdById: posts.createdById,
       },
-      author: {
-        id: user.id,
-        name: user.name,
-        image: user.image,
-      },
+      author: { id: user.id, name: user.name, image: user.image },
     })
     .from(posts)
     .leftJoin(user, eq(posts.createdById, user.id))
     .where(
       combineFilters([
         eq(posts.createdById, input.id),
-        isOwner ? undefined : eq(posts.isPublic, true),
+        isOwner ? undefined : eq(posts.status, "published"),
         isNull(posts.deletedAt),
       ])
     )
     .orderBy(desc(posts.createdAt))) as PublicProfilePostRow[];
 
-  const postIds = postRows.map((row) => row.post.id);
-  const tagRows = postIds.length
-    ? await db
-        .select({
-          postId: postTags.postId,
-          id: tags.id,
-          name: tags.name,
-          value: tags.value,
-          type: tags.type,
-        })
-        .from(postTags)
-        .innerJoin(tags, eq(postTags.tagId, tags.id))
-        .where(inArray(postTags.postId, postIds))
-    : [];
-
-  const postsWithTags = mapPostsWithTags(postRows, groupTagsByPost(tagRows));
-  return { user: profile, posts: postsWithTags };
+  return { user: profile, posts: postRows };
 }
 
 export async function getCurrentProfileService(
@@ -504,20 +445,6 @@ export async function revokeSessionService(
   return { success: true };
 }
 
-export async function deleteAllUserPostsService(
-  context: ProtectedAppContext
-): Promise<DeletedCountResult> {
-  const userId = context.session.user.id;
-  const { db } = context;
-  const result = await db
-    .update(posts)
-    .set({ deletedAt: new Date(), isPublic: false })
-    .where(and(eq(posts.createdById, userId), isNull(posts.deletedAt)))
-    .returning({ id: posts.id });
-
-  return { deletedCount: result.length };
-}
-
 export async function deleteAllUserFeedbackService(
   context: ProtectedAppContext
 ): Promise<DeletedCountResult> {
@@ -528,19 +455,6 @@ export async function deleteAllUserFeedbackService(
     .set({ deletedAt: new Date() })
     .where(and(eq(feedbacks.createdById, userId), isNull(feedbacks.deletedAt)))
     .returning({ id: feedbacks.id });
-
-  return { deletedCount: result.length };
-}
-
-export async function deleteAllUserLikesService(
-  context: ProtectedAppContext
-): Promise<DeletedCountResult> {
-  const userId = context.session.user.id;
-  const { db } = context;
-  const result = await db
-    .delete(postLikes)
-    .where(eq(postLikes.userId, userId))
-    .returning({ id: postLikes.id });
 
   return { deletedCount: result.length };
 }

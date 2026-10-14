@@ -235,27 +235,27 @@ export async function getUserByIdService(
 export async function getUserStatsService(
   context: PanelContext,
   input: { id: string }
-): Promise<{ totalPosts: number; publicPosts: number }> {
+): Promise<{ totalPosts: number; publishedPosts: number }> {
   const { db } = context;
   const totalResult = await db
     .select({ count: count() })
     .from(posts)
     .where(and(eq(posts.createdById, input.id), isNull(posts.deletedAt)));
 
-  const approvedResult = await db
+  const publishedResult = await db
     .select({ count: count() })
     .from(posts)
     .where(
       and(
         eq(posts.createdById, input.id),
-        eq(posts.isPublic, true),
+        eq(posts.status, "published"),
         isNull(posts.deletedAt)
       )
     );
 
   return {
     totalPosts: getCountFromResult(totalResult),
-    publicPosts: getCountFromResult(approvedResult),
+    publishedPosts: getCountFromResult(publishedResult),
   };
 }
 

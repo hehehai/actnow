@@ -14,20 +14,19 @@ import { orpc } from "@/lib/orpc";
 import { createPageMeta } from "@/lib/seo";
 import { panelPostFormDialog } from "@/stores/handlers";
 
-const VISIBILITY_OPTIONS = [
-  { value: "all" as const, label: "All Visibility" },
-  { value: "public" as const, label: "Public Only" },
+const STATUS_OPTIONS = [
+  { value: "all" as const, label: "All content" },
+  { value: "draft" as const, label: "Drafts" },
+  { value: "published" as const, label: "Published" },
 ];
 
 const PAGE_SIZE = 10;
 
 const searchSchema = z.object({
   search: z.string().catch(""),
-  visibility: z.enum(["all", "public"]).catch("all"),
+  status: z.enum(["all", "draft", "published"]).catch("all"),
   createdById: z.string().optional().catch(undefined),
-  sortBy: z
-    .enum(["createdAt", "updatedAt", "likes", "visits"])
-    .catch("createdAt"),
+  sortBy: z.enum(["createdAt", "publishedAt"]).catch("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).catch("desc"),
   page: z.number().int().positive().catch(1),
 });
@@ -63,7 +62,7 @@ function RouteComponent() {
     orpc.panel.post.list.queryOptions({
       input: {
         search: search.search || undefined,
-        visibility: search.visibility === "public" ? "public" : "all",
+        status: search.status,
         createdById: search.createdById,
         sortBy: search.sortBy,
         sortOrder: search.sortOrder,
@@ -77,16 +76,12 @@ function RouteComponent() {
     updateSearch({ search: value, page: 1 });
   };
 
-  const handleVisibilityChange = (value: SearchParams["visibility"] | null) => {
-    updateSearch({ visibility: value ?? "all", page: 1 });
-  };
-
   const handleUserChange = (value: string | null) => {
     updateSearch({ createdById: value ?? undefined, page: 1 });
   };
 
   const handleSortChange = (
-    sortBy: "createdAt" | "updatedAt" | "likes" | "visits",
+    sortBy: "createdAt" | "publishedAt",
     order: "asc" | "desc"
   ) => {
     updateSearch({ sortBy, sortOrder: order, page: 1 });
@@ -110,19 +105,24 @@ function RouteComponent() {
                 Content
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Review, organize, and publish community posts.
+                Create drafts and publish content to your site.
               </p>
             </div>
             <DataTableToolbar
               onSearchChange={handleSearchChange}
-              searchPlaceholder="Search by prompt or comment..."
+              searchPlaceholder="Search title or description..."
               searchValue={search.search}
             >
               <StatusFilterSelect
                 className="w-32"
-                items={VISIBILITY_OPTIONS}
-                onChange={handleVisibilityChange}
-                value={search.visibility}
+                items={STATUS_OPTIONS}
+                onChange={(value) =>
+                  updateSearch({
+                    status: value as SearchParams["status"],
+                    page: 1,
+                  })
+                }
+                value={search.status}
               />
               <UserFilterSelect
                 onChange={handleUserChange}
@@ -138,7 +138,7 @@ function RouteComponent() {
             }
           >
             <span className="i-hugeicons-plus-sign size-3.5" />
-            New Post
+            New content
           </Button>
         }
       />

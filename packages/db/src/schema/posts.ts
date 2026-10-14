@@ -11,6 +11,15 @@ import { CURRENT_TIMESTAMP_MS, jsonText, timestampMs } from "./helpers";
 
 export const posts = sqliteTable("posts", {
   id: text("id").primaryKey(),
+  title: text("title").default("").notNull(),
+  description: text("description").default("").notNull(),
+  cover: text("cover"),
+  content: text("content").default("").notNull(),
+  status: text("status", { enum: ["draft", "published"] })
+    .default("draft")
+    .notNull(),
+  publishedAt: timestampMs("published_at"),
+  // Legacy columns remain in the physical table for backward-safe migration.
   prompt: text("prompt").default("").notNull(),
   comment: text("comment").notNull(),
   media: jsonText<string[]>("media")

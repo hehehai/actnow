@@ -22,12 +22,6 @@ const accountItems = [
     exact: true,
   },
   {
-    to: "/likes",
-    label: "Liked posts",
-    icon: "i-hugeicons-heart",
-    exact: false,
-  },
-  {
     to: "/feedback",
     label: "Feedback",
     icon: "i-hugeicons-chat-feedback-01",

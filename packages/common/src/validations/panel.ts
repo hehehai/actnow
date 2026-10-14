@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { paginationSchema, slugSchema } from "./common";
+import { paginationSchema } from "./common";
 
 // User list query
 export const userListSchema = paginationSchema.extend({
@@ -82,35 +82,13 @@ export const userListForFilterSchema = z.object({
   limit: z.number().min(1).max(50).default(20),
 });
 
-// Stats period
-export const statPeriodSchema = z.object({
-  period: z.enum(["24h", "7d", "15d", "30d"]).default("24h"),
-});
-
-// Like leaderboard range
-export const likeLeaderboardRangeEnum = z.enum([
-  "today",
-  "yesterday",
-  "this_month",
-  "last_month",
-  "this_year",
-]);
-
-export const likeLeaderboardSchema = z.object({
-  range: likeLeaderboardRangeEnum.default("today"),
-  limit: z.number().min(1).max(50).default(10),
-});
-
 // ============ Post Schemas ============
 
 export const postListSchema = paginationSchema.extend({
   search: z.string().optional(),
-  visibility: z.enum(["public", "all"]).default("all"),
-  sortBy: z
-    .enum(["createdAt", "updatedAt", "likes", "visits"])
-    .default("createdAt"),
+  status: z.enum(["all", "draft", "published"]).default("all"),
+  sortBy: z.enum(["createdAt", "publishedAt"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
-  tagIds: z.array(z.string()).optional(),
   createdById: z.string().optional(),
 });
 
@@ -124,54 +102,11 @@ export const postBatchDeleteSchema = z.object({
 
 export const postAdminUpsertSchema = z.object({
   id: z.string().optional(),
-  prompt: z.string().max(1000).optional(),
-  comment: z.string().min(1, "Comment is required").max(500),
-  media: z.array(z.string().url("Invalid media URL")).max(10).optional(),
-  isPublic: z.boolean().default(false),
-  tagIds: z.array(z.string()).default([]),
-});
-
-// Tag type enum
-export const tagTypeSchema = z.enum(["platform", "model", "style"]);
-
-// Tag ID schema
-export const tagIdSchema = z.object({
-  id: z.string(),
-});
-
-// Tag list query
-export const tagListSchema = paginationSchema.extend({
-  search: z.string().optional(),
-  type: tagTypeSchema.optional(),
-  sortBy: z.enum(["createdAt", "name"]).default("createdAt"),
-  sortOrder: z.enum(["asc", "desc"]).default("desc"),
-});
-
-// Tag upsert (id optional - no id = create, with id = update)
-export const tagUpsertSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(1, "Name is required").max(100),
-  value: slugSchema,
-  type: tagTypeSchema,
-  description: z.string().nullable().optional(),
-  tipMedia: z.url().nullable().optional(),
-});
-
-// Batch delete tags
-export const tagBatchDeleteSchema = z.object({
-  ids: z.array(z.string()).min(1, "At least one tag ID is required"),
-});
-
-// Tag list for select dropdown (lightweight, no pagination)
-export const tagListForSelectSchema = z.object({
-  search: z.string().optional(),
-  type: tagTypeSchema.optional(),
-  limit: z.number().min(1).max(100).default(50),
-});
-
-// Tag list by IDs (for fetching specific tags)
-export const tagListByIdsSchema = z.object({
-  ids: z.array(z.string()),
+  title: z.string().trim().min(1, "Title is required").max(160),
+  description: z.string().max(500).default(""),
+  cover: z.url("Invalid cover URL").nullable().optional(),
+  content: z.string().trim().min(1, "Content is required"),
+  status: z.enum(["draft", "published"]).default("draft"),
 });
 
 // Type exports
@@ -181,16 +116,7 @@ export type UserUpdate = z.infer<typeof userUpdateSchema>;
 export type UserBan = z.infer<typeof userBanSchema>;
 export type UserBatchDelete = z.infer<typeof userBatchDeleteSchema>;
 export type UserListForFilter = z.infer<typeof userListForFilterSchema>;
-export type StatPeriod = z.infer<typeof statPeriodSchema>;
-export type LikeLeaderboardRange = z.infer<typeof likeLeaderboardRangeEnum>;
-export type LikeLeaderboard = z.infer<typeof likeLeaderboardSchema>;
 export type PostList = z.infer<typeof postListSchema>;
 export type PostAdminUpsert = z.infer<typeof postAdminUpsertSchema>;
 export type PostId = z.infer<typeof postIdSchema>;
 export type PostBatchDelete = z.infer<typeof postBatchDeleteSchema>;
-export type TagType = z.infer<typeof tagTypeSchema>;
-export type TagList = z.infer<typeof tagListSchema>;
-export type TagUpsert = z.infer<typeof tagUpsertSchema>;
-export type TagBatchDelete = z.infer<typeof tagBatchDeleteSchema>;
-export type TagListForSelect = z.infer<typeof tagListForSelectSchema>;
-export type TagListByIds = z.infer<typeof tagListByIdsSchema>;

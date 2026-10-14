@@ -137,7 +137,7 @@ function FeedbackDialogContent() {
             id="feedback-content"
             maxLength={2000}
             onChange={(event) => setContent(event.target.value)}
-            placeholder="Describe your request or share your post details..."
+            placeholder="Describe your request or tell us what could be better..."
             rows={4}
             value={content}
           />

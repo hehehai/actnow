@@ -33,12 +33,6 @@ export const LazyFeedbackDialog = lazy(() =>
   }))
 );
 
-export const LazyPostFormDialog = lazy(() =>
-  import("@/components/features/app/post/post-form-dialog").then((m) => ({
-    default: m.PostFormDialog,
-  }))
-);
-
 export const LazyPanelPostFormDialog = lazy(() =>
   import("@/components/features/panel/posts/post-form-dialog").then((m) => ({
     default: m.PostFormDialog,

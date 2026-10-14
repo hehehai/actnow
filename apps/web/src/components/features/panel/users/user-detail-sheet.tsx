@@ -272,14 +272,16 @@ function UserDetailContent({ userId }: { userId: string }) {
                           {stats?.totalPosts ?? 0}
                         </p>
                         <p className="text-muted-foreground text-xs">
-                          Total Posts
+                          Total content
                         </p>
                       </div>
                       <div className="rounded-lg border p-3">
                         <p className="font-semibold text-2xl">
-                          {stats?.publicPosts ?? 0}
+                          {stats?.publishedPosts ?? 0}
                         </p>
-                        <p className="text-muted-foreground text-xs">Public</p>
+                        <p className="text-muted-foreground text-xs">
+                          Published
+                        </p>
                       </div>
                     </div>
                   </section>

@@ -9,7 +9,6 @@ import {
   LazyFeedbackDialog,
   LazyFilterDialog,
   LazyImagePreviewDialog,
-  LazyPostFormDialog,
   LazySetPasswordDialog,
   LazyVerifyEmailDialog,
 } from "@/components/shared/lazy-dialogs";
@@ -45,7 +44,6 @@ function RouteComponent() {
         <LazyChangePasswordDialog />
         <LazyConfirmDialog />
         <LazyFeedbackDialog />
-        <LazyPostFormDialog />
         <LazyFilterDialog />
         <LazyImagePreviewDialog />
       </Suspense>

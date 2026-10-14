@@ -1,5 +1,6 @@
-import { PostFeedSort, site } from "@actnow/common";
+import { site } from "@actnow/common";
 import { Link } from "@tanstack/react-router";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 const linkClassName =
   "text-muted-foreground text-sm transition hover:text-foreground";
@@ -16,24 +17,13 @@ export function SiteFooter() {
               <span className="font-medium text-base">{site.siteName}</span>
             </Link>
             <p className="mt-3 max-w-sm text-muted-foreground text-sm leading-relaxed">
-              Inspiration is fleeting. Save the things that move you, share what
-              you make, and find your next spark.
+              A simple home for useful writing and ideas, published by the
+              Actnow team.
             </p>
           </div>
           <FooterColumn title="Explore">
-            <Link
-              className={linkClassName}
-              search={{ sort: PostFeedSort.LATEST }}
-              to="/"
-            >
+            <Link className={linkClassName} to="/">
               Latest posts
-            </Link>
-            <Link
-              className={linkClassName}
-              search={{ sort: PostFeedSort.POPULAR }}
-              to="/"
-            >
-              Popular posts
             </Link>
             <Link className={linkClassName} to="/prices">
               Pricing
@@ -56,10 +46,13 @@ export function SiteFooter() {
             </a>
           </FooterColumn>
         </div>
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-2 border-t border-footer-border pt-6 text-muted-foreground text-xs">
-          <p>
-            © {currentYear} {site.siteName}. All rights reserved.
-          </p>
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-footer-border pt-6 text-muted-foreground text-xs">
+          <div className="flex flex-wrap items-center gap-4">
+            <ThemeToggle />
+            <p>
+              © {currentYear} {site.siteName}. All rights reserved.
+            </p>
+          </div>
           <a
             className="hover:text-foreground"
             href={site.authorUrl}

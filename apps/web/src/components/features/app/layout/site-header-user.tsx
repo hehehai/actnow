@@ -1,7 +1,6 @@
 import { site, UserRole } from "@actnow/common";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -144,12 +143,6 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
             Feedback
           </DropdownMenuItem>
 
-          {/* My Likes */}
-          <DropdownMenuItem render={<Link to="/likes" />}>
-            <span className="i-hugeicons-thumbs-up-rectangle" />
-            Likes
-          </DropdownMenuItem>
-
           <DropdownMenuItem render={<Link to="/account" />}>
             <span className="i-hugeicons-home-01" />
             Your space
@@ -158,19 +151,6 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
             <span className="i-hugeicons-account-setting-03" />
             Settings
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        {/* Theme toggle */}
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-foreground">
-              <span className="i-hugeicons-cinnamon-roll text-sm" />
-              <span className="text-xs">Theme</span>
-            </div>
-            <ThemeToggle />
-          </DropdownMenuLabel>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />

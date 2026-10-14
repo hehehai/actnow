@@ -37,10 +37,10 @@ interface PostDataTableProps {
   data: PostRow[];
   isLoading?: boolean;
   className?: string;
-  sortBy?: "createdAt" | "updatedAt" | "likes" | "visits";
+  sortBy?: "createdAt" | "publishedAt";
   sortOrder?: "asc" | "desc";
   onSortChange?: (
-    sortBy: "createdAt" | "updatedAt" | "likes" | "visits",
+    sortBy: "createdAt" | "publishedAt",
     order: "asc" | "desc"
   ) => void;
   pagination?: ServerPaginationInfo;

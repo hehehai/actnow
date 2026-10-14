@@ -10,17 +10,6 @@ export function DataManagementTab() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Delete all posts mutation
-  const deletePostsMutation = useMutation({
-    mutationFn: () => client.app.user.deleteAllPosts(),
-    onSuccess: (result) => {
-      toast.success(`Deleted ${result.deletedCount} post(s)`);
-      queryClient.invalidateQueries({
-        queryKey: orpc.app.post.list.key(),
-      });
-    },
-  });
-
   // Delete all feedback mutation
   const deleteFeedbackMutation = useMutation({
     mutationFn: () => client.app.user.deleteAllFeedback(),
@@ -28,17 +17,6 @@ export function DataManagementTab() {
       toast.success(`Deleted ${result.deletedCount} feedback item(s)`);
       queryClient.invalidateQueries({
         queryKey: orpc.app.feedback.list.key(),
-      });
-    },
-  });
-
-  // Delete all likes mutation
-  const deleteLikesMutation = useMutation({
-    mutationFn: () => client.app.user.deleteAllLikes(),
-    onSuccess: (result) => {
-      toast.success(`Deleted ${result.deletedCount} like(s)`);
-      queryClient.invalidateQueries({
-        queryKey: orpc.app.like.getUserLikes.key(),
       });
     },
   });
@@ -58,32 +36,6 @@ export function DataManagementTab() {
     },
   });
 
-  const handleDeletePosts = () => {
-    confirmDialog.openWithPayload({
-      title: "Delete All Posts",
-      description:
-        "Are you sure you want to delete all of your posts? This action cannot be undone.",
-      confirmText: "Delete All",
-      variant: "destructive",
-      onConfirm: async () => {
-        await deletePostsMutation.mutateAsync();
-      },
-    });
-  };
-
-  const handleDeleteLikes = () => {
-    confirmDialog.openWithPayload({
-      title: "Delete All Likes",
-      description:
-        "Are you sure you want to remove all your likes? This action cannot be undone.",
-      confirmText: "Delete All",
-      variant: "destructive",
-      onConfirm: async () => {
-        await deleteLikesMutation.mutateAsync();
-      },
-    });
-  };
-
   const handleDeleteAccount = () => {
     confirmDialog.openWithPayload({
       title: "Delete Account",
@@ -99,25 +51,6 @@ export function DataManagementTab() {
 
   return (
     <div className="space-y-6">
-      {/* Delete Posts */}
-      <section className="space-y-3">
-        <div>
-          <h3 className="font-medium">My Posts</h3>
-          <p className="text-muted-foreground text-sm">
-            Delete all posts you have created.
-          </p>
-        </div>
-        <Button
-          disabled={deletePostsMutation.isPending}
-          onClick={handleDeletePosts}
-          variant="outline"
-        >
-          {deletePostsMutation.isPending ? "Deleting..." : "Delete All Posts"}
-        </Button>
-      </section>
-
-      <hr />
-
       {/* Delete Feedback */}
       <section className="space-y-3">
         <div>
@@ -145,25 +78,6 @@ export function DataManagementTab() {
           {deleteFeedbackMutation.isPending
             ? "Deleting..."
             : "Delete All Feedback"}
-        </Button>
-      </section>
-
-      <hr />
-
-      {/* Delete Likes */}
-      <section className="space-y-3">
-        <div>
-          <h3 className="font-medium">My Likes</h3>
-          <p className="text-muted-foreground text-sm">
-            Remove all your likes from the platform.
-          </p>
-        </div>
-        <Button
-          disabled={deleteLikesMutation.isPending}
-          onClick={handleDeleteLikes}
-          variant="outline"
-        >
-          {deleteLikesMutation.isPending ? "Deleting..." : "Delete All Likes"}
         </Button>
       </section>
 

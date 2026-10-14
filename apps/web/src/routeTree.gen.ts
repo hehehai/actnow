@@ -25,13 +25,11 @@ import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-emai
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
 import { Route as adminPanelFeedbackRouteImport } from './routes/(admin)/panel/feedback'
 import { Route as adminPanelPostsRouteImport } from './routes/(admin)/panel/posts'
-import { Route as adminPanelTagsRouteImport } from './routes/(admin)/panel/tags'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
 import { Route as appUserSlugIndexRouteImport } from './routes/(app)/$userSlug/index'
 import { Route as appUserSlugPostSlugRouteImport } from './routes/(app)/$userSlug/$postSlug'
 import { Route as appuserAccountRouteRouteImport } from './routes/(app)/(user)/account/route'
 import { Route as appuserFeedbackRouteImport } from './routes/(app)/(user)/feedback'
-import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as appuserAccountIndexRouteImport } from './routes/(app)/(user)/account/index'
@@ -115,11 +113,6 @@ const adminPanelPostsRoute = adminPanelPostsRouteImport.update({
   path: '/posts',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
-const adminPanelTagsRoute = adminPanelTagsRouteImport.update({
-  id: '/tags',
-  path: '/tags',
-  getParentRoute: () => adminPanelRouteRoute,
-} as any)
 const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -143,11 +136,6 @@ const appuserAccountRouteRoute = appuserAccountRouteRouteImport.update({
 const appuserFeedbackRoute = appuserFeedbackRouteImport.update({
   id: '/(user)/feedback',
   path: '/feedback',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appuserLikesRoute = appuserLikesRouteImport.update({
-  id: '/(user)/likes',
-  path: '/likes',
   getParentRoute: () => appRouteRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -186,11 +174,9 @@ export interface FileRoutesByFullPath {
   '/account': typeof appuserAccountRouteRouteWithChildren
   '/panel/feedback': typeof adminPanelFeedbackRoute
   '/panel/posts': typeof adminPanelPostsRoute
-  '/panel/tags': typeof adminPanelTagsRoute
   '/panel/users': typeof adminPanelUsersRoute
   '/$userSlug/$postSlug': typeof appUserSlugPostSlugRoute
   '/feedback': typeof appuserFeedbackRoute
-  '/likes': typeof appuserLikesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
@@ -211,11 +197,9 @@ export interface FileRoutesByTo {
   '/': typeof appIndexRoute
   '/panel/feedback': typeof adminPanelFeedbackRoute
   '/panel/posts': typeof adminPanelPostsRoute
-  '/panel/tags': typeof adminPanelTagsRoute
   '/panel/users': typeof adminPanelUsersRoute
   '/$userSlug/$postSlug': typeof appUserSlugPostSlugRoute
   '/feedback': typeof appuserFeedbackRoute
-  '/likes': typeof appuserLikesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
@@ -241,11 +225,9 @@ export interface FileRoutesById {
   '/(app)/(user)/account': typeof appuserAccountRouteRouteWithChildren
   '/(admin)/panel/feedback': typeof adminPanelFeedbackRoute
   '/(admin)/panel/posts': typeof adminPanelPostsRoute
-  '/(admin)/panel/tags': typeof adminPanelTagsRoute
   '/(admin)/panel/users': typeof adminPanelUsersRoute
   '/(app)/$userSlug/$postSlug': typeof appUserSlugPostSlugRoute
   '/(app)/(user)/feedback': typeof appuserFeedbackRoute
-  '/(app)/(user)/likes': typeof appuserLikesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
@@ -270,11 +252,9 @@ export interface FileRouteTypes {
     | '/account'
     | '/panel/feedback'
     | '/panel/posts'
-    | '/panel/tags'
     | '/panel/users'
     | '/$userSlug/$postSlug'
     | '/feedback'
-    | '/likes'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel/'
@@ -295,11 +275,9 @@ export interface FileRouteTypes {
     | '/'
     | '/panel/feedback'
     | '/panel/posts'
-    | '/panel/tags'
     | '/panel/users'
     | '/$userSlug/$postSlug'
     | '/feedback'
-    | '/likes'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel'
@@ -324,11 +302,9 @@ export interface FileRouteTypes {
     | '/(app)/(user)/account'
     | '/(admin)/panel/feedback'
     | '/(admin)/panel/posts'
-    | '/(admin)/panel/tags'
     | '/(admin)/panel/users'
     | '/(app)/$userSlug/$postSlug'
     | '/(app)/(user)/feedback'
-    | '/(app)/(user)/likes'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/(admin)/panel/'
@@ -459,13 +435,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof adminPanelPostsRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
-    '/(admin)/panel/tags': {
-      id: '/(admin)/panel/tags'
-      path: '/tags'
-      fullPath: '/panel/tags'
-      preLoaderRoute: typeof adminPanelTagsRouteImport
-      parentRoute: typeof adminPanelRouteRoute
-    }
     '/(admin)/panel/users': {
       id: '/(admin)/panel/users'
       path: '/users'
@@ -499,13 +468,6 @@ declare module '@tanstack/react-router' {
       path: '/feedback'
       fullPath: '/feedback'
       preLoaderRoute: typeof appuserFeedbackRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/(user)/likes': {
-      id: '/(app)/(user)/likes'
-      path: '/likes'
-      fullPath: '/likes'
-      preLoaderRoute: typeof appuserLikesRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/api/auth/$': {
@@ -560,7 +522,6 @@ interface appRouteRouteChildren {
   appuserAccountRouteRoute: typeof appuserAccountRouteRouteWithChildren
   appUserSlugPostSlugRoute: typeof appUserSlugPostSlugRoute
   appuserFeedbackRoute: typeof appuserFeedbackRoute
-  appuserLikesRoute: typeof appuserLikesRoute
   appUserSlugIndexRoute: typeof appUserSlugIndexRoute
 }
 
@@ -572,7 +533,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appuserAccountRouteRoute: appuserAccountRouteRouteWithChildren,
   appUserSlugPostSlugRoute: appUserSlugPostSlugRoute,
   appuserFeedbackRoute: appuserFeedbackRoute,
-  appuserLikesRoute: appuserLikesRoute,
   appUserSlugIndexRoute: appUserSlugIndexRoute,
 }
 
@@ -605,7 +565,6 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 interface adminPanelRouteRouteChildren {
   adminPanelFeedbackRoute: typeof adminPanelFeedbackRoute
   adminPanelPostsRoute: typeof adminPanelPostsRoute
-  adminPanelTagsRoute: typeof adminPanelTagsRoute
   adminPanelUsersRoute: typeof adminPanelUsersRoute
   adminPanelIndexRoute: typeof adminPanelIndexRoute
 }
@@ -613,7 +572,6 @@ interface adminPanelRouteRouteChildren {
 const adminPanelRouteRouteChildren: adminPanelRouteRouteChildren = {
   adminPanelFeedbackRoute: adminPanelFeedbackRoute,
   adminPanelPostsRoute: adminPanelPostsRoute,
-  adminPanelTagsRoute: adminPanelTagsRoute,
   adminPanelUsersRoute: adminPanelUsersRoute,
   adminPanelIndexRoute: adminPanelIndexRoute,
 }

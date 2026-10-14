@@ -29,18 +29,17 @@ function AboutComponent() {
         </p>
 
         <p>
-          Our mission is to help creators, developers, and designers share their
-          ideas and discover new inspiration from the community. Whether it's a
-          code snippet, a design concept, or a creative thought, Actnow makes it
-          easy to capture and share.
+          Actnow is a simple home for useful writing and ideas. Our team
+          publishes clear, considered content so readers can find what they need
+          and come back to it later.
         </p>
 
         <h2 className="font-semibold text-foreground text-xl">Features</h2>
         <ul className="list-inside list-disc space-y-2">
-          <li>Share your creative inspiration with the community</li>
-          <li>Discover trending ideas and popular posts</li>
-          <li>Like and save your favorite content</li>
-          <li>Tag-based categorization for easy discovery</li>
+          <li>Browse a focused library of published content</li>
+          <li>Find articles by title or description</li>
+          <li>Read clean, distraction-free post pages</li>
+          <li>Manage drafts and publishing from the admin workspace</li>
         </ul>
 
         <h2 className="font-semibold text-foreground text-xl">Contact</h2>

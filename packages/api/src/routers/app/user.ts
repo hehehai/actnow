@@ -1,18 +1,11 @@
-import {
-  updateProfileSchema,
-  userPopularSchema,
-  userPublicProfileSchema,
-} from "@actnow/common";
+import { updateProfileSchema, userPublicProfileSchema } from "@actnow/common";
 import { z } from "zod";
 import { protectedProcedure, publicProcedure } from "../../index";
 import {
   deleteAllUserFeedbackService,
-  deleteAllUserLikesService,
-  deleteAllUserPostsService,
   ensureBillingCustomerService,
   getCurrentProfileService,
   getLinkedAccountsService,
-  getPopularUsersService,
   getPublicProfileService,
   getUserSessionsService,
   revokeSessionService,
@@ -22,12 +15,6 @@ import {
 } from "../../services/app/user-service";
 
 export const appUserRouter = {
-  popular: publicProcedure
-    .input(userPopularSchema)
-    .handler(async ({ context, input }) =>
-      getPopularUsersService(context, input)
-    ),
-
   publicProfile: publicProcedure
     .input(userPublicProfileSchema)
     .handler(async ({ context, input }) =>
@@ -66,16 +53,8 @@ export const appUserRouter = {
       revokeSessionService(context, input)
     ),
 
-  deleteAllPosts: protectedProcedure.handler(async ({ context }) =>
-    deleteAllUserPostsService(context)
-  ),
-
   deleteAllFeedback: protectedProcedure.handler(async ({ context }) =>
     deleteAllUserFeedbackService(context)
-  ),
-
-  deleteAllLikes: protectedProcedure.handler(async ({ context }) =>
-    deleteAllUserLikesService(context)
   ),
 
   setPassword: protectedProcedure

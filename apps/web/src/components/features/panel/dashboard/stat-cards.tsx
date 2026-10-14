@@ -51,13 +51,8 @@ interface StatCardsProps {
   data: {
     posts: {
       total: number;
-      currentMonth: number;
-      previousMonth: number;
-      changePercent: number;
-      public?: number;
-    };
-    likes: {
-      total: number;
+      published: number;
+      draft: number;
       currentMonth: number;
       previousMonth: number;
       changePercent: number;
@@ -71,9 +66,35 @@ interface StatCardsProps {
   };
 }
 
+function CountCard({
+  title,
+  icon,
+  value,
+}: {
+  title: string;
+  icon: string;
+  value: number;
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 font-medium text-muted-foreground text-sm">
+          <span className={cn(icon, "size-4")} />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="font-semibold text-3xl tabular-nums">
+          {value.toLocaleString()}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function StatCards({ data }: StatCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         changePercent={data.posts.changePercent}
         currentMonth={data.posts.currentMonth}
@@ -81,12 +102,15 @@ export function StatCards({ data }: StatCardsProps) {
         title="Total Posts"
         value={data.posts.total}
       />
-      <StatCard
-        changePercent={data.likes.changePercent}
-        currentMonth={data.likes.currentMonth}
-        icon="i-hugeicons-favourite"
-        title="Total Likes"
-        value={data.likes.total}
+      <CountCard
+        icon="i-hugeicons-task-02"
+        title="Published"
+        value={data.posts.published}
+      />
+      <CountCard
+        icon="i-hugeicons-pencil-edit-02"
+        title="Drafts"
+        value={data.posts.draft}
       />
       <StatCard
         changePercent={data.users.changePercent}

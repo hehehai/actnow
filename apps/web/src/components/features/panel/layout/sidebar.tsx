@@ -32,11 +32,6 @@ const data = {
       icon: "i-hugeicons-task-daily-02",
     },
     {
-      title: "Tags",
-      url: "/panel/tags",
-      icon: "i-hugeicons-tags",
-    },
-    {
       title: "Feedback",
       url: "/panel/feedback",
       icon: "i-hugeicons-chat-feedback-01",

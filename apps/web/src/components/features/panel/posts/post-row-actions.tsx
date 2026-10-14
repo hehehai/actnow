@@ -29,7 +29,7 @@ export function PostRowActions({ post }: PostRowActionsProps) {
   };
 
   const handleDelete = () => {
-    const title = post.post.comment ?? post.post.prompt ?? "this post";
+    const title = post.post.title || "this content";
     confirmDialog.openWithPayload({
       title: "Delete Post",
       description: (
@@ -64,11 +64,11 @@ export function PostRowActions({ post }: PostRowActionsProps) {
             mode: "edit",
             post: {
               id: post.post.id,
-              prompt: post.post.prompt ?? null,
-              comment: post.post.comment ?? null,
-              media: post.post.media ?? [],
-              isPublic: post.post.isPublic,
-              tagIds: post.tags.map((tag) => tag.id),
+              title: post.post.title,
+              description: post.post.description,
+              cover: post.post.cover,
+              content: post.post.content,
+              status: post.post.status,
             },
           })
         }

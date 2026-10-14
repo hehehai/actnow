@@ -16,11 +16,11 @@ type PanelPostFormPayload = {
   mode: "create" | "edit";
   post?: {
     id: string;
-    prompt: string | null;
-    comment: string | null;
-    media: string[] | null;
-    isPublic: boolean;
-    tagIds: string[];
+    title: string;
+    description: string;
+    cover: string | null;
+    content: string;
+    status: "draft" | "published";
   };
 };
 
@@ -47,11 +47,11 @@ function PostFormDialogContent({
   const initialValues = payload?.post
     ? {
         id: payload.post.id,
-        prompt: payload.post.prompt ?? "",
-        comment: payload.post.comment ?? "",
-        media: payload.post.media ?? [],
-        isPublic: payload.post.isPublic ?? false,
-        tagIds: payload.post.tagIds ?? [],
+        title: payload.post.title,
+        description: payload.post.description,
+        cover: payload.post.cover,
+        content: payload.post.content,
+        status: payload.post.status,
       }
     : undefined;
 
@@ -60,11 +60,11 @@ function PostFormDialogContent({
     try {
       await actions.upsert.mutateAsync({
         id: values.id,
-        prompt: values.prompt,
-        comment: values.comment,
-        media: values.media,
-        isPublic: values.isPublic,
-        tagIds: values.tagIds,
+        title: values.title,
+        description: values.description,
+        cover: values.cover,
+        content: values.content,
+        status: values.status,
       });
       panelPostFormDialog.close();
     } finally {
@@ -86,7 +86,6 @@ function PostFormDialogContent({
         mode={mode}
         onCancel={() => panelPostFormDialog.close()}
         onSubmit={handleSubmit}
-        uploadType="admin"
       />
     </>
   );

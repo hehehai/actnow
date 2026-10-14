@@ -1,10 +1,7 @@
-import { site } from "@actnow/common";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { SendIcon } from "@/components/shared/icons/send";
+import { site, UserRole } from "@actnow/common";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { postFormDialog } from "@/stores/handlers";
 import { SiteFilterButton } from "./site-filter-button";
-import { SiteHeaderMenu } from "./site-header-menu";
 import { SiteHeaderUser } from "./site-header-user";
 import { SiteMobileNav, SiteNav } from "./site-nav";
 
@@ -19,7 +16,6 @@ export interface SiteHeaderProps {
 }
 
 export function SiteHeader({ user }: SiteHeaderProps) {
-  const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-app pt-[env(safe-area-inset-top)] backdrop-blur-xl">
       <div className="container mx-auto flex min-h-15 max-w-7xl items-center gap-x-2 px-4 sm:gap-x-6 lg:gap-x-8">
@@ -44,22 +40,20 @@ export function SiteHeader({ user }: SiteHeaderProps) {
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           <SiteFilterButton />
-          <Button
-            aria-label={user ? "Create a post" : "Sign in to create a post"}
-            className="rounded-full max-sm:size-9 max-sm:px-0"
-            onClick={() => {
-              if (!user) {
-                void navigate({ to: "/signin" });
-                return;
-              }
-              postFormDialog.openWithPayload({ mode: "create" });
-            }}
-          >
-            <SendIcon />
-            <span className="max-sm:hidden">Create Post</span>
-          </Button>
           {user ? (
-            <SiteHeaderUser initialUser={user} />
+            <>
+              {user.role === UserRole.ADMIN && (
+                <Button
+                  className="rounded-full max-sm:size-9 max-sm:px-0"
+                  nativeButton={false}
+                  render={<Link to="/panel" />}
+                >
+                  <span className="i-hugeicons-edit-table size-4" />
+                  <span className="max-sm:hidden">Manage content</span>
+                </Button>
+              )}
+              <SiteHeaderUser initialUser={user} />
+            </>
           ) : (
             <>
               <Button
@@ -77,9 +71,6 @@ export function SiteHeader({ user }: SiteHeaderProps) {
               >
                 Join free
               </Button>
-              <span className="hidden lg:inline-flex">
-                <SiteHeaderMenu />
-              </span>
             </>
           )}
         </div>

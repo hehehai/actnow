@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { LikeLeaderboard } from "@/components/features/panel/dashboard/like-leaderboard";
 import { StatCards } from "@/components/features/panel/dashboard/stat-cards";
 import { UserGrowthChart } from "@/components/features/panel/dashboard/user-growth-chart";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
@@ -72,13 +71,12 @@ function RouteComponent() {
         )}
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5">
           {growthLoading || !userGrowthData ? (
             <UserGrowthChartSkeleton />
           ) : (
             <UserGrowthChart data={{ lastThreeMonths: userGrowthData }} />
           )}
-          <LikeLeaderboard />
         </div>
       </div>
     </div>

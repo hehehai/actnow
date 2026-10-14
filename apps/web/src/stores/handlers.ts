@@ -10,11 +10,11 @@ export const panelPostFormDialog = Dialog.createHandle<{
   mode: "create" | "edit";
   post?: {
     id: string;
-    prompt: string | null;
-    comment: string | null;
-    media: string[] | null;
-    isPublic: boolean;
-    tagIds: string[];
+    title: string;
+    description: string;
+    cover: string | null;
+    content: string;
+    status: "draft" | "published";
   };
 }>();
 
@@ -22,19 +22,6 @@ export const panelPostFormDialog = Dialog.createHandle<{
 
 // Feedback Dialog (for app section)
 export const feedbackDialog = Dialog.createHandle();
-
-// Post Dialog (for app section)
-export const postFormDialog = Dialog.createHandle<{
-  mode: "create" | "edit";
-  post?: {
-    id: string;
-    prompt: string | null;
-    comment: string | null;
-    media: string[] | null;
-    isPublic: boolean;
-    tagIds: string[];
-  };
-}>();
 
 // Profile Settings Dialogs
 export const changeEmailDialog = Dialog.createHandle<{
@@ -48,7 +35,6 @@ export const changePasswordDialog = Dialog.createHandle();
 export const filterDialog = Dialog.createHandle<
   | {
       initialQuery?: string;
-      initialTags?: string[];
     }
   | undefined
 >();

@@ -5,8 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { orpc } from "@/lib/orpc";
 import type { ClientOutputs } from "@/lib/orpc-types";
-import { filterDialog, postFormDialog } from "@/stores/handlers";
-import { FilterBrowseTabs } from "./filter-browse-tabs";
+import { filterDialog } from "@/stores/handlers";
 import { FilterEmptyResults } from "./filter-empty-results";
 import { FilterRecentSearches } from "./filter-recent-searches";
 import { FilterSearchInput } from "./filter-search-input";
@@ -15,20 +14,14 @@ import { FilterSearchResults } from "./filter-search-results";
 const RECENT_SEARCHES_KEY = "filter-recent-searches";
 const MAX_RECENT_SEARCHES = 5;
 const DEBOUNCE_MS = 300;
-
-type FilterPayload =
-  | {
-      initialQuery?: string;
-      initialTags?: string[];
-    }
-  | undefined;
+type FilterPayload = { initialQuery?: string } | undefined;
 
 export function FilterDialog() {
   return (
     <Dialog<FilterPayload> handle={filterDialog}>
       {({ payload }) => (
         <DialogContent
-          className="flex h-[50vh] max-h-150 flex-col gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-2xl"
+          className="flex h-[min(38rem,80vh)] max-h-150 flex-col gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-2xl"
           showCloseButton={false}
         >
           <FilterDialogContent payload={payload} />
@@ -38,44 +31,32 @@ export function FilterDialog() {
   );
 }
 
-interface FilterDialogContentProps {
-  payload: FilterPayload | undefined;
-}
-
-function FilterDialogContent({ payload }: FilterDialogContentProps) {
+function FilterDialogContent({ payload }: { payload: FilterPayload }) {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState(payload?.initialQuery ?? "");
   const [debouncedValue, setDebouncedValue] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-  // Load recent searches from localStorage
   useEffect(() => {
     const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
-    if (stored) {
-      try {
-        setRecentSearches(JSON.parse(stored));
-      } catch {
-        setRecentSearches([]);
-      }
+    if (!stored) return;
+    try {
+      setRecentSearches(JSON.parse(stored));
+    } catch {
+      setRecentSearches([]);
     }
   }, []);
-
-  // Initialize with payload
   useEffect(() => {
-    if (payload?.initialQuery) {
-      setSearchValue(payload.initialQuery);
-      setDebouncedValue(payload.initialQuery);
-    }
+    if (!payload?.initialQuery) return;
+    setSearchValue(payload.initialQuery);
+    setDebouncedValue(payload.initialQuery);
   }, [payload?.initialQuery]);
-
-  // Debounce updates
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(searchValue), DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchValue]);
 
   const hasSearchValue = debouncedValue.trim().length > 0;
-
   const { data: searchResults, isLoading } = useQuery<
     ClientOutputs["app"]["post"]["search"]
   >({
@@ -84,48 +65,29 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
     }),
     enabled: hasSearchValue,
   });
-
   const saveRecentSearch = useCallback((query: string) => {
     const trimmed = query.trim();
     if (!trimmed) return;
-    setRecentSearches((prev) => {
-      const filtered = prev.filter((item) => item !== trimmed);
-      const next = [trimmed, ...filtered].slice(0, MAX_RECENT_SEARCHES);
+    setRecentSearches((previous) => {
+      const next = [
+        trimmed,
+        ...previous.filter((item) => item !== trimmed),
+      ].slice(0, MAX_RECENT_SEARCHES);
       localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
       return next;
     });
   }, []);
-
   const removeRecentSearch = useCallback((query: string) => {
-    setRecentSearches((prev) => {
-      const next = prev.filter((item) => item !== query);
+    setRecentSearches((previous) => {
+      const next = previous.filter((item) => item !== query);
       localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
       return next;
     });
   }, []);
-
-  const handleTagClick = useCallback(
-    (tagSlug: string) => {
-      if (searchValue) {
-        saveRecentSearch(searchValue);
-      }
-      filterDialog.close();
-      navigate({
-        to: "/",
-        search: (prev) => ({ ...prev, tag: tagSlug }),
-      });
-    },
-    [navigate, saveRecentSearch, searchValue]
-  );
-
   const handlePostClick = useCallback(
     ({ postId, userId }: { postId: string; userId: string | null }) => {
-      if (!userId) {
-        return;
-      }
-      if (searchValue) {
-        saveRecentSearch(searchValue);
-      }
+      if (!userId) return;
+      saveRecentSearch(searchValue);
       filterDialog.close();
       navigate({
         to: "/$userSlug/$postSlug",
@@ -134,33 +96,21 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
     },
     [navigate, saveRecentSearch, searchValue]
   );
-
-  const handleCreatePost = () => {
-    filterDialog.close();
-    postFormDialog.openWithPayload({ mode: "create" });
-  };
-
-  const hasResults = useMemo(
-    () =>
-      !!searchResults &&
-      (searchResults.posts.length > 0 ||
-        searchResults.tags.length > 0 ||
-        searchResults.users.length > 0),
-    [searchResults]
-  );
-
   const handleUserClick = useCallback(
     (userId: string) => {
-      if (searchValue) {
-        saveRecentSearch(searchValue);
-      }
+      saveRecentSearch(searchValue);
       filterDialog.close();
-      navigate({
-        to: "/$userSlug",
-        params: { userSlug: userId },
-      });
+      navigate({ to: "/$userSlug", params: { userSlug: userId } });
     },
     [navigate, saveRecentSearch, searchValue]
+  );
+  const hasResults = useMemo(
+    () =>
+      Boolean(
+        searchResults &&
+        (searchResults.posts.length || searchResults.users.length)
+      ),
+    [searchResults]
   );
 
   return (
@@ -172,7 +122,6 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
           value={searchValue}
         />
       </div>
-
       <div className="min-h-0 flex-1 overflow-hidden">
         {hasSearchValue ? (
           <ScrollArea className="h-full">
@@ -184,15 +133,12 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
               ) : hasResults ? (
                 <FilterSearchResults
                   onPostClick={handlePostClick}
-                  onTagClick={handleTagClick}
                   onUserClick={handleUserClick}
                   posts={searchResults?.posts ?? []}
-                  query={debouncedValue}
-                  tags={searchResults?.tags ?? []}
                   users={searchResults?.users ?? []}
                 />
               ) : (
-                <FilterEmptyResults onCreatePost={handleCreatePost} />
+                <FilterEmptyResults />
               )}
             </div>
           </ScrollArea>
@@ -207,12 +153,10 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
               }}
               searches={recentSearches}
             />
-
-            <FilterBrowseTabs
-              className="min-h-0 flex-1"
-              onTagClick={handleTagClick}
-              onUserClick={handleUserClick}
-            />
+            <p className="mt-8 text-sm text-muted-foreground">
+              Search published content by title or description, or find a member
+              by name.
+            </p>
           </div>
         )}
       </div>

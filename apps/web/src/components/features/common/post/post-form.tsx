@@ -1,37 +1,25 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { MediaCarouselUpload } from "@/components/features/common/media/media-carousel-upload";
-import { TagSelect } from "@/components/features/common/tag/tag-select";
+import { ImageUpload } from "@/components/features/common/media/image-upload";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-
-const commentLimit = 500;
-const promptLimit = 1000;
 
 export type PostFormValues = {
   id?: string;
-  prompt: string;
-  comment: string;
-  media: string[];
-  isPublic: boolean;
-  tagIds: string[];
+  title: string;
+  description: string;
+  cover: string | null;
+  content: string;
+  status: "draft" | "published";
 };
 
 interface PostFormProps {
   mode: "create" | "edit";
-  initialValues?: {
-    id?: string;
-    prompt?: string | null;
-    comment?: string | null;
-    media?: string[] | null;
-    isPublic?: boolean;
-    tagIds?: string[];
-  };
+  initialValues?: Partial<PostFormValues>;
   isSubmitting?: boolean;
-  uploadType?: "user" | "admin" | "public";
   onCancel?: () => void;
   onSubmit: (values: PostFormValues) => Promise<void> | void;
 }
@@ -40,150 +28,153 @@ export function PostForm({
   mode,
   initialValues,
   isSubmitting = false,
-  uploadType = "user",
   onCancel,
   onSubmit,
 }: PostFormProps) {
-  const [form, setForm] = useState<{
-    id?: string;
-    prompt: string;
-    comment: string;
-    media: Array<string | null>;
-    isPublic: boolean;
-    tagIds: string[];
-  }>(() => ({
+  const [form, setForm] = useState<PostFormValues>(() => ({
     id: initialValues?.id,
-    prompt: initialValues?.prompt ?? "",
-    comment: initialValues?.comment ?? "",
-    media: initialValues?.media?.length ? initialValues.media : [null],
-    isPublic: initialValues?.isPublic ?? false,
-    tagIds: initialValues?.tagIds ?? [],
+    title: initialValues?.title ?? "",
+    description: initialValues?.description ?? "",
+    cover: initialValues?.cover ?? null,
+    content: initialValues?.content ?? "",
+    status: initialValues?.status ?? "draft",
   }));
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!form.comment.trim()) {
-      toast.error("Comment is required");
+    const title = form.title.trim();
+    const content = form.content.trim();
+    if (!title || !content) {
+      toast.error("Add a title and content before saving.");
       return;
     }
-
     await onSubmit({
-      id: form.id,
-      prompt: form.prompt.trim(),
-      comment: form.comment.trim(),
-      media: form.media
-        .map((url) => url?.trim() ?? "")
-        .filter(Boolean)
-        .slice(0, 10),
-      isPublic: form.isPublic,
-      tagIds: form.tagIds,
+      ...form,
+      title,
+      content,
+      description: form.description.trim(),
     });
   };
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-4">
+      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_13rem]">
+        <div className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="post-comment">Comment</Label>
-            <Textarea
-              className="h-20"
-              id="post-comment"
-              maxLength={commentLimit}
+            <Label htmlFor="post-title">Title</Label>
+            <Input
+              autoFocus
+              id="post-title"
+              maxLength={160}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, comment: event.target.value }))
+                setForm((prev) => ({ ...prev, title: event.target.value }))
               }
+              placeholder="A clear, useful title"
               required
-              rows={6}
-              value={form.comment}
-            />
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="text-pretty">
-                Max {commentLimit} characters.
-              </span>
-              <span className="tabular-nums">
-                {form.comment.length}/{commentLimit}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <MediaCarouselUpload
-              addLabel="Add"
-              disabled={isSubmitting}
-              label={<Label>Medias</Label>}
-              maxItems={10}
-              mediaType="image"
-              onChange={(next) => setForm((prev) => ({ ...prev, media: next }))}
-              uploadType={uploadType}
-              value={form.media}
+              value={form.title}
             />
           </div>
-        </div>
-
-        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="post-prompt">Prompt</Label>
+            <Label htmlFor="post-description">Description</Label>
             <Textarea
-              className="h-50"
-              id="post-prompt"
-              maxLength={promptLimit}
+              className="min-h-24 resize-y"
+              id="post-description"
+              maxLength={500}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, prompt: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  description: event.target.value,
+                }))
               }
-              rows={6}
-              value={form.prompt}
+              placeholder="A short summary for the content list"
+              rows={3}
+              value={form.description}
             />
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="text-pretty">Max {promptLimit} characters.</span>
-              <span className="tabular-nums">
-                {form.prompt.length}/{promptLimit}
-              </span>
-            </div>
+            <p className="text-right text-muted-foreground text-xs">
+              {form.description.length}/500
+            </p>
           </div>
-
-          <div>
-            <Label className="mb-2">Tags</Label>
-            <TagSelect
-              matchBy="id"
-              onChange={(value) =>
-                setForm((prev) => ({ ...prev, tagIds: value }))
+          <div className="space-y-2">
+            <Label htmlFor="post-content">Content</Label>
+            <Textarea
+              className="min-h-72 resize-y leading-relaxed"
+              id="post-content"
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, content: event.target.value }))
               }
-              placeholder="Select tags..."
-              value={form.tagIds}
+              placeholder="Write the full article or page content…"
+              required
+              rows={14}
+              value={form.content}
             />
           </div>
         </div>
+
+        <aside className="space-y-5">
+          <div className="space-y-2">
+            <Label>Cover</Label>
+            <ImageUpload
+              className="w-full"
+              onChange={(cover) => setForm((prev) => ({ ...prev, cover }))}
+              size="cover"
+              uploadType="admin"
+              value={form.cover}
+              variant="square"
+            />
+            <p className="text-muted-foreground text-xs">
+              One image used in the feed and article header.
+            </p>
+          </div>
+          <fieldset className="space-y-2">
+            <legend className="font-medium text-sm">Status</legend>
+            <div className="grid gap-2">
+              <Button
+                aria-pressed={form.status === "draft"}
+                className="justify-start"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, status: "draft" }))
+                }
+                type="button"
+                variant={form.status === "draft" ? "secondary" : "outline"}
+              >
+                <span className="i-hugeicons-edit-02 size-4" /> Draft
+              </Button>
+              <Button
+                aria-pressed={form.status === "published"}
+                className="justify-start"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, status: "published" }))
+                }
+                type="button"
+                variant={form.status === "published" ? "default" : "outline"}
+              >
+                <span className="i-hugeicons-checkmark-circle-02 size-4" />{" "}
+                Published
+              </Button>
+            </div>
+          </fieldset>
+        </aside>
       </div>
 
-      <DialogFooter className="py-3 sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Label htmlFor="public">Public</Label>
-          <Switch
-            checked={form.isPublic}
-            id="public"
-            onCheckedChange={(value) =>
-              setForm((prev) => ({ ...prev, isPublic: value }))
-            }
-          />
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            disabled={isSubmitting}
-            onClick={onCancel}
-            type="button"
-            variant="outline"
-          >
-            Cancel
-          </Button>
-          <Button disabled={isSubmitting} type="submit">
-            {isSubmitting
-              ? "Saving..."
-              : mode === "edit"
-                ? "Save Post"
-                : "Create Post"}
-          </Button>
-        </div>
+      <DialogFooter className="border-t border-border pt-4 sm:justify-between">
+        <p className="mr-auto text-muted-foreground text-xs">
+          Publishing makes this content visible to everyone.
+        </p>
+        <Button
+          disabled={isSubmitting}
+          onClick={onCancel}
+          type="button"
+          variant="outline"
+        >
+          Cancel
+        </Button>
+        <Button disabled={isSubmitting} type="submit">
+          {isSubmitting
+            ? "Saving…"
+            : mode === "edit"
+              ? "Save changes"
+              : "Save content"}
+        </Button>
       </DialogFooter>
     </form>
   );

@@ -1,4 +1,4 @@
-import { PostFeedSort, site } from "@actnow/common";
+import { site } from "@actnow/common";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { FeedSection } from "@/components/features/app/home/feed-section";
@@ -7,16 +7,9 @@ import { HomeSkeleton } from "@/components/features/app/home/home-skeleton";
 import { orpc } from "@/lib/orpc";
 import { createPageMeta } from "@/lib/seo";
 
-const searchSchema = z.object({
-  sort: z
-    .enum([PostFeedSort.LATEST, PostFeedSort.POPULAR])
-    .optional()
-    .default(PostFeedSort.LATEST),
-  tag: z.string().optional(), // comma separated tag slugs
-});
-
+const searchSchema = z.object({ q: z.string().optional() });
 const homeMeta = createPageMeta({
-  description: `${site.description} Discover curated website designs.`,
+  description: `${site.description} Latest published content.`,
   url: "/",
 });
 
@@ -24,24 +17,16 @@ export const Route = createFileRoute("/(app)/")({
   component: HomeComponent,
   pendingComponent: HomeSkeleton,
   validateSearch: searchSchema,
-  loaderDeps: ({ search }) => ({
-    sort: search.sort,
-    tagSlugs: search.tag?.split(",").filter(Boolean),
-  }),
-  head: () => ({
-    meta: homeMeta.meta,
-    links: homeMeta.links,
-  }),
+  loaderDeps: ({ search }) => ({ search: search.q }),
+  head: () => ({ meta: homeMeta.meta, links: homeMeta.links }),
   loader: async ({ context, deps }) => {
-    const { sort, tagSlugs } = deps;
     await context.queryClient.prefetchInfiniteQuery(
       orpc.app.post.list.infiniteOptions({
-        input: (pageParam) => ({
-          cursor: pageParam,
+        input: (cursor) => ({
+          cursor,
           limit: 12,
-          sort,
-          tagSlugs,
-          visibility: "public",
+          sort: "latest",
+          search: deps.search,
         }),
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
@@ -51,14 +36,11 @@ export const Route = createFileRoute("/(app)/")({
 });
 
 function HomeComponent() {
-  const { sort, tag } = Route.useSearch();
-  const tagSlugs = tag?.split(",").filter(Boolean);
-
+  const { q } = Route.useSearch();
   return (
     <div className="flex flex-col">
-      <HeroSection currentTagSlugs={tagSlugs} sort={sort} />
-
-      <FeedSection sort={sort} tagSlugs={tagSlugs} />
+      <HeroSection />
+      <FeedSection search={q} />
     </div>
   );
 }
