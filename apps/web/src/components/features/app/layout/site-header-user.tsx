@@ -1,4 +1,4 @@
-import { site, UserRole } from "@actnow/common";
+import { UserRole } from "@actnow/common";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,11 +15,6 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { getInitials } from "@/lib/formatters";
 import { orpc } from "@/lib/orpc";
-import { getPlanLabel, getSubscriptionStatusLabel } from "@/lib/subscription";
-import {
-  getFirstSubscriptionSnapshot,
-  getSessionSubscriptionSnapshot,
-} from "@/lib/subscription-snapshot";
 
 interface SiteHeaderUserProps {
   initialUser: {
@@ -47,16 +42,6 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
     email: profile?.email ?? user.email,
     image: profile?.image ?? user.image,
   };
-  const subscription = getFirstSubscriptionSnapshot(
-    profile?.subscription,
-    getSessionSubscriptionSnapshot(session?.user)
-  );
-  const subscriptionSummary = subscription
-    ? `${getPlanLabel(subscription.plan)} · ${getSubscriptionStatusLabel(
-        subscription.status
-      )}`
-    : "Free";
-
   const isAdmin = user.role === UserRole.ADMIN;
 
   return (
@@ -84,10 +69,9 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
         }
       />
 
-      <DropdownMenuContent align="end" className="w-60 rounded-2xl">
-        {/* User info section */}
+      <DropdownMenuContent align="end" className="w-52 rounded-2xl">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex items-center gap-1.5 font-normal">
+          <DropdownMenuLabel className="flex items-center gap-2 font-normal">
             <Avatar className="size-8">
               <AvatarImage
                 alt={displayUser.name}
@@ -110,76 +94,42 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
 
         <DropdownMenuSeparator />
 
-        {/* User actions */}
         <DropdownMenuGroup>
-          {user?.id && (
-            <DropdownMenuItem
-              render={<Link params={{ userSlug: user.id }} to="/$userSlug" />}
-            >
-              <span className="i-hugeicons-user-account" />
-              Profile
-            </DropdownMenuItem>
-          )}
-
-          <DropdownMenuItem render={<Link to="/prices" />}>
-            <span className="i-hugeicons-credit-card" />
-            <span>Prices</span>
-            <span className="ml-auto text-muted-foreground text-xs">
-              {subscriptionSummary}
-            </span>
-          </DropdownMenuItem>
-
-          {/* Admin Dashboard */}
           {isAdmin && (
             <DropdownMenuItem onClick={() => navigate({ to: "/panel" })}>
-              <span className="i-hugeicons-dashboard-square-02" />
-              Dashboard
+              <span className="i-hugeicons-dashboard-browsing" />
+              Content management
             </DropdownMenuItem>
           )}
-
-          {/* My Feedback */}
-          <DropdownMenuItem render={<Link to="/feedback" />}>
-            <span className="i-hugeicons-chat-feedback-01" />
-            Feedback
-          </DropdownMenuItem>
 
           <DropdownMenuItem render={<Link to="/account" />}>
             <span className="i-hugeicons-home-01" />
             Your space
           </DropdownMenuItem>
+
+          <DropdownMenuItem render={<Link to="/account/profile" />}>
+            <span className="i-hugeicons-user-account" />
+            Profile
+          </DropdownMenuItem>
+
+          <DropdownMenuItem render={<Link to="/account/subscription" />}>
+            <span className="i-hugeicons-credit-card" />
+            Subscription
+          </DropdownMenuItem>
+
           <DropdownMenuItem render={<Link to="/account/settings" />}>
             <span className="i-hugeicons-account-setting-03" />
             Settings
           </DropdownMenuItem>
-        </DropdownMenuGroup>
 
-        <DropdownMenuSeparator />
-
-        {/* Links */}
-        <DropdownMenuGroup>
-          <DropdownMenuItem render={<Link to="/about" />}>
-            <span className="i-hugeicons-information-circle" />
-            About
+          <DropdownMenuItem render={<Link to="/feedback" />}>
+            <span className="i-hugeicons-chat-feedback-01" />
+            Feedback
           </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={() => window.open(site.githubUrl, "_blank", "noopener")}
-            render={
-              <a
-                href={site.githubUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <span className="i-hugeicons-github" />
-                GitHub
-              </a>
-            }
-          />
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        {/* Sign out */}
         <DropdownMenuGroup>
           <DropdownMenuItem
             onClick={() => {

@@ -1,4 +1,4 @@
-import { site, UserRole } from "@actnow/common";
+import { site } from "@actnow/common";
 import { Link } from "@tanstack/react-router";
 import { lazy, Suspense, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -72,19 +72,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
             </Suspense>
           ) : null}
           {user ? (
-            <>
-              {user.role === UserRole.ADMIN && (
-                <Button
-                  className="rounded-full max-sm:size-9 max-sm:px-0"
-                  nativeButton={false}
-                  render={<Link to="/panel" />}
-                >
-                  <span className="i-hugeicons-edit-table size-4" />
-                  <span className="max-sm:hidden">Manage content</span>
-                </Button>
-              )}
-              <SiteHeaderUser initialUser={user} />
-            </>
+            <SiteHeaderUser initialUser={user} />
           ) : (
             <>
               <Button

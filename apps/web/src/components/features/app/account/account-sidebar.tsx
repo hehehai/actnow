@@ -14,7 +14,7 @@ import { orpc } from "@/lib/orpc";
 import { authQueryOptions } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
-const accountItems = [
+const dashboardItems = [
   {
     to: "/account",
     label: "Overview",
@@ -27,6 +27,21 @@ const accountItems = [
     icon: "i-hugeicons-chat-feedback-01",
     exact: false,
   },
+] as const;
+
+const accountItems = [
+  {
+    to: "/account/profile",
+    label: "Profile",
+    icon: "i-hugeicons-user-account",
+    exact: false,
+  },
+  {
+    to: "/account/subscription",
+    label: "Subscription",
+    icon: "i-hugeicons-credit-card",
+    exact: false,
+  },
   {
     to: "/account/settings",
     label: "Settings",
@@ -34,6 +49,8 @@ const accountItems = [
     exact: false,
   },
 ] as const;
+
+const navigationItems = [...dashboardItems, ...accountItems];
 
 export function AccountSidebar() {
   const location = useLocation();
@@ -46,7 +63,7 @@ export function AccountSidebar() {
     email: profile?.email ?? user?.email ?? "",
     image: profile?.image ?? user?.image,
   };
-  const activeItem = accountItems.find((item) =>
+  const activeItem = navigationItems.find((item) =>
     item.exact
       ? location.pathname === item.to
       : location.pathname.startsWith(item.to)
@@ -60,11 +77,7 @@ export function AccountSidebar() {
   return (
     <aside className="space-y-4">
       <section className="rounded-2xl border border-border bg-card p-5">
-        <Link
-          className="flex flex-col items-center text-center"
-          params={{ userSlug: displayUser.id ?? "" }}
-          to="/$userSlug"
-        >
+        <div className="flex flex-col items-center text-center">
           <Avatar className="size-16 rounded-2xl">
             {displayUser.image && (
               <AvatarImage alt={displayUser.name} src={displayUser.image} />
@@ -79,7 +92,7 @@ export function AccountSidebar() {
           <span className="mt-1 max-w-full truncate text-muted-foreground text-xs">
             {displayUser.email}
           </span>
-        </Link>
+        </div>
         <Button
           className="mt-4 w-full rounded-xl"
           onClick={signOut}
@@ -111,7 +124,7 @@ export function AccountSidebar() {
             <span className="i-hugeicons-unfold-more size-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="min-w-52">
-            {accountItems.map((item) => (
+            {navigationItems.map((item) => (
               <DropdownMenuItem key={item.to} render={<Link to={item.to} />}>
                 {item.label}
               </DropdownMenuItem>
@@ -124,7 +137,32 @@ export function AccountSidebar() {
         <p className="mb-2 px-1 font-medium text-[11px] text-muted-foreground uppercase tracking-[0.16em]">
           Your space
         </p>
-        <nav aria-label="Account navigation" className="space-y-1">
+        <nav aria-label="Your space" className="space-y-1">
+          {dashboardItems.map((item) => {
+            const active = item.exact
+              ? location.pathname === item.to
+              : location.pathname.startsWith(item.to);
+            return (
+              <Link
+                className={cn(
+                  "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition",
+                  active
+                    ? "bg-card font-medium text-foreground shadow-xs"
+                    : "text-muted-foreground hover:bg-card/70 hover:text-foreground"
+                )}
+                key={item.to}
+                to={item.to}
+              >
+                <span className={cn(item.icon, "size-4")} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <p className="mt-4 mb-2 px-1 font-medium text-[11px] text-muted-foreground uppercase tracking-[0.16em]">
+          Account
+        </p>
+        <nav aria-label="Account settings" className="space-y-1">
           {accountItems.map((item) => {
             const active = item.exact
               ? location.pathname === item.to

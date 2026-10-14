@@ -33,7 +33,9 @@ import { Route as appuserFeedbackRouteImport } from './routes/(app)/(user)/feedb
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as appuserAccountIndexRouteImport } from './routes/(app)/(user)/account/index'
+import { Route as appuserAccountProfileRouteImport } from './routes/(app)/(user)/account/profile'
 import { Route as appuserAccountSettingsRouteImport } from './routes/(app)/(user)/account/settings'
+import { Route as appuserAccountSubscriptionRouteImport } from './routes/(app)/(user)/account/subscription'
 
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
@@ -153,11 +155,22 @@ const appuserAccountIndexRoute = appuserAccountIndexRouteImport.update({
   path: '/',
   getParentRoute: () => appuserAccountRouteRoute,
 } as any)
+const appuserAccountProfileRoute = appuserAccountProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => appuserAccountRouteRoute,
+} as any)
 const appuserAccountSettingsRoute = appuserAccountSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => appuserAccountRouteRoute,
 } as any)
+const appuserAccountSubscriptionRoute =
+  appuserAccountSubscriptionRouteImport.update({
+    id: '/subscription',
+    path: '/subscription',
+    getParentRoute: () => appuserAccountRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/panel': typeof adminPanelRouteRouteWithChildren
@@ -181,7 +194,9 @@ export interface FileRoutesByFullPath {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
   '/$userSlug/': typeof appUserSlugIndexRoute
+  '/account/profile': typeof appuserAccountProfileRoute
   '/account/settings': typeof appuserAccountSettingsRoute
+  '/account/subscription': typeof appuserAccountSubscriptionRoute
   '/account/': typeof appuserAccountIndexRoute
 }
 export interface FileRoutesByTo {
@@ -204,7 +219,9 @@ export interface FileRoutesByTo {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
   '/$userSlug': typeof appUserSlugIndexRoute
+  '/account/profile': typeof appuserAccountProfileRoute
   '/account/settings': typeof appuserAccountSettingsRoute
+  '/account/subscription': typeof appuserAccountSubscriptionRoute
   '/account': typeof appuserAccountIndexRoute
 }
 export interface FileRoutesById {
@@ -232,7 +249,9 @@ export interface FileRoutesById {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
   '/(app)/$userSlug/': typeof appUserSlugIndexRoute
+  '/(app)/(user)/account/profile': typeof appuserAccountProfileRoute
   '/(app)/(user)/account/settings': typeof appuserAccountSettingsRoute
+  '/(app)/(user)/account/subscription': typeof appuserAccountSubscriptionRoute
   '/(app)/(user)/account/': typeof appuserAccountIndexRoute
 }
 export interface FileRouteTypes {
@@ -259,7 +278,9 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/panel/'
     | '/$userSlug/'
+    | '/account/profile'
     | '/account/settings'
+    | '/account/subscription'
     | '/account/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -282,7 +303,9 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/panel'
     | '/$userSlug'
+    | '/account/profile'
     | '/account/settings'
+    | '/account/subscription'
     | '/account'
   id:
     | '__root__'
@@ -309,7 +332,9 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/(admin)/panel/'
     | '/(app)/$userSlug/'
+    | '/(app)/(user)/account/profile'
     | '/(app)/(user)/account/settings'
+    | '/(app)/(user)/account/subscription'
     | '/(app)/(user)/account/'
   fileRoutesById: FileRoutesById
 }
@@ -491,6 +516,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appuserAccountIndexRouteImport
       parentRoute: typeof appuserAccountRouteRoute
     }
+    '/(app)/(user)/account/profile': {
+      id: '/(app)/(user)/account/profile'
+      path: '/profile'
+      fullPath: '/account/profile'
+      preLoaderRoute: typeof appuserAccountProfileRouteImport
+      parentRoute: typeof appuserAccountRouteRoute
+    }
     '/(app)/(user)/account/settings': {
       id: '/(app)/(user)/account/settings'
       path: '/settings'
@@ -498,16 +530,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appuserAccountSettingsRouteImport
       parentRoute: typeof appuserAccountRouteRoute
     }
+    '/(app)/(user)/account/subscription': {
+      id: '/(app)/(user)/account/subscription'
+      path: '/subscription'
+      fullPath: '/account/subscription'
+      preLoaderRoute: typeof appuserAccountSubscriptionRouteImport
+      parentRoute: typeof appuserAccountRouteRoute
+    }
   }
 }
 
 interface appuserAccountRouteRouteChildren {
+  appuserAccountProfileRoute: typeof appuserAccountProfileRoute
   appuserAccountSettingsRoute: typeof appuserAccountSettingsRoute
+  appuserAccountSubscriptionRoute: typeof appuserAccountSubscriptionRoute
   appuserAccountIndexRoute: typeof appuserAccountIndexRoute
 }
 
 const appuserAccountRouteRouteChildren: appuserAccountRouteRouteChildren = {
+  appuserAccountProfileRoute: appuserAccountProfileRoute,
   appuserAccountSettingsRoute: appuserAccountSettingsRoute,
+  appuserAccountSubscriptionRoute: appuserAccountSubscriptionRoute,
   appuserAccountIndexRoute: appuserAccountIndexRoute,
 }
 

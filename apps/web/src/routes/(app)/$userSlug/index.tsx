@@ -1,9 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { PostCard } from "@/components/features/app/post/post-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc";
 import { authQueryOptions } from "@/lib/queries";
 import { createPageMeta } from "@/lib/seo";
@@ -16,7 +15,11 @@ const profileMeta = createPageMeta({
 export const Route = createFileRoute("/(app)/$userSlug/")({
   head: () => ({ meta: profileMeta.meta, links: profileMeta.links }),
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(authQueryOptions());
+    const sessionUser =
+      await context.queryClient.ensureQueryData(authQueryOptions());
+    if (sessionUser?.id === params.userSlug) {
+      throw redirect({ to: "/account/profile" });
+    }
     try {
       await context.queryClient.ensureQueryData(
         orpc.app.user.publicProfile.queryOptions({
@@ -38,17 +41,12 @@ export const Route = createFileRoute("/(app)/$userSlug/")({
 
 function UserProfilePage() {
   const { userSlug } = Route.useParams();
-  const { data: sessionUser } = useSuspenseQuery(authQueryOptions());
   const { data } = useSuspenseQuery(
     orpc.app.user.publicProfile.queryOptions({ input: { id: userSlug } })
   );
-  const isOwnProfile = sessionUser?.id === userSlug;
   const published = data.posts.filter(
     (item) => item.post.status === "published"
   );
-  const drafts = isOwnProfile
-    ? data.posts.filter((item) => item.post.status === "draft")
-    : [];
   const socialLinks = data.user.socialLinks ?? [];
 
   return (
@@ -99,22 +97,11 @@ function UserProfilePage() {
             </nav>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <div>
-            <p className="text-muted-foreground text-xs">Published</p>
-            <p className="font-medium text-2xl tabular-nums">
-              {published.length}
-            </p>
-          </div>
-          {isOwnProfile && (
-            <Button
-              nativeButton={false}
-              render={<Link to="/account/settings" />}
-              variant="outline"
-            >
-              Edit profile
-            </Button>
-          )}
+        <div>
+          <p className="text-muted-foreground text-xs">Published</p>
+          <p className="font-medium text-2xl tabular-nums">
+            {published.length}
+          </p>
         </div>
       </section>
       <section className="space-y-5">
@@ -142,26 +129,6 @@ function UserProfilePage() {
           </div>
         )}
       </section>
-      {drafts.length > 0 && (
-        <section className="space-y-5">
-          <header>
-            <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.16em]">
-              Admin workspace
-            </p>
-            <h2 className="mt-1 font-medium text-2xl tracking-tight">Drafts</h2>
-          </header>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {drafts.map((item) => (
-              <PostCard
-                author={item.author}
-                key={item.post.id}
-                post={item.post}
-                hideAuthor
-              />
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

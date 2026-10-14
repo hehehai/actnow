@@ -120,19 +120,12 @@ function AccountDashboardPage() {
         <h2 className="mb-3 font-medium text-[11px] text-muted-foreground uppercase tracking-[0.16em]">
           Account
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:max-w-xl">
           <QuickLink
             description="Update your name, avatar, and profile details."
             icon="i-hugeicons-user-account"
             label="Edit profile"
-            to="/account/settings"
-          />
-          <QuickLink
-            description="View your public Actnow profile."
-            icon="i-hugeicons-arrow-up-right-01"
-            label="Public profile"
-            params={{ userSlug: user?.id ?? "" }}
-            to="/$userSlug"
+            to="/account/profile"
           />
         </div>
       </section>
@@ -156,18 +149,15 @@ function QuickLink({
   icon,
   label,
   to,
-  params,
 }: {
   description: string;
   icon: string;
   label: string;
-  to: "/account/settings" | "/$userSlug";
-  params?: { userSlug: string };
+  to: "/account/profile";
 }) {
   return (
     <Link
       className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-brand"
-      params={params}
       to={to}
     >
       <span
